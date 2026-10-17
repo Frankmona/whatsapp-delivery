@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const axios = require('axios');
 const { createClient } = require('@supabase/supabase-js');
 
@@ -87,16 +88,311 @@ function extractDistrictName(address) {
   return address.split(',')[0].trim();
 }
 
+// --- Admin Authentication & Role Management ---
+const JWT_SECRET = process.env.JWT_SECRET || process.env.VERIFY_TOKEN || 'fm_xpress_jwt_secret_2026';
+const MASTER_ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@fmxpress.com').toLowerCase().trim();
+const MASTER_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'Admin@FmXpress2026!';
+
+function hashPassword(password) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+  return `${salt}:${hash}`;
+}
+
+function verifyPassword(password, storedHash) {
+  if (!storedHash) return false;
+  if (!storedHash.includes(':')) {
+    return password === storedHash;
+  }
+  const [salt, originalHash] = storedHash.split(':');
+  const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+  return crypto.timingSafeEqual(Buffer.from(hash), Buffer.from(originalHash));
+}
+
+function generateToken(payload) {
+  const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64url');
+  const body = Buffer.from(JSON.stringify({ ...payload, exp: Date.now() + (14 * 24 * 60 * 60 * 1000) })).toString('base64url');
+  const signature = crypto.createHmac('sha256', JWT_SECRET).update(`${header}.${body}`).digest('base64url');
+  return `${header}.${body}.${signature}`;
+}
+
+function verifyToken(token) {
+  if (!token) return null;
+  const parts = token.split('.');
+  if (parts.length !== 3) return null;
+  const [header, body, signature] = parts;
+  const expectedSig = crypto.createHmac('sha256', JWT_SECRET).update(`${header}.${body}`).digest('base64url');
+  if (signature !== expectedSig) return null;
+  try {
+    const payload = JSON.parse(Buffer.from(body, 'base64url').toString('utf8'));
+    if (payload.exp && Date.now() > payload.exp) return null;
+    return payload;
+  } catch (e) {
+    return null;
+  }
+}
+
+function authMiddleware(requiredRole = null) {
+  return (req, res, next) => {
+    const authHeader = req.headers['authorization'];
+    const token = (authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null) || req.query.token;
+
+    if (!token) {
+      return res.status(401).json({ success: false, error: 'Authentication required. Please sign in.' });
+    }
+
+    const decoded = verifyToken(token);
+    if (!decoded) {
+      return res.status(401).json({ success: false, error: 'Session expired or invalid. Please sign in again.' });
+    }
+
+    req.user = decoded;
+
+    if (requiredRole === 'admin' && decoded.role !== 'admin' && decoded.role !== 'super_admin') {
+      return res.status(403).json({ success: false, error: 'Access denied: Requires Administrator role.' });
+    }
+
+    next();
+  };
+}
+
+const ADMIN_USERS_FILE = path.join(__dirname, 'admin_users.json');
+
+function getLocalAdminUsers() {
+  try {
+    if (fs.existsSync(ADMIN_USERS_FILE)) {
+      return JSON.parse(fs.readFileSync(ADMIN_USERS_FILE, 'utf8'));
+    }
+  } catch (err) {
+    console.error('Error reading local admin users file:', err.message);
+  }
+  return [];
+}
+
+function saveLocalAdminUsers(users) {
+  try {
+    fs.writeFileSync(ADMIN_USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
+  } catch (err) {
+    console.error('Error saving local admin users file:', err.message);
+  }
+}
+
+// POST /api/admin/login
+app.post('/api/admin/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).json({ success: false, error: 'Email and password are required.' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+
+    // 1. Try checking Supabase admin_users table
+    try {
+      const { data: dbUser } = await supabase
+        .from('admin_users')
+        .select('*')
+        .eq('email', cleanEmail)
+        .maybeSingle();
+
+      if (dbUser && verifyPassword(password, dbUser.password_hash)) {
+        const token = generateToken({
+          id: dbUser.id,
+          email: dbUser.email,
+          name: dbUser.name,
+          role: dbUser.role || 'admin'
+        });
+        return res.json({
+          success: true,
+          token,
+          user: { id: dbUser.id, email: dbUser.email, name: dbUser.name, role: dbUser.role || 'admin' }
+        });
+      }
+    } catch (dbErr) {
+      console.warn('[Admin Auth] Supabase lookup note:', dbErr.message);
+    }
+
+    // 2. Check Local File Fallback
+    const localUsers = getLocalAdminUsers();
+    const localMatch = localUsers.find(u => u.email === cleanEmail);
+    if (localMatch && verifyPassword(password, localMatch.password_hash)) {
+      const token = generateToken({
+        id: localMatch.id,
+        email: localMatch.email,
+        name: localMatch.name,
+        role: localMatch.role || 'dispatcher'
+      });
+      return res.json({
+        success: true,
+        token,
+        user: { id: localMatch.id, email: localMatch.email, name: localMatch.name, role: localMatch.role || 'dispatcher' }
+      });
+    }
+
+    // 3. Check Master Admin Credentials (fallback)
+    if (cleanEmail === MASTER_ADMIN_EMAIL && (password === MASTER_ADMIN_PASSWORD || verifyPassword(password, hashPassword(MASTER_ADMIN_PASSWORD)))) {
+      const token = generateToken({
+        id: 'super-admin-01',
+        email: MASTER_ADMIN_EMAIL,
+        name: 'Lead Dispatch Admin',
+        role: 'super_admin'
+      });
+      return res.json({
+        success: true,
+        token,
+        user: { id: 'super-admin-01', email: MASTER_ADMIN_EMAIL, name: 'Lead Dispatch Admin', role: 'super_admin' }
+      });
+    }
+
+    return res.status(401).json({ success: false, error: 'Invalid email or password.' });
+  } catch (err) {
+    console.error('[Admin Login Error]:', err.message);
+    res.status(500).json({ success: false, error: 'An error occurred during authentication.' });
+  }
+});
+
+// GET /api/admin/me
+app.get('/api/admin/me', authMiddleware(), (req, res) => {
+  res.json({ success: true, user: req.user });
+});
+
+// GET /api/admin/users
+app.get('/api/admin/users', authMiddleware('admin'), async (req, res) => {
+  try {
+    let dbUsers = [];
+    try {
+      const { data, error } = await supabase
+        .from('admin_users')
+        .select('id, email, name, role, created_at')
+        .order('created_at', { ascending: false });
+      if (!error && data) dbUsers = data;
+    } catch (dbErr) {
+      // Supabase table not created yet
+    }
+
+    const localUsers = getLocalAdminUsers().map(u => ({
+      id: u.id,
+      email: u.email,
+      name: u.name,
+      role: u.role,
+      created_at: u.created_at
+    }));
+
+    // Merge and deduplicate by email
+    const all = [...dbUsers];
+    for (const u of localUsers) {
+      if (!all.find(x => x.email === u.email)) all.push(u);
+    }
+
+    // Always include Master Admin
+    if (!all.find(x => x.email === MASTER_ADMIN_EMAIL)) {
+      all.unshift({
+        id: 'super-admin-01',
+        email: MASTER_ADMIN_EMAIL,
+        name: 'Lead Dispatch Admin',
+        role: 'super_admin',
+        created_at: new Date().toISOString()
+      });
+    }
+
+    res.json({ success: true, users: all });
+  } catch (err) {
+    res.json({
+      success: true,
+      users: [
+        { id: 'super-admin-01', email: MASTER_ADMIN_EMAIL, name: 'Lead Dispatch Admin', role: 'super_admin', created_at: new Date().toISOString() }
+      ]
+    });
+  }
+});
+
+// POST /api/admin/users
+app.post('/api/admin/users', authMiddleware('admin'), async (req, res) => {
+  try {
+    const { email, password, name, role } = req.body;
+    if (!email || !password || !name) {
+      return res.status(400).json({ success: false, error: 'Email, name, and password are required.' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const password_hash = hashPassword(password);
+    const assignedRole = ['super_admin', 'admin', 'dispatcher'].includes(role) ? role : 'dispatcher';
+
+    // 1. Try Supabase insert
+    try {
+      const { data, error } = await supabase
+        .from('admin_users')
+        .insert([{ email: cleanEmail, password_hash, name: name.trim(), role: assignedRole }])
+        .select('id, email, name, role, created_at');
+
+      if (!error && data && data.length > 0) {
+        return res.json({ success: true, user: data[0] });
+      }
+    } catch (dbErr) {
+      console.warn('[Admin Create User] Falling back to local storage:', dbErr.message);
+    }
+
+    // 2. Local fallback storage
+    const localUsers = getLocalAdminUsers();
+    if (localUsers.find(u => u.email === cleanEmail) || cleanEmail === MASTER_ADMIN_EMAIL) {
+      return res.status(400).json({ success: false, error: 'A staff user with this email already exists.' });
+    }
+
+    const newUser = {
+      id: 'usr_' + Date.now(),
+      email: cleanEmail,
+      password_hash,
+      name: name.trim(),
+      role: assignedRole,
+      created_at: new Date().toISOString()
+    };
+
+    localUsers.push(newUser);
+    saveLocalAdminUsers(localUsers);
+
+    res.json({
+      success: true,
+      user: { id: newUser.id, email: newUser.email, name: newUser.name, role: newUser.role, created_at: newUser.created_at }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// DELETE /api/admin/users/:id
+app.delete('/api/admin/users/:id', authMiddleware('admin'), async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (id === 'super-admin-01') {
+      return res.status(400).json({ success: false, error: 'Cannot delete the master super admin account.' });
+    }
+
+    try {
+      await supabase.from('admin_users').delete().eq('id', id);
+    } catch (dbErr) {
+      // ignore if table not present
+    }
+
+    let localUsers = getLocalAdminUsers();
+    localUsers = localUsers.filter(u => u.id !== id);
+    saveLocalAdminUsers(localUsers);
+
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 // --- Web Portal / Admin Dashboard Endpoints ---
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
 
-app.get('/api/settings', (req, res) => {
+app.get('/api/settings', authMiddleware('admin'), (req, res) => {
   res.json(getPricingSettings());
 });
 
-app.post('/api/settings', (req, res) => {
+app.post('/api/settings', authMiddleware('admin'), (req, res) => {
   try {
     const { 
       base_fee, 
@@ -266,7 +562,7 @@ app.get('/api/test-places', async (req, res) => {
   }
 });
 
-app.get('/api/stats', async (req, res) => {
+app.get('/api/stats', authMiddleware(), async (req, res) => {
   try {
     const { data: orders } = await supabase.from('orders').select('price_ngn, status');
     const { data: riders } = await supabase.from('riders').select('status');
@@ -284,19 +580,21 @@ app.get('/api/stats', async (req, res) => {
     });
 
     const availableRidersCount = (riders || []).filter(r => r.status === 'available').length;
+    const isDispatcher = req.user && req.user.role === 'dispatcher';
 
     res.json({
-      totalRevenue,
+      totalRevenue: isDispatcher ? null : totalRevenue,
       inTransitCount,
       deliveredCount,
-      availableRidersCount
+      availableRidersCount,
+      userRole: req.user ? req.user.role : 'admin'
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-app.get('/api/orders', async (req, res) => {
+app.get('/api/orders', authMiddleware(), async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('orders')
@@ -310,7 +608,7 @@ app.get('/api/orders', async (req, res) => {
   }
 });
 
-app.get('/api/riders', async (req, res) => {
+app.get('/api/riders', authMiddleware(), async (req, res) => {
   try {
     const { data, error } = await supabase
       .from('riders')
@@ -327,7 +625,7 @@ app.get('/api/riders', async (req, res) => {
   }
 });
 
-app.post('/api/riders', async (req, res) => {
+app.post('/api/riders', authMiddleware(), async (req, res) => {
   try {
     const { name, phone_number, current_zone } = req.body;
     if (!name || !phone_number) {
@@ -348,7 +646,7 @@ app.post('/api/riders', async (req, res) => {
   }
 });
 
-app.put('/api/riders/:id', async (req, res) => {
+app.put('/api/riders/:id', authMiddleware(), async (req, res) => {
   try {
     const { id } = req.params;
     const { name, phone_number, status, current_zone } = req.body;
@@ -381,7 +679,7 @@ app.put('/api/riders/:id', async (req, res) => {
   }
 });
 
-app.delete('/api/riders/:id', async (req, res) => {
+app.delete('/api/riders/:id', authMiddleware('admin'), async (req, res) => {
   try {
     const { id } = req.params;
     // Unlink any orders referencing this rider first so deletion succeeds

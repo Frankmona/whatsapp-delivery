@@ -27,30 +27,46 @@
           <p class="text-xs text-slate-400">Dispatch &amp; Fleet Command Portal</p>
         </div>
       </div>
-      <div class="flex items-center space-x-4">
-        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-950/80 text-emerald-400 border border-emerald-800">
+      <div class="flex items-center space-x-3 sm:space-x-4">
+        <span class="hidden md:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-950/80 text-emerald-400 border border-emerald-800">
           <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
           Live Dispatch
         </span>
+        <div id="user-badge-container" class="hidden sm:flex items-center gap-2.5 bg-slate-800/80 border border-slate-700/80 rounded-xl px-3 py-1.5 text-xs">
+          <div class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-[11px]">
+            <i class="fa-solid fa-user-shield text-xs"></i>
+          </div>
+          <div>
+            <span id="user-display-name" class="font-bold text-white block leading-none">Admin</span>
+            <span id="user-role-badge" class="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">Super Admin</span>
+          </div>
+        </div>
         <button onclick="refreshData()" title="Refresh Data" class="p-2 text-slate-400 hover:text-white rounded-lg bg-slate-800 hover:bg-slate-700 transition">
           <i class="fa-solid fa-rotate"></i>
+        </button>
+        <button onclick="handleLogout()" title="Sign Out" class="px-2.5 py-1.5 text-slate-400 hover:text-rose-400 rounded-lg bg-slate-800 hover:bg-slate-700/80 transition flex items-center gap-1.5 text-xs font-semibold">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span class="hidden sm:inline">Logout</span>
         </button>
       </div>
     </div>
 
     <!-- Navigation Tabs -->
     <div class="border-t border-slate-800/80 bg-slate-900/40">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center space-x-2">
-        <button onclick="switchTab('orders')" id="tab-btn-orders" class="tab-btn px-4 py-3 text-sm font-bold flex items-center gap-2 border-b-2 border-emerald-500 text-emerald-400 bg-slate-800/50 transition">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center space-x-2 overflow-x-auto">
+        <button onclick="switchTab('orders')" id="tab-btn-orders" class="tab-btn px-4 py-3 text-sm font-bold flex items-center gap-2 border-b-2 border-emerald-500 text-emerald-400 bg-slate-800/50 transition shrink-0">
           <i class="fa-solid fa-boxes-stacked"></i> Live Orders
           <span id="tab-orders-count-badge" class="px-2 py-0.5 rounded-full text-[11px] bg-slate-800 text-slate-300 font-semibold ml-1">0</span>
         </button>
-        <button onclick="switchTab('fleet')" id="tab-btn-fleet" class="tab-btn px-4 py-3 text-sm font-bold flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
+        <button onclick="switchTab('fleet')" id="tab-btn-fleet" class="tab-btn px-4 py-3 text-sm font-bold flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition shrink-0">
           <i class="fa-solid fa-users-gear text-amber-400"></i> Dispatch Fleet
           <span id="tab-fleet-count-badge" class="px-2 py-0.5 rounded-full text-[11px] bg-slate-800 text-slate-300 font-semibold ml-1">0</span>
         </button>
-        <button onclick="switchTab('pricing')" id="tab-btn-pricing" class="tab-btn px-4 py-3 text-sm font-bold flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
+        <button onclick="switchTab('pricing')" id="tab-btn-pricing" class="tab-btn px-4 py-3 text-sm font-bold flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition shrink-0">
           <i class="fa-solid fa-calculator text-emerald-400"></i> Pricing &amp; Route Tools
+        </button>
+        <button onclick="switchTab('team')" id="tab-btn-team" class="tab-btn px-4 py-3 text-sm font-bold flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition shrink-0">
+          <i class="fa-solid fa-shield-halved text-indigo-400"></i> Team &amp; Roles
         </button>
       </div>
     </div>
@@ -64,13 +80,13 @@
     <div id="tab-orders" class="tab-pane space-y-8">
       <!-- KPI Metric Cards -->
       <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm">
+        <div id="stat-revenue-card" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm transition">
           <div class="flex items-center justify-between text-slate-400 mb-2">
             <span class="text-xs font-semibold uppercase tracking-wider">Total Revenue</span>
             <i class="fa-solid fa-wallet text-emerald-400 text-lg"></i>
           </div>
-          <div class="text-2xl font-bold text-white" id="stat-revenue">₦0</div>
-          <p class="text-xs text-slate-500 mt-1">Paid deliveries</p>
+          <div class="text-2xl font-bold text-white transition-all" id="stat-revenue">₦0</div>
+          <p class="text-xs text-slate-500 mt-1" id="stat-revenue-subtitle">Paid deliveries</p>
         </div>
 
         <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm">
@@ -378,6 +394,82 @@
       </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- TAB 4: TEAM & ACCESS CONTROL TAB          -->
+    <!-- ========================================== -->
+    <div id="tab-team" class="tab-pane space-y-8 hidden">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-shield-halved text-indigo-400"></i> Dispatch Team &amp; Access Control
+          </h2>
+          <p class="text-xs text-slate-400 mt-0.5">Manage dashboard user accounts and role permissions (Super Admin, Admin, Dispatcher)</p>
+        </div>
+        <button onclick="toggleUserModal(true)" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20 flex items-center gap-2 transition self-start sm:self-auto">
+          <i class="fa-solid fa-user-plus"></i> Add Team Member
+        </button>
+      </div>
+
+      <!-- Role Permissions Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 text-base">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h4 class="text-sm font-bold text-white">Administrator</h4>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Full Access</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Can view Total Revenue, edit Pricing &amp; Route tools, manage dispatch riders, and add/delete team members.</p>
+          </div>
+        </div>
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 text-base">
+            <i class="fa-solid fa-motorcycle"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h4 class="text-sm font-bold text-white">Dispatcher</h4>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">Restricted</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Can monitor live orders and update rider status. Total revenue is hidden and pricing configurations are locked.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users Table -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+        <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+          <h3 class="text-sm font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-users text-slate-400"></i> Authorized Staff Accounts
+          </h3>
+          <span id="team-count" class="text-xs text-slate-400 bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800">Loading...</span>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm text-slate-300">
+            <thead class="text-xs uppercase bg-slate-800/60 text-slate-400 border-b border-slate-800">
+              <tr>
+                <th class="py-3.5 px-4">Staff Member</th>
+                <th class="py-3.5 px-4">Email</th>
+                <th class="py-3.5 px-4">Role</th>
+                <th class="py-3.5 px-4">Permissions</th>
+                <th class="py-3.5 px-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="team-table" class="divide-y divide-slate-800/60">
+              <tr>
+                <td colspan="5" class="py-12 text-center text-slate-500">
+                  <i class="fa-solid fa-spinner fa-spin text-xl mb-2"></i>
+                  <p>Loading team accounts...</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <!-- ========================================== -->
@@ -462,18 +554,267 @@
     </div>
   </div>
 
+  <!-- Modal: Add Team Member -->
+  <div id="user-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 w-full max-w-md shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-user-plus text-indigo-400"></i> Add Team Member
+        </h3>
+        <button onclick="toggleUserModal(false)" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="add-user-form" onsubmit="handleAddUser(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Full Name</label>
+          <input type="text" id="user-name" required placeholder="e.g. Adebayo Yusuf" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Email Address</label>
+          <input type="email" id="user-email" required placeholder="e.g. adebayo@fmxpress.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Password</label>
+          <input type="password" id="user-password" required minlength="6" placeholder="Min 6 characters" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Role &amp; Access Level</label>
+          <select id="user-role" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+            <option value="dispatcher">Dispatcher (Manage Orders &amp; Fleet, No Revenue Access)</option>
+            <option value="admin">Administrator (Full Access, Revenue &amp; Pricing Tools)</option>
+          </select>
+        </div>
+        <div class="pt-2 flex justify-end gap-3">
+          <button type="button" onclick="toggleUserModal(false)" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300">Cancel</button>
+          <button type="submit" id="btn-save-user" class="px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow">Create Account</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Fullscreen Login Modal Overlay -->
+  <div id="login-modal-overlay" class="fixed inset-0 z-[100] bg-slate-950/95 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 sm:p-8 space-y-6 shadow-2xl">
+      <div class="text-center space-y-2">
+        <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mx-auto text-2xl shadow-inner">
+          <i class="fa-solid fa-lock"></i>
+        </div>
+        <h2 class="text-xl font-extrabold text-white tracking-tight">FM XPRESS Command Portal</h2>
+        <p class="text-xs text-slate-400">Restricted dispatch management access. Please enter your credentials to sign in.</p>
+      </div>
+
+      <div id="login-error-box" class="hidden p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs flex items-center gap-2">
+        <i class="fa-solid fa-circle-exclamation shrink-0"></i>
+        <span id="login-error-text">Invalid email or password.</span>
+      </div>
+
+      <form id="admin-login-form" onsubmit="handleLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-400 mb-1.5">Email Address</label>
+          <div class="relative">
+            <i class="fa-solid fa-envelope absolute left-3.5 top-3 text-xs text-slate-500"></i>
+            <input type="email" id="login-email" required placeholder="admin@fmxpress.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition">
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between mb-1.5">
+            <label class="block text-xs font-semibold uppercase text-slate-400">Password</label>
+          </div>
+          <div class="relative">
+            <i class="fa-solid fa-key absolute left-3.5 top-3 text-xs text-slate-500"></i>
+            <input type="password" id="login-password" required placeholder="••••••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-10 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500 transition">
+            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3.5 top-3 text-slate-500 hover:text-slate-300 text-xs">
+              <i id="password-toggle-icon" class="fa-solid fa-eye"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="login-submit-btn" class="w-full py-3 rounded-xl text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-right-to-bracket"></i> Sign In to Dispatch Console
+        </button>
+      </form>
+
+      <div class="pt-2 border-t border-slate-800/80 text-center">
+        <p class="text-[11px] text-slate-500">
+          <i class="fa-solid fa-shield-halved text-emerald-400/80 mr-1"></i> Authorized logistics personnel only.
+        </p>
+      </div>
+    </div>
+  </div>
+
   <!-- JavaScript Application Logic -->
   <script>
     // State
+    let currentUser = null;
     let currentTab = 'orders';
     let allOrders = [];
     let allRiders = [];
+    let allUsers = [];
     let riderFilter = 'all';
     let riderSearch = '';
     let orderSearch = '';
+    let pollTimer = null;
+
+    // --- Authentication & Helpers ---
+    function togglePasswordVisibility() {
+      const pwd = document.getElementById('login-password');
+      const icon = document.getElementById('password-toggle-icon');
+      if (pwd.type === 'password') {
+        pwd.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        pwd.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+
+    function showLoginModal(errorMsg = '') {
+      const overlay = document.getElementById('login-modal-overlay');
+      overlay.classList.remove('hidden');
+      if (errorMsg) {
+        document.getElementById('login-error-text').textContent = errorMsg;
+        document.getElementById('login-error-box').classList.remove('hidden');
+      } else {
+        document.getElementById('login-error-box').classList.add('hidden');
+      }
+      if (pollTimer) clearInterval(pollTimer);
+    }
+
+    function hideLoginModal() {
+      const overlay = document.getElementById('login-modal-overlay');
+      overlay.classList.add('hidden');
+      document.getElementById('login-password').value = '';
+      document.getElementById('login-error-box').classList.add('hidden');
+      startPolling();
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      const submitBtn = document.getElementById('login-submit-btn');
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Verifying...`;
+      document.getElementById('login-error-box').classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          localStorage.setItem('fm_admin_token', data.token);
+          localStorage.setItem('fm_admin_user', JSON.stringify(data.user));
+          currentUser = data.user;
+          applyRolePermissions();
+          hideLoginModal();
+          refreshData();
+          if (currentUser.role !== 'dispatcher') {
+            fetchPricing();
+          }
+        } else {
+          document.getElementById('login-error-text').textContent = data.error || 'Invalid credentials.';
+          document.getElementById('login-error-box').classList.remove('hidden');
+        }
+      } catch (err) {
+        document.getElementById('login-error-text').textContent = 'Server connection error: ' + err.message;
+        document.getElementById('login-error-box').classList.remove('hidden');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i class="fa-solid fa-right-to-bracket mr-2"></i> Sign In to Dispatch Console`;
+      }
+    }
+
+    function handleLogout() {
+      localStorage.removeItem('fm_admin_token');
+      localStorage.removeItem('fm_admin_user');
+      currentUser = null;
+      document.getElementById('user-badge-container').classList.add('hidden');
+      showLoginModal('You have successfully logged out.');
+    }
+
+    async function authFetch(url, options = {}) {
+      const token = localStorage.getItem('fm_admin_token');
+      if (!token) {
+        showLoginModal();
+        throw new Error('Not authenticated');
+      }
+
+      options.headers = {
+        ...(options.headers || {}),
+        'Authorization': `Bearer ${token}`
+      };
+
+      const res = await fetch(url, options);
+
+      if (res.status === 401) {
+        localStorage.removeItem('fm_admin_token');
+        localStorage.removeItem('fm_admin_user');
+        currentUser = null;
+        showLoginModal('Your session has expired. Please sign in again.');
+        throw new Error('Unauthorized');
+      }
+
+      if (res.status === 403) {
+        alert('Access Denied: Your account role does not have permission for this action.');
+        throw new Error('Forbidden');
+      }
+
+      return res;
+    }
+
+    function applyRolePermissions() {
+      if (!currentUser) return;
+
+      document.getElementById('user-display-name').textContent = currentUser.name || currentUser.email;
+      const roleBadge = document.getElementById('user-role-badge');
+      const role = currentUser.role || 'dispatcher';
+
+      if (role === 'super_admin') {
+        roleBadge.textContent = 'Super Admin 👑';
+        roleBadge.className = 'text-[10px] font-bold text-purple-400 uppercase tracking-wider';
+      } else if (role === 'admin') {
+        roleBadge.textContent = 'Administrator 🛡️';
+        roleBadge.className = 'text-[10px] font-bold text-emerald-400 uppercase tracking-wider';
+      } else {
+        roleBadge.textContent = 'Dispatcher 📦';
+        roleBadge.className = 'text-[10px] font-bold text-amber-400 uppercase tracking-wider';
+      }
+      document.getElementById('user-badge-container').classList.remove('hidden');
+
+      const isDispatcher = (role === 'dispatcher');
+      const pricingTabBtn = document.getElementById('tab-btn-pricing');
+      const teamTabBtn = document.getElementById('tab-btn-team');
+      const revSubtitle = document.getElementById('stat-revenue-subtitle');
+
+      if (isDispatcher) {
+        if (pricingTabBtn) pricingTabBtn.classList.add('hidden');
+        if (teamTabBtn) teamTabBtn.classList.add('hidden');
+        if (revSubtitle) revSubtitle.textContent = 'Restricted (Admin Only)';
+        if (currentTab === 'pricing' || currentTab === 'team') {
+          switchTab('orders');
+        }
+      } else {
+        if (pricingTabBtn) pricingTabBtn.classList.remove('hidden');
+        if (teamTabBtn) teamTabBtn.classList.remove('hidden');
+        if (revSubtitle) revSubtitle.textContent = 'Paid deliveries';
+      }
+    }
 
     // --- Tab Switching Logic ---
     function switchTab(tab) {
+      if (currentUser && currentUser.role === 'dispatcher' && (tab === 'pricing' || tab === 'team')) {
+        alert('Access Denied: Pricing and Team settings require Administrator role.');
+        tab = 'orders';
+      }
+
       currentTab = tab;
       window.location.hash = tab;
 
@@ -493,14 +834,31 @@
         activeBtn.classList.remove('border-transparent', 'text-slate-400');
         activeBtn.classList.add('border-emerald-500', 'text-emerald-400', 'bg-slate-800/50');
       }
+
+      if (tab === 'team') {
+        fetchTeam();
+      } else if (tab === 'pricing') {
+        fetchPricing();
+      }
     }
 
     // --- KPI Stats Fetching ---
     async function fetchStats() {
       try {
-        const res = await fetch('/api/stats');
+        const res = await authFetch('/api/stats');
         const data = await res.json();
-        document.getElementById('stat-revenue').textContent = '₦' + (data.totalRevenue || 0).toLocaleString('en-NG');
+        const isDispatcher = currentUser && currentUser.role === 'dispatcher';
+
+        if (isDispatcher || data.totalRevenue === null || data.totalRevenue === undefined) {
+          document.getElementById('stat-revenue').textContent = '🔒 Restricted';
+          document.getElementById('stat-revenue').classList.add('text-slate-500', 'text-lg');
+          document.getElementById('stat-revenue').classList.remove('text-white', 'text-2xl');
+        } else {
+          document.getElementById('stat-revenue').textContent = '₦' + Number(data.totalRevenue).toLocaleString('en-NG');
+          document.getElementById('stat-revenue').classList.add('text-white', 'text-2xl');
+          document.getElementById('stat-revenue').classList.remove('text-slate-500', 'text-lg');
+        }
+
         document.getElementById('stat-transit').textContent = data.inTransitCount || 0;
         document.getElementById('stat-delivered').textContent = data.deliveredCount || 0;
         document.getElementById('stat-riders').textContent = data.availableRidersCount || 0;
@@ -512,7 +870,7 @@
     // --- Orders Handling ---
     async function fetchOrders() {
       try {
-        const res = await fetch('/api/orders');
+        const res = await authFetch('/api/orders');
         allOrders = await res.json();
         renderOrders();
       } catch (err) {
@@ -527,6 +885,8 @@
 
     function renderOrders() {
       const tbody = document.getElementById('orders-table');
+      if (!Array.isArray(allOrders)) return;
+
       const filtered = allOrders.filter(o => {
         if (!orderSearch) return true;
         const phone = (o.customer_phone || '').toLowerCase();
@@ -588,7 +948,7 @@
     // --- Fleet Management ---
     async function fetchRiders() {
       try {
-        const res = await fetch('/api/riders');
+        const res = await authFetch('/api/riders');
         allRiders = await res.json();
         updateFleetKPIs();
         renderFleetGrid();
@@ -598,6 +958,7 @@
     }
 
     function updateFleetKPIs() {
+      if (!Array.isArray(allRiders)) return;
       const total = allRiders.length;
       const available = allRiders.filter(r => r.status === 'available').length;
       const busy = allRiders.filter(r => r.status === 'busy').length;
@@ -631,6 +992,8 @@
 
     function renderFleetGrid() {
       const grid = document.getElementById('fleet-grid');
+      if (!Array.isArray(allRiders)) return;
+
       const filtered = allRiders.filter(r => {
         const matchesFilter = (riderFilter === 'all') || (r.status === riderFilter);
         const matchesSearch = !riderSearch || r.name.toLowerCase().includes(riderSearch) || r.phone_number.includes(riderSearch);
@@ -648,6 +1011,8 @@
         return;
       }
 
+      const isAdmin = currentUser && (currentUser.role === 'admin' || currentUser.role === 'super_admin');
+
       grid.innerHTML = filtered.map(r => {
         let statusBadge = '';
         let avatarBg = 'bg-slate-800 text-slate-300';
@@ -661,6 +1026,12 @@
           statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-400"><span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span> Offline</span>`;
           avatarBg = 'bg-slate-800 text-slate-400 border border-slate-700';
         }
+
+        const deleteBtnHtml = isAdmin ? `
+          <button onclick="handleDeleteRider('${r.id}', '${r.name.replace(/'/g, "\\'")}')" class="p-2 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-rose-500/10 transition" title="Delete Rider">
+            <i class="fa-solid fa-trash-can text-xs"></i>
+          </button>
+        ` : '';
 
         return `
           <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4 hover:border-slate-700 transition">
@@ -702,9 +1073,7 @@
                 <button onclick="openEditRiderModal('${r.id}', '${r.name.replace(/'/g, "\\'")}', '${r.phone_number}', '${r.status}', '${(r.current_zone || 'Kubwa').replace(/'/g, "\\'")}')" class="p-2 text-slate-400 hover:text-sky-400 rounded-lg hover:bg-sky-500/10 transition" title="Edit Rider">
                   <i class="fa-solid fa-pen text-xs"></i>
                 </button>
-                <button onclick="handleDeleteRider('${r.id}', '${r.name.replace(/'/g, "\\'")}')" class="p-2 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-rose-500/10 transition" title="Delete Rider">
-                  <i class="fa-solid fa-trash-can text-xs"></i>
-                </button>
+                ${deleteBtnHtml}
               </div>
             </div>
           </div>
@@ -714,7 +1083,7 @@
 
     async function quickUpdateRiderStatus(id, newStatus) {
       try {
-        const res = await fetch(`/api/riders/${id}`, {
+        const res = await authFetch(`/api/riders/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: newStatus })
@@ -754,7 +1123,7 @@
       const current_zone = document.getElementById('rider-zone').value.trim() || 'Kubwa';
 
       try {
-        const res = await fetch('/api/riders', {
+        const res = await authFetch('/api/riders', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, phone_number: phone, current_zone })
@@ -782,7 +1151,7 @@
       const status = document.getElementById('edit-rider-status').value;
 
       try {
-        const res = await fetch(`/api/riders/${id}`, {
+        const res = await authFetch(`/api/riders/${id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, phone_number: phone, status, current_zone })
@@ -804,7 +1173,7 @@
       if (!confirm(`Are you sure you want to remove rider "${name}" from the dispatch fleet?`)) return;
 
       try {
-        const res = await fetch(`/api/riders/${id}`, { method: 'DELETE' });
+        const res = await authFetch(`/api/riders/${id}`, { method: 'DELETE' });
         if (res.ok) {
           fetchRiders();
           fetchStats();
@@ -816,10 +1185,132 @@
       }
     }
 
+    // --- Team & Roles Management ---
+    function toggleUserModal(show) {
+      document.getElementById('user-modal').classList.toggle('hidden', !show);
+    }
+
+    async function fetchTeam() {
+      try {
+        const res = await authFetch('/api/admin/users');
+        const data = await res.json();
+        allUsers = data.users || [];
+        renderTeam();
+      } catch (err) {
+        console.error('Error fetching team:', err);
+      }
+    }
+
+    function renderTeam() {
+      const tbody = document.getElementById('team-table');
+      document.getElementById('team-count').textContent = `${allUsers.length} accounts`;
+
+      if (allUsers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-500">No staff accounts registered.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = allUsers.map(u => {
+        let roleBadge = '';
+        let permText = '';
+        if (u.role === 'super_admin') {
+          roleBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-purple-500/10 text-purple-400 border border-purple-500/20">👑 Super Admin</span>`;
+          permText = 'Master Admin (Full System Access)';
+        } else if (u.role === 'admin') {
+          roleBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">🛡️ Administrator</span>`;
+          permText = 'Full Access (Orders, Fleet, Pricing, Revenue)';
+        } else {
+          roleBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20">📦 Dispatcher</span>`;
+          permText = 'Operational Only (Orders & Fleet, Hidden Revenue)';
+        }
+
+        const isSuperAdmin = (u.id === 'super-admin-01' || u.role === 'super_admin');
+        const deleteBtn = isSuperAdmin ? `
+          <span class="text-xs text-slate-600 italic">Protected</span>
+        ` : `
+          <button onclick="handleDeleteUser('${u.id}', '${u.name.replace(/'/g, "\\'")}')" class="p-2 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-rose-500/10 transition" title="Remove User">
+            <i class="fa-solid fa-trash-can text-xs"></i>
+          </button>
+        `;
+
+        return `
+          <tr class="hover:bg-slate-800/30 transition">
+            <td class="py-3.5 px-4 font-bold text-white text-xs">
+              ${u.name}
+            </td>
+            <td class="py-3.5 px-4 text-xs text-slate-400">
+              ${u.email}
+            </td>
+            <td class="py-3.5 px-4">
+              ${roleBadge}
+            </td>
+            <td class="py-3.5 px-4 text-xs text-slate-400">
+              ${permText}
+            </td>
+            <td class="py-3.5 px-4 text-right">
+              ${deleteBtn}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function handleAddUser(e) {
+      e.preventDefault();
+      const name = document.getElementById('user-name').value.trim();
+      const email = document.getElementById('user-email').value.trim();
+      const password = document.getElementById('user-password').value;
+      const role = document.getElementById('user-role').value;
+      const submitBtn = document.getElementById('btn-save-user');
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-1"></i> Creating...`;
+
+      try {
+        const res = await authFetch('/api/admin/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, password, role })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          document.getElementById('add-user-form').reset();
+          toggleUserModal(false);
+          fetchTeam();
+          alert(`Account for "${name}" created successfully as ${role.toUpperCase()}!`);
+        } else {
+          alert('Failed to create account: ' + (data.error || 'Unknown error'));
+        }
+      } catch (err) {
+        alert('Error creating user: ' + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `Create Account`;
+      }
+    }
+
+    async function handleDeleteUser(id, name) {
+      if (!confirm(`Are you sure you want to revoke dashboard access for "${name}"?`)) return;
+
+      try {
+        const res = await authFetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          fetchTeam();
+        } else {
+          alert('Failed to delete user: ' + (data.error || 'Unknown error'));
+        }
+      } catch (err) {
+        alert('Error deleting user: ' + err.message);
+      }
+    }
+
     // --- Pricing & Proximity Settings ---
     async function fetchPricing() {
+      if (currentUser && currentUser.role === 'dispatcher') return;
       try {
-        const res = await fetch('/api/settings');
+        const res = await authFetch('/api/settings');
         const data = await res.json();
         if (data.base_fee !== undefined) {
           document.getElementById('base-fee-input').value = data.base_fee;
@@ -858,7 +1349,7 @@
       const google_maps_api_key = document.getElementById('google-maps-api-key-input').value.trim();
 
       try {
-        const res = await fetch('/api/settings', {
+        const res = await authFetch('/api/settings', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
@@ -899,7 +1390,7 @@
       btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Calculating route...`;
 
       try {
-        const res = await fetch(`/api/test-route?pickup=${encodeURIComponent(pickup)}&delivery=${encodeURIComponent(delivery)}`);
+        const res = await authFetch(`/api/test-route?pickup=${encodeURIComponent(pickup)}&delivery=${encodeURIComponent(delivery)}`);
         const data = await res.json();
         if (data.success) {
           document.getElementById('test-route-dist').textContent = `${data.distanceKm} km driving distance`;
@@ -919,19 +1410,63 @@
     }
 
     function refreshData() {
+      if (!localStorage.getItem('fm_admin_token')) return;
       fetchStats();
       fetchOrders();
       fetchRiders();
+      if (currentTab === 'team') fetchTeam();
     }
 
-    // Initial load: read hash if present, fetch data, and poll every 8 seconds
-    const initialTab = window.location.hash.replace('#', '') || 'orders';
-    if (['orders', 'fleet', 'pricing'].includes(initialTab)) {
-      switchTab(initialTab);
+    function startPolling() {
+      if (pollTimer) clearInterval(pollTimer);
+      pollTimer = setInterval(refreshData, 8000);
     }
-    fetchPricing();
-    refreshData();
-    setInterval(refreshData, 8000);
+
+    // --- Application Initialization & Session Validation ---
+    async function initApp() {
+      const token = localStorage.getItem('fm_admin_token');
+      if (!token) {
+        showLoginModal();
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/admin/me', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          currentUser = data.user;
+          localStorage.setItem('fm_admin_user', JSON.stringify(currentUser));
+          applyRolePermissions();
+          hideLoginModal();
+
+          // Handle initial tab from URL hash
+          const initialTab = window.location.hash.replace('#', '') || 'orders';
+          if (['orders', 'fleet', 'pricing', 'team'].includes(initialTab)) {
+            switchTab(initialTab);
+          } else {
+            switchTab('orders');
+          }
+
+          refreshData();
+          if (currentUser.role !== 'dispatcher') {
+            fetchPricing();
+          }
+        } else {
+          localStorage.removeItem('fm_admin_token');
+          localStorage.removeItem('fm_admin_user');
+          showLoginModal('Session expired. Please sign in again.');
+        }
+      } catch (err) {
+        console.error('Session validation error:', err);
+        showLoginModal();
+      }
+    }
+
+    // Run initialization on page load
+    initApp();
   </script>
 </body>
 </html>
