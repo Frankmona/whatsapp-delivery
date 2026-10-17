@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FM XPRESS - Official Apparel & T-Shirt Brand Identity</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+
+  <div class="max-w-6xl mx-auto space-y-8">
+    
+    <!-- HEADER -->
+    <header class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold text-2xl">
+          👕
+        </div>
+        <div>
+          <h1 class="text-2xl font-black text-white flex items-center gap-2">
+            FM&nbsp;<svg class="h-6 w-auto inline-block text-white -mx-0.5" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 5L20 21" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+              <path d="M5 21C10 15 16 9 21 5" stroke="#10B981" stroke-width="5" stroke-linecap="round"/>
+              <path d="M14 5H21V12" stroke="#10B981" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>PRESS
+            <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">APPAREL SYSTEM</span>
+          </h1>
+          <p class="text-xs text-slate-400">Official Fleet Uniforms: Round-Neck Crewneck (Black &amp; White Editions)</p>
+        </div>
+      </div>
+
+      <!-- TABS: BLACK vs WHITE -->
+      <div class="flex items-center gap-2 bg-slate-900 p-1.5 rounded-2xl border border-slate-800 self-start sm:self-auto">
+        <button onclick="switchEdition('black')" id="btn-edition-black" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 bg-slate-800 text-white shadow">
+          <span class="w-2.5 h-2.5 rounded-full bg-slate-950 border border-slate-600"></span> Black Edition
+        </button>
+        <button onclick="switchEdition('white')" id="btn-edition-white" class="px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-2 text-slate-400 hover:text-white">
+          <span class="w-2.5 h-2.5 rounded-full bg-white border border-slate-300"></span> White Edition
+        </button>
+      </div>
+    </header>
+
+    <!-- INTRO & THE ROUTE-X EXPLAINER -->
+    <section class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+        <div class="md:col-span-2 space-y-2">
+          <span class="text-[10px] font-extrabold uppercase tracking-widest text-emerald-400">The Iconic Route-X Brand Mark</span>
+          <h2 class="text-xl font-extrabold text-white">Engineered for Speed, Certainty &amp; Road Recognition</h2>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            The letter <strong class="text-emerald-400 font-bold">X</strong> in <strong class="text-white">FM XPRESS</strong> is stylized as a dynamic delivery highway curve with a forward arrow. This communicates speed, GPS tracking, and route precision to everyone seeing your riders on Abuja roads.
+          </p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-950/80 border border-slate-800 flex items-center justify-center">
+          <div class="text-center space-y-2">
+            <span class="text-3xl font-black text-white flex items-center justify-center gap-1">
+              FM&nbsp;<svg class="h-8 w-auto inline-block text-white -mx-0.5" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 5L20 21" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+                <path d="M5 21C10 15 16 9 21 5" stroke="#10B981" stroke-width="5" stroke-linecap="round"/>
+                <path d="M14 5H21V12" stroke="#10B981" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>PRESS
+            </span>
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">DISPATCH &amp; LOGISTICS</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- T-SHIRT VISUAL SHOWCASE: FRONT & BACK -->
+    <section class="space-y-4">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 id="edition-title" class="text-lg font-bold text-white flex items-center gap-2">
+            🖤 The Black Edition (Midnight Runner)
+          </h3>
+          <p class="text-xs text-slate-400">Front chest brand placement &amp; Back traffic-magnet WhatsApp QR code</p>
+        </div>
+        <span class="text-xs font-semibold px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-300">
+          Crewneck • 100% Cotton
+        </span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- FRONT VIEW -->
+        <div id="front-card" class="bg-slate-900 border border-slate-800 rounded-3xl p-8 flex flex-col items-center justify-between shadow-2xl relative overflow-hidden transition-all duration-300">
+          <div class="w-full flex items-center justify-between text-xs text-slate-400 mb-6">
+            <span class="font-bold uppercase tracking-wider"><i class="fa-solid fa-shirt mr-1.5"></i> Front View</span>
+            <span class="text-[11px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20">Chest Print (26cm)</span>
+          </div>
+
+          <!-- T-Shirt Graphic Canvas (Front) -->
+          <div id="front-shirt-bg" class="w-full max-w-sm aspect-[4/5] rounded-3xl bg-slate-950 border border-slate-800/80 shadow-inner flex flex-col items-center justify-start pt-16 px-6 relative transition-colors duration-300">
+            <!-- Crewneck Collar Ring -->
+            <div id="collar-ring" class="w-24 h-12 rounded-b-full border-b-4 border-slate-800 absolute top-0"></div>
+
+            <!-- Front Logo Graphic -->
+            <div class="text-center space-y-1.5 mt-8">
+              <div id="front-logo-text" class="text-3xl font-black tracking-tight text-white flex items-center justify-center leading-none">
+                FM&nbsp;<svg class="h-8 w-auto inline-block -mx-0.5" id="front-svg" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 5L20 21" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+                  <path d="M5 21C10 15 16 9 21 5" stroke="#10B981" stroke-width="5" stroke-linecap="round"/>
+                  <path d="M14 5H21V12" stroke="#10B981" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>PRESS
+              </div>
+              <p id="front-sub-text" class="text-[9px] font-extrabold tracking-widest uppercase text-slate-400">DISPATCH &amp; LOGISTICS</p>
+            </div>
+          </div>
+
+          <div class="w-full mt-6 text-center">
+            <p class="text-xs text-slate-400">Clean, uncluttered, professional chest identity</p>
+          </div>
+        </div>
+
+        <!-- BACK VIEW -->
+        <div id="back-card" class="bg-slate-900 border border-slate-800 rounded-3xl p-8 flex flex-col items-center justify-between shadow-2xl relative overflow-hidden transition-all duration-300">
+          <div class="w-full flex items-center justify-between text-xs text-slate-400 mb-6">
+            <span class="font-bold uppercase tracking-wider"><i class="fa-solid fa-qrcode mr-1.5"></i> Back View</span>
+            <span class="text-[11px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-500/20">Back Print (28cm)</span>
+          </div>
+
+          <!-- T-Shirt Graphic Canvas (Back) -->
+          <div id="back-shirt-bg" class="w-full max-w-sm aspect-[4/5] rounded-3xl bg-slate-950 border border-slate-800/80 shadow-inner flex flex-col items-center justify-between py-10 px-6 relative transition-colors duration-300">
+            <!-- Back Collar Ring -->
+            <div id="back-collar-ring" class="w-24 h-6 rounded-b-full border-b-2 border-slate-800 absolute top-0"></div>
+
+            <!-- Top Shoulder Brand -->
+            <div class="text-center space-y-1 mt-2">
+              <div id="back-logo-text" class="text-3xl font-black tracking-tight text-white flex items-center justify-center leading-none">
+                FM&nbsp;<svg class="h-7 w-auto inline-block -mx-0.5" id="back-svg" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 5L20 21" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/>
+                  <path d="M5 21C10 15 16 9 21 5" stroke="#10B981" stroke-width="5" stroke-linecap="round"/>
+                  <path d="M14 5H21V12" stroke="#10B981" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>PRESS
+              </div>
+              <p class="text-[10px] font-bold uppercase tracking-widest text-emerald-400">CHAT &amp; BOOK ON WHATSAPP</p>
+            </div>
+
+            <!-- Center QR Code Box -->
+            <div class="p-3 bg-white rounded-2xl shadow-2xl flex flex-col items-center justify-center shrink-0">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=https%3A%2F%2Fwa.me%2F2349036869830%3Ftext%3DHi&color=0f172a" alt="Scan to Book" class="w-24 h-24 rounded-lg block">
+              <span class="text-[9px] font-black text-slate-950 uppercase tracking-wider mt-1">SCAN TO CHAT</span>
+            </div>
+
+            <!-- Bottom Number -->
+            <div class="text-center">
+              <span id="back-phone-text" class="text-base font-black text-white tracking-wider">0903 686 9830</span>
+              <p class="text-[10px] text-slate-500">fmxpress.tekvolutionhq.com</p>
+            </div>
+          </div>
+
+          <div class="w-full mt-6 text-center">
+            <p class="text-xs text-slate-400">Scannable by cars and pedestrians in Abuja traffic</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- PRINT SPECIFICATION SHEET FOR THE LOCAL ABUJA PRINTER -->
+    <section class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
+        <div>
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-clipboard-list text-emerald-400"></i> Print Order Specifications
+          </h3>
+          <p class="text-xs text-slate-400">Copy or show these exact dimensions to your screen printer / DTF shop in Abuja</p>
+        </div>
+        <button onclick="window.print()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-2 w-fit">
+          <i class="fa-solid fa-print"></i> Print Work Order
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
+          <span class="text-slate-500 uppercase font-bold text-[10px]">Garment Type</span>
+          <p class="text-white font-bold text-sm">Round-Neck (Crewneck)</p>
+          <p class="text-slate-400">100% Combed Cotton, 180–200 GSM</p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
+          <span class="text-slate-500 uppercase font-bold text-[10px]">Front Chest Print</span>
+          <p class="text-white font-bold text-sm">26cm Width × 7cm Height</p>
+          <p class="text-slate-400">FM XPRESS with Emerald Route-X</p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
+          <span class="text-slate-500 uppercase font-bold text-[10px]">Back Traffic Print</span>
+          <p class="text-white font-bold text-sm">28cm Width × 34cm Height</p>
+          <p class="text-slate-400">Brand + 12cm QR Code + Number</p>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-1">
+          <span class="text-slate-500 uppercase font-bold text-[10px]">Print Method</span>
+          <p class="text-emerald-400 font-bold text-sm">DTF or Plastisol Screen</p>
+          <p class="text-slate-400">Vibrant wash-resistant finish</p>
+        </div>
+      </div>
+
+      <!-- COLOR FORMULAS -->
+      <div class="p-4 rounded-2xl bg-slate-950/80 border border-slate-800 flex flex-wrap items-center justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-[#10B981] border border-white/20"></div>
+          <div>
+            <span class="text-xs font-bold text-white block">Speed Emerald (The Route-X)</span>
+            <span class="text-[10px] text-slate-400">HEX: #10B981 • CMYK: 75, 0, 65, 0 • Pantone 340 C</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-[#0F172A] border border-white/20"></div>
+          <div>
+            <span class="text-xs font-bold text-white block">Midnight Slate (Black Edition Fabric)</span>
+            <span class="text-[10px] text-slate-400">HEX: #0F172A • CMYK: 85, 75, 50, 65 • Pantone Black C</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-[#FFFFFF] border border-slate-300"></div>
+          <div>
+            <span class="text-xs font-bold text-white block">Crisp White (White Edition Fabric)</span>
+            <span class="text-[10px] text-slate-400">Pure White 100% Cotton Base</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    function switchEdition(edition) {
+      const btnBlack = document.getElementById('btn-edition-black');
+      const btnWhite = document.getElementById('btn-edition-white');
+      const title = document.getElementById('edition-title');
+
+      const frontBg = document.getElementById('front-shirt-bg');
+      const backBg = document.getElementById('back-shirt-bg');
+
+      const frontLogoText = document.getElementById('front-logo-text');
+      const backLogoText = document.getElementById('back-logo-text');
+      const backPhone = document.getElementById('back-phone-text');
+
+      const frontSvg = document.getElementById('front-svg');
+      const backSvg = document.getElementById('back-svg');
+
+      const collar = document.getElementById('collar-ring');
+      const backCollar = document.getElementById('back-collar-ring');
+
+      if (edition === 'white') {
+        // Toggle Buttons
+        btnWhite.classList.add('bg-slate-800', 'text-white', 'shadow');
+        btnWhite.classList.remove('text-slate-400');
+        btnBlack.classList.remove('bg-slate-800', 'text-white', 'shadow');
+        btnBlack.classList.add('text-slate-400');
+
+        title.innerHTML = `🤍 The White Edition (Daylight Fleet)`;
+
+        // White Shirt Background
+        frontBg.classList.remove('bg-slate-950', 'border-slate-800/80');
+        frontBg.classList.add('bg-slate-100', 'border-slate-300');
+        backBg.classList.remove('bg-slate-950', 'border-slate-800/80');
+        backBg.classList.add('bg-slate-100', 'border-slate-300');
+
+        // Collars
+        collar.classList.remove('border-slate-800');
+        collar.classList.add('border-slate-300');
+        backCollar.classList.remove('border-slate-800');
+        backCollar.classList.add('border-slate-300');
+
+        // Text Colors (Change from white to dark slate)
+        frontLogoText.classList.remove('text-white');
+        frontLogoText.classList.add('text-slate-950');
+        backLogoText.classList.remove('text-white');
+        backLogoText.classList.add('text-slate-950');
+        backPhone.classList.remove('text-white');
+        backPhone.classList.add('text-slate-950');
+
+        frontSvg.classList.remove('text-white');
+        frontSvg.classList.add('text-slate-950');
+        backSvg.classList.remove('text-white');
+        backSvg.classList.add('text-slate-950');
+      } else {
+        // Toggle Buttons
+        btnBlack.classList.add('bg-slate-800', 'text-white', 'shadow');
+        btnBlack.classList.remove('text-slate-400');
+        btnWhite.classList.remove('bg-slate-800', 'text-white', 'shadow');
+        btnWhite.classList.add('text-slate-400');
+
+        title.innerHTML = `🖤 The Black Edition (Midnight Runner)`;
+
+        // Black Shirt Background
+        frontBg.classList.add('bg-slate-950', 'border-slate-800/80');
+        frontBg.classList.remove('bg-slate-100', 'border-slate-300');
+        backBg.classList.add('bg-slate-950', 'border-slate-800/80');
+        backBg.classList.remove('bg-slate-100', 'border-slate-300');
+
+        // Collars
+        collar.classList.add('border-slate-800');
+        collar.classList.remove('border-slate-300');
+        backCollar.classList.add('border-slate-800');
+        backCollar.classList.remove('border-slate-300');
+
+        // Text Colors
+        frontLogoText.classList.add('text-white');
+        frontLogoText.classList.remove('text-slate-950');
+        backLogoText.classList.add('text-white');
+        backLogoText.classList.remove('text-slate-950');
+        backPhone.classList.add('text-white');
+        backPhone.classList.remove('text-slate-950');
+
+        frontSvg.classList.add('text-white');
+        frontSvg.classList.remove('text-slate-950');
+        backSvg.classList.add('text-white');
+        backSvg.classList.remove('text-slate-950');
+      }
+    }
+  </script>
+</body>
+</html>
