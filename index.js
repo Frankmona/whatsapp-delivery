@@ -31,7 +31,7 @@ function getPricingSettings() {
       max_pickup_distance_km: 7,
       far_pickup_surcharge: 800,
       allow_far_pickup_with_surcharge: false,
-      public_url: process.env.PUBLIC_URL || 'https://wife-minimal-tones-efforts.trycloudflare.com',
+      public_url: process.env.PUBLIC_URL || 'https://fmxpress.tekvolutionhq.com',
       google_maps_api_key: process.env.GOOGLE_MAPS_API_KEY || ''
     };
   }
@@ -1153,7 +1153,7 @@ async function generatePaystackLink(amountNGN, email, reference) {
   try {
     const secretKey = (process.env.PAYSTACK_SECRET_KEY || '').trim();
     const settings = getPricingSettings();
-    const publicUrl = (settings.public_url || process.env.PUBLIC_URL || 'https://wife-minimal-tones-efforts.trycloudflare.com').replace(/\/+$/, '');
+    const publicUrl = (settings.public_url || process.env.PUBLIC_URL || 'https://fmxpress.tekvolutionhq.com').replace(/\/+$/, '');
     const callbackUrl = `${publicUrl}/payment-callback`;
     
     console.log(`[Paystack Initialize] Amount: ₦${amountNGN}, Callback: ${callbackUrl}`);
