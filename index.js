@@ -402,6 +402,10 @@ app.get('/sitemap.xml', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'sitemap.xml'));
 });
 
+app.get('/flyer', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'flyer.html'));
+});
+
 app.get('/api/settings', authMiddleware('admin'), (req, res) => {
   res.json(getPricingSettings());
 });
