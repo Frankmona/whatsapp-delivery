@@ -1,0 +1,138 @@
+{
+  "version": "3.1",
+  "screens": [
+    {
+      "id": "DISPATCH_DETAILS",
+      "title": "Book FM XPRESS Dispatch",
+      "terminal": true,
+      "data": {
+        "sender_name": {
+          "type": "string",
+          "__example__": "Emeka Okafor"
+        },
+        "pickup": {
+          "type": "string",
+          "__example__": "National Mosque, Abuja"
+        },
+        "recipient_name": {
+          "type": "string",
+          "__example__": "Amina Bello"
+        },
+        "recipient_phone": {
+          "type": "string",
+          "__example__": "08012345678"
+        },
+        "delivery": {
+          "type": "string",
+          "__example__": "Jabi Lake Mall, Abuja"
+        },
+        "size": {
+          "type": "string",
+          "__example__": "medium"
+        },
+        "instructions": {
+          "type": "string",
+          "__example__": "Handle with care, call on arrival"
+        }
+      },
+      "layout": {
+        "type": "SingleColumnLayout",
+        "children": [
+          {
+            "type": "Form",
+            "name": "dispatch_form",
+            "children": [
+              {
+                "type": "TextHeading",
+                "text": "Pickup Information"
+              },
+              {
+                "type": "TextInput",
+                "name": "sender_name",
+                "label": "Your Name (Sender)",
+                "required": true,
+                "placeholder": "e.g. Frank"
+              },
+              {
+                "type": "TextInput",
+                "name": "pickup",
+                "label": "Pickup Address / Landmark",
+                "required": true,
+                "placeholder": "e.g. National Mosque, Abuja"
+              },
+              {
+                "type": "TextHeading",
+                "text": "Delivery Information"
+              },
+              {
+                "type": "TextInput",
+                "name": "recipient_name",
+                "label": "Recipient Full Name",
+                "required": true,
+                "placeholder": "e.g. John Doe"
+              },
+              {
+                "type": "TextInput",
+                "name": "recipient_phone",
+                "label": "Recipient Phone Number",
+                "input-type": "phone",
+                "required": true,
+                "placeholder": "e.g. 08012345678"
+              },
+              {
+                "type": "TextInput",
+                "name": "delivery",
+                "label": "Delivery Address / Landmark",
+                "required": true,
+                "placeholder": "e.g. Jabi Lake Mall, Abuja"
+              },
+              {
+                "type": "Dropdown",
+                "name": "size",
+                "label": "Package Size",
+                "required": true,
+                "options": [
+                  {
+                    "id": "small",
+                    "title": "Small (Documents, food, phone, pouch)"
+                  },
+                  {
+                    "id": "medium",
+                    "title": "Medium (Shoe box, clothes, groceries)"
+                  },
+                  {
+                    "id": "large",
+                    "title": "Large (Big carton, multiple parcels)"
+                  }
+                ]
+              },
+              {
+                "type": "TextInput",
+                "name": "instructions",
+                "label": "Special Notes (Optional)",
+                "required": false,
+                "placeholder": "e.g. Fragile items, leave with security"
+              },
+              {
+                "type": "Footer",
+                "label": "Calculate Route & Price",
+                "on-click-action": {
+                  "name": "complete",
+                  "payload": {
+                    "sender_name": "${form.sender_name}",
+                    "pickup": "${form.pickup}",
+                    "recipient_name": "${form.recipient_name}",
+                    "recipient_phone": "${form.recipient_phone}",
+                    "delivery": "${form.delivery}",
+                    "size": "${form.size}",
+                    "instructions": "${form.instructions}"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

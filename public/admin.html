@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FM XPRESS - Dispatch Command Center</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+          <i class="fa-solid fa-motorcycle text-xl"></i>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-lg tracking-tight text-white flex items-center gap-2">
+            FM XPRESS <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">DISPATCH &amp; LOGISTICS</span>
+          </h1>
+          <p class="text-xs text-slate-400">Dispatch &amp; Fleet Command Portal</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-emerald-950/80 text-emerald-400 border border-emerald-800">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          Live Dispatch
+        </span>
+        <button onclick="refreshData()" title="Refresh Data" class="p-2 text-slate-400 hover:text-white rounded-lg bg-slate-800 hover:bg-slate-700 transition">
+          <i class="fa-solid fa-rotate"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="border-t border-slate-800/80 bg-slate-900/40">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center space-x-2">
+        <button onclick="switchTab('orders')" id="tab-btn-orders" class="tab-btn px-4 py-3 text-sm font-bold flex items-center gap-2 border-b-2 border-emerald-500 text-emerald-400 bg-slate-800/50 transition">
+          <i class="fa-solid fa-boxes-stacked"></i> Live Orders
+          <span id="tab-orders-count-badge" class="px-2 py-0.5 rounded-full text-[11px] bg-slate-800 text-slate-300 font-semibold ml-1">0</span>
+        </button>
+        <button onclick="switchTab('fleet')" id="tab-btn-fleet" class="tab-btn px-4 py-3 text-sm font-bold flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
+          <i class="fa-solid fa-users-gear text-amber-400"></i> Dispatch Fleet
+          <span id="tab-fleet-count-badge" class="px-2 py-0.5 rounded-full text-[11px] bg-slate-800 text-slate-300 font-semibold ml-1">0</span>
+        </button>
+        <button onclick="switchTab('pricing')" id="tab-btn-pricing" class="tab-btn px-4 py-3 text-sm font-bold flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition">
+          <i class="fa-solid fa-calculator text-emerald-400"></i> Pricing &amp; Route Tools
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- ========================================== -->
+    <!-- TAB 1: LIVE ORDERS & DISPATCH OVERVIEW    -->
+    <!-- ========================================== -->
+    <div id="tab-orders" class="tab-pane space-y-8">
+      <!-- KPI Metric Cards -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider">Total Revenue</span>
+            <i class="fa-solid fa-wallet text-emerald-400 text-lg"></i>
+          </div>
+          <div class="text-2xl font-bold text-white" id="stat-revenue">₦0</div>
+          <p class="text-xs text-slate-500 mt-1">Paid deliveries</p>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider">In Transit</span>
+            <i class="fa-solid fa-route text-sky-400 text-lg"></i>
+          </div>
+          <div class="text-2xl font-bold text-white" id="stat-transit">0</div>
+          <p class="text-xs text-slate-500 mt-1">Orders with assigned riders</p>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider">Completed</span>
+            <i class="fa-solid fa-circle-check text-indigo-400 text-lg"></i>
+          </div>
+          <div class="text-2xl font-bold text-white" id="stat-delivered">0</div>
+          <p class="text-xs text-slate-500 mt-1">Safely delivered packages</p>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm cursor-pointer hover:border-slate-700 transition" onclick="switchTab('fleet')">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider">Available Riders</span>
+            <i class="fa-solid fa-motorcycle text-amber-400 text-lg"></i>
+          </div>
+          <div class="text-2xl font-bold text-white" id="stat-riders">0</div>
+          <p class="text-xs text-emerald-400 mt-1 flex items-center gap-1">Manage Fleet <i class="fa-solid fa-arrow-right text-[10px]"></i></p>
+        </div>
+      </section>
+
+      <!-- Live Orders Table Section -->
+      <section class="space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-receipt text-emerald-400"></i> Live Orders
+            </h2>
+            <p class="text-xs text-slate-400">Real-time status of incoming WhatsApp delivery bookings</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-500"></i>
+              <input type="text" id="order-search" oninput="handleOrderSearch(event)" placeholder="Search customer or ref..." class="bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 w-48 sm:w-60">
+            </div>
+            <span class="text-xs text-slate-400 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800" id="orders-count">Loading...</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-slate-300">
+              <thead class="text-xs uppercase bg-slate-800/60 text-slate-400 border-b border-slate-800">
+                <tr>
+                  <th class="py-3.5 px-4">Order / Customer</th>
+                  <th class="py-3.5 px-4">Route</th>
+                  <th class="py-3.5 px-4">Amount</th>
+                  <th class="py-3.5 px-4">Assigned Rider</th>
+                  <th class="py-3.5 px-4">Status</th>
+                  <th class="py-3.5 px-4">Time</th>
+                </tr>
+              </thead>
+              <tbody id="orders-table" class="divide-y divide-slate-800/60">
+                <tr>
+                  <td colspan="6" class="py-12 text-center text-slate-500">
+                    <i class="fa-solid fa-spinner fa-spin text-xl mb-2"></i>
+                    <p>Loading orders...</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: DISPATCH FLEET MANAGEMENT TAB      -->
+    <!-- ========================================== -->
+    <div id="tab-fleet" class="tab-pane space-y-8 hidden">
+      
+      <!-- Fleet KPI Summary -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider">Total Fleet</span>
+            <i class="fa-solid fa-id-badge text-indigo-400 text-lg"></i>
+          </div>
+          <div class="text-2xl font-bold text-white" id="fleet-total-count">0</div>
+          <p class="text-xs text-slate-500 mt-1">Registered riders</p>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider">Available Now</span>
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          </div>
+          <div class="text-2xl font-bold text-emerald-400" id="fleet-available-count">0</div>
+          <p class="text-xs text-slate-500 mt-1">Ready for assignments</p>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider">On Delivery</span>
+            <i class="fa-solid fa-person-biking text-amber-400 text-lg"></i>
+          </div>
+          <div class="text-2xl font-bold text-amber-400" id="fleet-busy-count">0</div>
+          <p class="text-xs text-slate-500 mt-1">Active delivery in progress</p>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider">Offline</span>
+            <i class="fa-solid fa-moon text-slate-500 text-lg"></i>
+          </div>
+          <div class="text-2xl font-bold text-slate-400" id="fleet-offline-count">0</div>
+          <p class="text-xs text-slate-500 mt-1">Off duty</p>
+        </div>
+      </section>
+
+      <!-- Fleet Controls & Action Bar -->
+      <section class="space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/60 p-4 border border-slate-800 rounded-2xl">
+          <!-- Search & Filter Controls -->
+          <div class="flex flex-wrap items-center gap-3">
+            <div class="relative w-full sm:w-72">
+              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-xs text-slate-500"></i>
+              <input type="text" id="fleet-search-input" oninput="handleFleetSearch(event)" placeholder="Search rider by name or phone..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3.5 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500">
+            </div>
+
+            <!-- Filter Pills -->
+            <div class="inline-flex rounded-xl bg-slate-950 p-1 border border-slate-800 text-xs">
+              <button onclick="setRiderFilter('all')" id="filter-btn-all" class="rider-filter-btn px-3 py-1 rounded-lg font-semibold bg-slate-800 text-white transition">All</button>
+              <button onclick="setRiderFilter('available')" id="filter-btn-available" class="rider-filter-btn px-3 py-1 rounded-lg font-semibold text-slate-400 hover:text-white transition">Available</button>
+              <button onclick="setRiderFilter('busy')" id="filter-btn-busy" class="rider-filter-btn px-3 py-1 rounded-lg font-semibold text-slate-400 hover:text-white transition">Busy</button>
+              <button onclick="setRiderFilter('offline')" id="filter-btn-offline" class="rider-filter-btn px-3 py-1 rounded-lg font-semibold text-slate-400 hover:text-white transition">Offline</button>
+            </div>
+          </div>
+
+          <!-- Add Rider Button -->
+          <button onclick="toggleRiderModal(true)" class="px-4 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition shadow flex items-center justify-center gap-2 self-start sm:self-auto">
+            <i class="fa-solid fa-user-plus"></i> Add New Rider
+          </button>
+        </div>
+
+        <!-- Riders Grid View -->
+        <div id="fleet-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="col-span-full py-16 text-center text-slate-500">
+            <i class="fa-solid fa-spinner fa-spin text-2xl mb-3"></i>
+            <p class="text-sm">Loading dispatch fleet...</p>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: PRICING & ROUTE TOOLS TAB          -->
+    <!-- ========================================== -->
+    <div id="tab-pricing" class="tab-pane space-y-8 hidden">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        <!-- Pricing Rates Editor Card -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5 shadow-xl">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div>
+              <h3 class="font-bold text-white text-base flex items-center gap-2">
+                <i class="fa-solid fa-calculator text-emerald-400"></i> Dispatch Pricing Configuration
+              </h3>
+              <p class="text-xs text-slate-400 mt-0.5">Control base pickup fees and per-kilometer rates for all deliveries.</p>
+            </div>
+            <span id="pricing-status" class="text-xs text-emerald-400 font-semibold hidden px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20"><i class="fa-solid fa-check mr-1"></i> Saved!</span>
+          </div>
+
+          <form id="pricing-form" onsubmit="handleSavePricing(event)" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold uppercase text-slate-400 mb-1.5">Base Pickup Fee (₦)</label>
+                <div class="relative">
+                  <span class="absolute left-3.5 top-2.5 text-sm font-bold text-slate-500">₦</span>
+                  <input type="number" id="base-fee-input" required min="0" step="50" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 font-bold">
+                </div>
+                <p class="text-[11px] text-slate-500 mt-1">Charged on every standard delivery.</p>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold uppercase text-slate-400 mb-1.5">Distance Rate (₦ / km)</label>
+                <div class="relative">
+                  <span class="absolute left-3.5 top-2.5 text-sm font-bold text-slate-500">₦</span>
+                  <input type="number" id="per-km-input" required min="0" step="10" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 font-bold">
+                </div>
+                <p class="text-[11px] text-slate-500 mt-1">Per km of verified driving road route.</p>
+              </div>
+            </div>
+
+            <!-- Proximity Dispatch Controls -->
+            <div class="pt-3 border-t border-slate-800/80">
+              <h4 class="text-xs font-bold uppercase tracking-wider text-amber-400 mb-3 flex items-center gap-1.5">
+                <i class="fa-solid fa-route"></i> Rider Proximity &amp; Dispatch Safeguards
+              </h4>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-xs font-semibold uppercase text-slate-400 mb-1.5">Max Local Pickup Radius (km)</label>
+                  <div class="relative">
+                    <input type="number" id="max-radius-input" required min="1" max="50" step="1" value="7" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 font-bold">
+                    <span class="absolute right-3.5 top-2.5 text-xs text-slate-500">km</span>
+                  </div>
+                  <p class="text-[11px] text-slate-500 mt-1">Riders farther than this distance are flagged as long-distance.</p>
+                </div>
+
+                <div>
+                  <label class="block text-xs font-semibold uppercase text-slate-400 mb-1.5">Far-Pickup Fuel Surcharge (₦)</label>
+                  <div class="relative">
+                    <span class="absolute left-3.5 top-2.5 text-sm font-bold text-slate-500">₦</span>
+                    <input type="number" id="far-surcharge-input" required min="0" step="50" value="800" class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 font-bold">
+                  </div>
+                  <p class="text-[11px] text-slate-500 mt-1">Extra fuel fee added if nearest rider is beyond max radius.</p>
+                </div>
+              </div>
+
+              <div class="mt-3 p-3 bg-slate-950/70 border border-slate-800 rounded-xl flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-semibold text-white">Allow Long-Distance Dispatch with Surcharge</div>
+                  <div class="text-[11px] text-slate-400">If unchecked, orders are blocked when no local rider is within radius (prevents deadhead loss).</div>
+                </div>
+                <input type="checkbox" id="allow-surcharge-toggle" class="w-4 h-4 rounded text-emerald-500 focus:ring-emerald-500 bg-slate-900 border-slate-700">
+              </div>
+            </div>
+
+            <!-- Public Tunnel & Webhook URL -->
+            <div class="pt-3 border-t border-slate-800/80">
+              <label class="block text-xs font-semibold uppercase text-slate-400 mb-1.5">Public Tunnel / Domain URL</label>
+              <input type="url" id="public-url-input" placeholder="https://....trycloudflare.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-sky-400 focus:outline-none focus:border-sky-500 font-mono">
+              <p class="text-[11px] text-slate-500 mt-1">Used for Paystack browser redirect callback and webhooks.</p>
+            </div>
+
+            <!-- Google Maps API Key -->
+            <div class="pt-3 border-t border-slate-800/80">
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="block text-xs font-semibold uppercase text-emerald-400">Google Maps API Key (Recommended)</label>
+                <span class="text-[11px] text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">40,000 Free / mo</span>
+              </div>
+              <input type="password" id="google-maps-api-key-input" placeholder="AIzaSy..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-emerald-400 focus:outline-none focus:border-emerald-500 font-mono">
+              <p class="text-[11px] text-slate-500 mt-1">Gives 100% exact road distances &amp; street lookups matching Google Maps and Uber (5.1 km). OpenRouteService acts as backup.</p>
+            </div>
+
+            <button type="submit" class="w-full py-3 rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-600 hover:bg-emerald-500 text-white transition shadow flex items-center justify-center gap-2">
+              <i class="fa-solid fa-floppy-disk"></i> Save &amp; Apply Pricing &amp; Dispatch Rules
+            </button>
+          </form>
+
+          <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800 text-xs text-slate-400 flex items-start gap-2.5">
+            <i class="fa-solid fa-circle-info text-sky-400 mt-0.5"></i>
+            <div>
+              <strong class="text-slate-300">Instant WhatsApp Sync:</strong> When saved, incoming WhatsApp bookings, automated distance calculations, and proximity safeguards update instantly in real time!
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Route & Pricing Tester Card -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5 shadow-xl">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+            <div>
+              <h3 class="font-bold text-white text-base flex items-center gap-2">
+                <i class="fa-solid fa-map-location-dot text-sky-400"></i> Route App &amp; Pricing Tester
+              </h3>
+              <p class="text-xs text-slate-400 mt-0.5">Verify that the OpenRouteService engine and dynamic pricing calculations are live.</p>
+            </div>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              Route API Active
+            </span>
+          </div>
+
+          <div class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Pickup Location</label>
+                <input type="text" id="test-pickup" value="Kubwa" placeholder="e.g. Kubwa, Wuse 2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-sky-500 font-medium">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Delivery Location</label>
+                <input type="text" id="test-delivery" value="Wuse 2" placeholder="e.g. Gwarinpa, Maitama" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-sky-500 font-medium">
+              </div>
+            </div>
+
+            <button onclick="runRouteTest()" id="btn-test-route" class="w-full py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-slate-800 hover:bg-sky-600 text-slate-200 hover:text-white transition shadow flex items-center justify-center gap-2">
+              <i class="fa-solid fa-play"></i> Test Route &amp; Confirm Price
+            </button>
+          </div>
+
+          <div id="test-result-box" class="hidden p-4 rounded-xl bg-slate-950/80 border border-slate-800 text-xs space-y-2.5">
+            <div class="flex items-center justify-between font-bold text-white">
+              <span id="test-route-dist" class="text-sky-400 text-sm">0 km</span>
+              <span id="test-route-price" class="text-emerald-400 text-base">₦0</span>
+            </div>
+            <div class="text-xs text-slate-400 space-y-1">
+              <div><span class="text-slate-500">📍 From:</span> <span id="test-pickup-resolved" class="text-slate-300 font-medium"></span></div>
+              <div><span class="text-slate-500">🏁 To:</span> <span id="test-delivery-resolved" class="text-slate-300 font-medium"></span></div>
+            </div>
+            <div class="pt-2 border-t border-slate-800/80 text-[11px] text-emerald-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-check"></i> <span>OpenRouteService &amp; pricing formulas are fully synchronized!</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODALS: ADD & EDIT RIDERS                 -->
+  <!-- ========================================== -->
+
+  <!-- Add Rider Modal -->
+  <div id="rider-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-user-plus text-emerald-400"></i> Add Dispatch Rider
+        </h3>
+        <button onclick="toggleRiderModal(false)" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="add-rider-form" onsubmit="handleAddRider(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Rider Full Name</label>
+          <input type="text" id="rider-name" required placeholder="e.g. Samuel Adebayo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">WhatsApp Phone Number</label>
+          <input type="text" id="rider-phone" required placeholder="e.g. 2348012345678" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+          <p class="text-xs text-slate-500 mt-1">Must include country code (e.g. 234... without plus sign)</p>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Home Base / Station Zone</label>
+          <input type="text" id="rider-zone" placeholder="e.g. Kubwa, Wuse 2, Gwarinpa, Maitama" value="Kubwa" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 font-medium">
+          <p class="text-xs text-slate-500 mt-1">Used to calculate proximity to customer pickups.</p>
+        </div>
+        <div class="pt-2 flex justify-end gap-3">
+          <button type="button" onclick="toggleRiderModal(false)" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow">Save Rider</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Rider Modal -->
+  <div id="edit-rider-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-5 shadow-2xl">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+          <i class="fa-solid fa-user-pen text-sky-400"></i> Edit Dispatch Rider
+        </h3>
+        <button onclick="toggleEditRiderModal(false)" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="edit-rider-form" onsubmit="handleUpdateRider(event)" class="space-y-4">
+        <input type="hidden" id="edit-rider-id">
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Rider Full Name</label>
+          <input type="text" id="edit-rider-name" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">WhatsApp Phone Number</label>
+          <input type="text" id="edit-rider-phone" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Station / Current Zone</label>
+          <input type="text" id="edit-rider-zone" required placeholder="e.g. Kubwa, Wuse 2, Gwarinpa" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500 font-medium">
+          <p class="text-xs text-slate-500 mt-1">Updates where this rider is dispatched from.</p>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Current Status</label>
+          <select id="edit-rider-status" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-emerald-500">
+            <option value="available">Available (Ready for assignment)</option>
+            <option value="busy">Busy (On active delivery)</option>
+            <option value="offline">Offline (Off duty)</option>
+          </select>
+        </div>
+        <div class="pt-2 flex justify-end gap-3">
+          <button type="button" onclick="toggleEditRiderModal(false)" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300">Cancel</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-sky-600 hover:bg-sky-500 text-white shadow">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JavaScript Application Logic -->
+  <script>
+    // State
+    let currentTab = 'orders';
+    let allOrders = [];
+    let allRiders = [];
+    let riderFilter = 'all';
+    let riderSearch = '';
+    let orderSearch = '';
+
+    // --- Tab Switching Logic ---
+    function switchTab(tab) {
+      currentTab = tab;
+      window.location.hash = tab;
+
+      // Update panes
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+      const activePane = document.getElementById(`tab-${tab}`);
+      if (activePane) activePane.classList.remove('hidden');
+
+      // Update tab buttons
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('border-emerald-500', 'text-emerald-400', 'bg-slate-800/50');
+        btn.classList.add('border-transparent', 'text-slate-400');
+      });
+
+      const activeBtn = document.getElementById(`tab-btn-${tab}`);
+      if (activeBtn) {
+        activeBtn.classList.remove('border-transparent', 'text-slate-400');
+        activeBtn.classList.add('border-emerald-500', 'text-emerald-400', 'bg-slate-800/50');
+      }
+    }
+
+    // --- KPI Stats Fetching ---
+    async function fetchStats() {
+      try {
+        const res = await fetch('/api/stats');
+        const data = await res.json();
+        document.getElementById('stat-revenue').textContent = '₦' + (data.totalRevenue || 0).toLocaleString('en-NG');
+        document.getElementById('stat-transit').textContent = data.inTransitCount || 0;
+        document.getElementById('stat-delivered').textContent = data.deliveredCount || 0;
+        document.getElementById('stat-riders').textContent = data.availableRidersCount || 0;
+      } catch (err) {
+        console.error('Error fetching stats:', err);
+      }
+    }
+
+    // --- Orders Handling ---
+    async function fetchOrders() {
+      try {
+        const res = await fetch('/api/orders');
+        allOrders = await res.json();
+        renderOrders();
+      } catch (err) {
+        console.error('Error fetching orders:', err);
+      }
+    }
+
+    function handleOrderSearch(e) {
+      orderSearch = e.target.value.toLowerCase().trim();
+      renderOrders();
+    }
+
+    function renderOrders() {
+      const tbody = document.getElementById('orders-table');
+      const filtered = allOrders.filter(o => {
+        if (!orderSearch) return true;
+        const phone = (o.customer_phone || '').toLowerCase();
+        const ref = (o.paystack_reference || '').toLowerCase();
+        const pickup = (o.pickup_address || '').toLowerCase();
+        const delivery = (o.delivery_address || '').toLowerCase();
+        return phone.includes(orderSearch) || ref.includes(orderSearch) || pickup.includes(orderSearch) || delivery.includes(orderSearch);
+      });
+
+      document.getElementById('orders-count').textContent = `${allOrders.length} total orders`;
+      document.getElementById('tab-orders-count-badge').textContent = allOrders.length;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-slate-500">${orderSearch ? 'No matching orders found.' : 'No orders yet.'}</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(order => {
+        let badge = '';
+        if (order.status === 'delivered') {
+          badge = `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Delivered</span>`;
+        } else if (order.status === 'paid') {
+          badge = `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20">In Transit</span>`;
+        } else {
+          badge = `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending Pay</span>`;
+        }
+
+        const riderName = order.riders ? order.riders.name : '<span class="text-slate-500">Unassigned</span>';
+        const formattedDate = new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ', ' + new Date(order.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' });
+
+        return `
+          <tr class="hover:bg-slate-800/30 transition">
+            <td class="py-3.5 px-4">
+              <div class="font-semibold text-white text-xs">${order.paystack_reference || 'Ref N/A'}</div>
+              <div class="text-xs text-slate-400">+${order.customer_phone}</div>
+            </td>
+            <td class="py-3.5 px-4 text-xs">
+              <div class="text-slate-300 font-medium truncate max-w-sm"><i class="fa-solid fa-location-dot text-emerald-400 mr-1.5"></i>${order.pickup_address}</div>
+              <div class="text-slate-400 truncate max-w-sm mt-0.5"><i class="fa-solid fa-flag-checkered text-rose-400 mr-1.5"></i>${order.delivery_address}</div>
+              <div class="text-[11px] text-slate-500 mt-1">${order.distance_km || 0} km • ${order.package_size?.toUpperCase()}</div>
+            </td>
+            <td class="py-3.5 px-4 font-bold text-white text-sm">
+              ₦${(order.price_ngn || 0).toLocaleString('en-NG')}
+            </td>
+            <td class="py-3.5 px-4 text-xs font-medium">
+              ${riderName}
+            </td>
+            <td class="py-3.5 px-4">
+              ${badge}
+            </td>
+            <td class="py-3.5 px-4 text-xs text-slate-500 whitespace-nowrap">
+              ${formattedDate}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // --- Fleet Management ---
+    async function fetchRiders() {
+      try {
+        const res = await fetch('/api/riders');
+        allRiders = await res.json();
+        updateFleetKPIs();
+        renderFleetGrid();
+      } catch (err) {
+        console.error('Error fetching riders:', err);
+      }
+    }
+
+    function updateFleetKPIs() {
+      const total = allRiders.length;
+      const available = allRiders.filter(r => r.status === 'available').length;
+      const busy = allRiders.filter(r => r.status === 'busy').length;
+      const offline = allRiders.filter(r => r.status === 'offline').length;
+
+      document.getElementById('fleet-total-count').textContent = total;
+      document.getElementById('fleet-available-count').textContent = available;
+      document.getElementById('fleet-busy-count').textContent = busy;
+      document.getElementById('fleet-offline-count').textContent = offline;
+      document.getElementById('tab-fleet-count-badge').textContent = total;
+    }
+
+    function setRiderFilter(status) {
+      riderFilter = status;
+      document.querySelectorAll('.rider-filter-btn').forEach(btn => {
+        btn.classList.remove('bg-slate-800', 'text-white');
+        btn.classList.add('text-slate-400');
+      });
+      const active = document.getElementById(`filter-btn-${status}`);
+      if (active) {
+        active.classList.add('bg-slate-800', 'text-white');
+        active.classList.remove('text-slate-400');
+      }
+      renderFleetGrid();
+    }
+
+    function handleFleetSearch(e) {
+      riderSearch = e.target.value.toLowerCase().trim();
+      renderFleetGrid();
+    }
+
+    function renderFleetGrid() {
+      const grid = document.getElementById('fleet-grid');
+      const filtered = allRiders.filter(r => {
+        const matchesFilter = (riderFilter === 'all') || (r.status === riderFilter);
+        const matchesSearch = !riderSearch || r.name.toLowerCase().includes(riderSearch) || r.phone_number.includes(riderSearch);
+        return matchesFilter && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full py-16 text-center text-slate-500 bg-slate-900/40 rounded-2xl border border-slate-800">
+            <i class="fa-solid fa-user-slash text-3xl mb-2 text-slate-600"></i>
+            <p class="text-sm font-semibold text-slate-400">${riderSearch ? 'No riders matching your search.' : 'No riders in this category.'}</p>
+            <p class="text-xs text-slate-500 mt-1">Try another filter or click "Add New Rider" above.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(r => {
+        let statusBadge = '';
+        let avatarBg = 'bg-slate-800 text-slate-300';
+        if (r.status === 'available') {
+          statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Available</span>`;
+          avatarBg = 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30';
+        } else if (r.status === 'busy') {
+          statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> On Delivery</span>`;
+          avatarBg = 'bg-amber-500/10 text-amber-400 border border-amber-500/30';
+        } else {
+          statusBadge = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-400"><span class="w-1.5 h-1.5 rounded-full bg-slate-500"></span> Offline</span>`;
+          avatarBg = 'bg-slate-800 text-slate-400 border border-slate-700';
+        }
+
+        return `
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-lg space-y-4 hover:border-slate-700 transition">
+            <div class="flex items-start justify-between">
+              <div class="flex items-center space-x-3">
+                <div class="w-11 h-11 rounded-2xl ${avatarBg} flex items-center justify-center font-bold text-sm">
+                  ${r.name.charAt(0)}
+                </div>
+                <div>
+                  <h4 class="font-bold text-white text-sm">${r.name}</h4>
+                  <a href="https://wa.me/${r.phone_number}" target="_blank" class="text-xs text-slate-400 hover:text-emerald-400 transition flex items-center gap-1 mt-0.5" title="Chat on WhatsApp">
+                    <i class="fa-brands fa-whatsapp text-emerald-400"></i> +${r.phone_number}
+                  </a>
+                </div>
+              </div>
+              <div>
+                ${statusBadge}
+              </div>
+            </div>
+
+            <!-- Current Station / Zone Tag -->
+            <div class="p-2 rounded-xl bg-slate-950/60 border border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+              <span class="flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-amber-400"></i> Station: <strong class="text-slate-200">${r.current_zone || 'Kubwa'}</strong></span>
+              <button onclick="openEditRiderModal('${r.id}', '${r.name.replace(/'/g, "\\'")}', '${r.phone_number}', '${r.status}', '${(r.current_zone || 'Kubwa').replace(/'/g, "\\'")}')" class="text-[10px] text-sky-400 hover:underline">Change</button>
+            </div>
+
+            <!-- Quick Status Switcher & Actions -->
+            <div class="pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2">
+              <div class="flex items-center gap-1.5">
+                <label class="text-[10px] uppercase font-bold text-slate-500">Status:</label>
+                <select onchange="quickUpdateRiderStatus('${r.id}', this.value)" class="bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-xs text-white focus:outline-none focus:border-emerald-500 font-medium">
+                  <option value="available" ${r.status === 'available' ? 'selected' : ''}>🟢 Available</option>
+                  <option value="busy" ${r.status === 'busy' ? 'selected' : ''}>🔵 Busy</option>
+                  <option value="offline" ${r.status === 'offline' ? 'selected' : ''}>⚪ Offline</option>
+                </select>
+              </div>
+
+              <div class="flex items-center space-x-1">
+                <button onclick="openEditRiderModal('${r.id}', '${r.name.replace(/'/g, "\\'")}', '${r.phone_number}', '${r.status}', '${(r.current_zone || 'Kubwa').replace(/'/g, "\\'")}')" class="p-2 text-slate-400 hover:text-sky-400 rounded-lg hover:bg-sky-500/10 transition" title="Edit Rider">
+                  <i class="fa-solid fa-pen text-xs"></i>
+                </button>
+                <button onclick="handleDeleteRider('${r.id}', '${r.name.replace(/'/g, "\\'")}')" class="p-2 text-slate-400 hover:text-rose-400 rounded-lg hover:bg-rose-500/10 transition" title="Delete Rider">
+                  <i class="fa-solid fa-trash-can text-xs"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function quickUpdateRiderStatus(id, newStatus) {
+      try {
+        const res = await fetch(`/api/riders/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+        if (res.ok) {
+          fetchRiders();
+          fetchStats();
+        } else {
+          alert('Failed to update rider status.');
+        }
+      } catch (err) {
+        console.error('Error updating status:', err);
+      }
+    }
+
+    function toggleRiderModal(show) {
+      document.getElementById('rider-modal').classList.toggle('hidden', !show);
+    }
+
+    function toggleEditRiderModal(show) {
+      document.getElementById('edit-rider-modal').classList.toggle('hidden', !show);
+    }
+
+    function openEditRiderModal(id, name, phone, status, current_zone = 'Kubwa') {
+      document.getElementById('edit-rider-id').value = id;
+      document.getElementById('edit-rider-name').value = name;
+      document.getElementById('edit-rider-phone').value = phone;
+      document.getElementById('edit-rider-zone').value = current_zone;
+      document.getElementById('edit-rider-status').value = status || 'available';
+      toggleEditRiderModal(true);
+    }
+
+    async function handleAddRider(e) {
+      e.preventDefault();
+      const name = document.getElementById('rider-name').value.trim();
+      const phone = document.getElementById('rider-phone').value.replace(/[^0-9]/g, '');
+      const current_zone = document.getElementById('rider-zone').value.trim() || 'Kubwa';
+
+      try {
+        const res = await fetch('/api/riders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, phone_number: phone, current_zone })
+        });
+
+        if (res.ok) {
+          document.getElementById('add-rider-form').reset();
+          toggleRiderModal(false);
+          fetchRiders();
+          fetchStats();
+        } else {
+          alert('Failed to add rider.');
+        }
+      } catch (err) {
+        console.error('Error adding rider:', err);
+      }
+    }
+
+    async function handleUpdateRider(e) {
+      e.preventDefault();
+      const id = document.getElementById('edit-rider-id').value;
+      const name = document.getElementById('edit-rider-name').value.trim();
+      const phone = document.getElementById('edit-rider-phone').value.replace(/[^0-9]/g, '');
+      const current_zone = document.getElementById('edit-rider-zone').value.trim() || 'Kubwa';
+      const status = document.getElementById('edit-rider-status').value;
+
+      try {
+        const res = await fetch(`/api/riders/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, phone_number: phone, status, current_zone })
+        });
+
+        if (res.ok) {
+          toggleEditRiderModal(false);
+          fetchRiders();
+          fetchStats();
+        } else {
+          alert('Failed to update rider.');
+        }
+      } catch (err) {
+        console.error('Error updating rider:', err);
+      }
+    }
+
+    async function handleDeleteRider(id, name) {
+      if (!confirm(`Are you sure you want to remove rider "${name}" from the dispatch fleet?`)) return;
+
+      try {
+        const res = await fetch(`/api/riders/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          fetchRiders();
+          fetchStats();
+        } else {
+          alert('Failed to delete rider.');
+        }
+      } catch (err) {
+        console.error('Error deleting rider:', err);
+      }
+    }
+
+    // --- Pricing & Proximity Settings ---
+    async function fetchPricing() {
+      try {
+        const res = await fetch('/api/settings');
+        const data = await res.json();
+        if (data.base_fee !== undefined) {
+          document.getElementById('base-fee-input').value = data.base_fee;
+        }
+        if (data.per_km_rate !== undefined) {
+          document.getElementById('per-km-input').value = data.per_km_rate;
+        }
+        if (data.max_pickup_distance_km !== undefined) {
+          document.getElementById('max-radius-input').value = data.max_pickup_distance_km;
+        }
+        if (data.far_pickup_surcharge !== undefined) {
+          document.getElementById('far-surcharge-input').value = data.far_pickup_surcharge;
+        }
+        if (data.allow_far_pickup_with_surcharge !== undefined) {
+          document.getElementById('allow-surcharge-toggle').checked = Boolean(data.allow_far_pickup_with_surcharge);
+        }
+        if (data.public_url) {
+          document.getElementById('public-url-input').value = data.public_url;
+        }
+        if (data.google_maps_api_key) {
+          document.getElementById('google-maps-api-key-input').value = data.google_maps_api_key;
+        }
+      } catch (err) {
+        console.error('Error fetching pricing:', err);
+      }
+    }
+
+    async function handleSavePricing(e) {
+      e.preventDefault();
+      const base_fee = Number(document.getElementById('base-fee-input').value);
+      const per_km_rate = Number(document.getElementById('per-km-input').value);
+      const max_pickup_distance_km = Number(document.getElementById('max-radius-input').value);
+      const far_pickup_surcharge = Number(document.getElementById('far-surcharge-input').value);
+      const allow_far_pickup_with_surcharge = document.getElementById('allow-surcharge-toggle').checked;
+      const public_url = document.getElementById('public-url-input').value.trim();
+      const google_maps_api_key = document.getElementById('google-maps-api-key-input').value.trim();
+
+      try {
+        const res = await fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            base_fee, 
+            per_km_rate, 
+            max_pickup_distance_km, 
+            far_pickup_surcharge, 
+            allow_far_pickup_with_surcharge,
+            public_url,
+            google_maps_api_key
+          })
+        });
+        if (res.ok) {
+          const status = document.getElementById('pricing-status');
+          status.classList.remove('hidden');
+          setTimeout(() => status.classList.add('hidden'), 3500);
+        } else {
+          alert('Failed to save pricing rates.');
+        }
+      } catch (err) {
+        console.error('Error saving pricing:', err);
+      }
+    }
+
+    // --- Live Route & Rate Tester ---
+    async function runRouteTest() {
+      const pickup = document.getElementById('test-pickup').value.trim();
+      const delivery = document.getElementById('test-delivery').value.trim();
+      const btn = document.getElementById('btn-test-route');
+      const box = document.getElementById('test-result-box');
+
+      if (!pickup || !delivery) {
+        alert('Please enter both pickup and delivery locations');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Calculating route...`;
+
+      try {
+        const res = await fetch(`/api/test-route?pickup=${encodeURIComponent(pickup)}&delivery=${encodeURIComponent(delivery)}`);
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('test-route-dist').textContent = `${data.distanceKm} km driving distance`;
+          document.getElementById('test-route-price').textContent = `₦${data.calculatedPrice.toLocaleString('en-NG')}`;
+          document.getElementById('test-pickup-resolved').textContent = data.pickup;
+          document.getElementById('test-delivery-resolved').textContent = data.delivery;
+          box.classList.remove('hidden');
+        } else {
+          alert(`Route test failed: ${data.error}`);
+        }
+      } catch (err) {
+        alert(`Error connecting to route engine: ${err.message}`);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-play"></i> Test Route &amp; Confirm Price`;
+      }
+    }
+
+    function refreshData() {
+      fetchStats();
+      fetchOrders();
+      fetchRiders();
+    }
+
+    // Initial load: read hash if present, fetch data, and poll every 8 seconds
+    const initialTab = window.location.hash.replace('#', '') || 'orders';
+    if (['orders', 'fleet', 'pricing'].includes(initialTab)) {
+      switchTab(initialTab);
+    }
+    fetchPricing();
+    refreshData();
+    setInterval(refreshData, 8000);
+  </script>
+</body>
+</html>
