@@ -713,22 +713,22 @@ app.get('/', (req, res) => {
 
 // 2. Webhook verification endpoint (Required by Meta)
 app.get('/webhook', (req, res) => {
-  const verify_token = process.env.VERIFY_TOKEN;
+  const verify_token = (process.env.VERIFY_TOKEN || 'my_secure_random_verify_token_123').trim();
 
   const mode = req.query['hub.mode'];
-  const token = req.query['hub.verify_token'];
+  const token = (req.query['hub.verify_token'] || '').trim();
   const challenge = req.query['hub.challenge'];
 
   if (mode && token) {
     if (mode === 'subscribe' && token === verify_token) {
       console.log('WEBHOOK_VERIFIED');
-      res.status(200).send(challenge);
+      return res.type('text/plain').status(200).send(challenge);
     } else {
-      // Responds with '403 Forbidden' if verify tokens do not match
-      res.sendStatus(403);
+      console.warn(`[Webhook Verification Failed] Expected "${verify_token}", received "${token}"`);
+      return res.sendStatus(403);
     }
   } else {
-    res.status(400).send('Missing mode or token');
+    return res.status(400).send('Missing mode or token');
   }
 });
 
