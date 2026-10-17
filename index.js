@@ -199,6 +199,39 @@ app.get('/api/test-route', async (req, res) => {
   }
 });
 
+// Public endpoint for website tracking widget
+app.get('/api/track/:reference', async (req, res) => {
+  try {
+    const { reference } = req.params;
+    const { data: orders, error } = await supabase
+      .from('orders')
+      .select('id, paystack_reference, pickup_address, delivery_address, status, price_ngn, distance_km, created_at, riders(name, phone_number)')
+      .eq('paystack_reference', reference.trim())
+      .limit(1);
+
+    if (error || !orders || orders.length === 0) {
+      return res.status(404).json({ success: false, error: 'Order reference not found.' });
+    }
+
+    const order = orders[0];
+    res.json({
+      success: true,
+      order: {
+        reference: order.paystack_reference,
+        pickup: order.pickup_address,
+        delivery: order.delivery_address,
+        status: order.status,
+        distanceKm: order.distance_km,
+        price: order.price_ngn,
+        createdAt: order.created_at,
+        rider: order.riders ? { name: order.riders.name, phone: order.riders.phone_number } : null
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.get('/api/test-places', async (req, res) => {
   try {
     const input = req.query.input || 'igbenidion cresent kubwa';
