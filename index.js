@@ -1895,6 +1895,10 @@ async function sendWhatsAppMessage(to, text) {
 }
 
 // --- Start Server ---
-app.listen(PORT, () => {
-  console.log(`FM XPRESS Live Dispatch Server listening on port ${PORT}`);
-});
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`FM XPRESS Live Dispatch Server listening on port ${PORT}`);
+  });
+}
+
+module.exports = app;
