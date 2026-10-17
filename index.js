@@ -384,8 +384,22 @@ app.delete('/api/admin/users/:id', authMiddleware('admin'), async (req, res) => 
 });
 
 // --- Web Portal / Admin Dashboard Endpoints ---
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+});
+
+app.get('/robots.txt', (req, res) => {
+  res.type('text/plain');
+  res.sendFile(path.join(__dirname, 'public', 'robots.txt'));
+});
+
+app.get('/sitemap.xml', (req, res) => {
+  res.type('application/xml');
+  res.sendFile(path.join(__dirname, 'public', 'sitemap.xml'));
 });
 
 app.get('/api/settings', authMiddleware('admin'), (req, res) => {
