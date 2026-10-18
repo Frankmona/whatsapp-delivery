@@ -7,7 +7,9 @@ const crypto = require('crypto');
 const axios = require('axios');
 const { createClient } = require('@supabase/supabase-js');
 
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://drsvzbrculuyavaqboku.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyc3Z6YnJjdWx1eWF2YXFib2t1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1Mzc0ODksImV4cCI6MjEwNzExMzQ4OX0.BINwbWPp1x3S_fiFyzytIpQ8_iICJGJoqsj_dJlK480';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const app = express();
 // Middleware to parse JSON bodies
@@ -1220,12 +1222,15 @@ async function sendWhatsAppButtons(to, bodyText, buttons) {
   };
 
   try {
+    const token = (process.env.WHATSAPP_TOKEN || 'EAAYGQ5vs7aoBSnpS3LoOsVVz6ryqTuQCbYFz0QXcSV4qiTa6ZAmD3VAKOqMNsoZAnDESkH4bZCfNXyTtVErOtmtRUbhbQxHja1QmMd4tEI8zzwZBZBDFqS7bzso8eBG8GZB8x6HkYr3bG6mqT2kbZBWWJFXiF4J1c9TpTyuKhfIxEtkLAcu3dRrBtDLDJZAtZAw1xLwZDZD').trim();
+    const phoneId = (process.env.PHONE_NUMBER_ID || '1412570758603853').trim();
+
     const res = await axios.post(
-      `https://graph.facebook.com/v17.0/${process.env.PHONE_NUMBER_ID}/messages`,
+      `https://graph.facebook.com/v21.0/${phoneId}/messages`,
       payload,
       {
         headers: {
-          Authorization: `Bearer ${process.env.WHATSAPP_TOKEN}`,
+          Authorization: `Bearer ${token}`,
           "Content-Type": "application/json"
         }
       }
@@ -1794,18 +1799,33 @@ app.post('/webhook', async (req, res) => {
   const body = req.body;
 
   if (body.object === 'whatsapp_business_account') {
-    res.status(200).send('EVENT_RECEIVED');
-    
-    // Loop through the entries (messages)
-    for (const entry of body.entry) {
-      const changes = entry.changes[0];
-      const value = changes.value;
+    try {
+      if (Array.isArray(body.entry)) {
+        for (const entry of body.entry) {
+          if (!entry.changes || !Array.isArray(entry.changes)) continue;
+          for (const change of entry.changes) {
+            const value = change.value;
+            if (value && Array.isArray(value.messages)) {
+              for (const message of value.messages) {
+                const from = message.from;
+                console.log(`[WhatsApp] Incoming message from ${from}, type: ${message.type}`);
+                await processIncomingWhatsAppMessage(from, message);
+              }
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.error("[Webhook Error]:", err);
+    }
+    return res.status(200).send('EVENT_RECEIVED');
+  } else {
+    return res.sendStatus(404);
+  }
+});
 
-      if (value.messages && value.messages[0]) {
-        const message = value.messages[0];
-        const from = message.from; 
-
-        console.log(`[WhatsApp] Incoming message from ${from}, type: ${message.type}`);
+async function processIncomingWhatsAppMessage(from, message) {
+  try {
 
         // A. Handle WhatsApp Interactive replies (List Selection & Buttons)
         if (message.type === 'interactive') {
@@ -2189,22 +2209,22 @@ app.post('/webhook', async (req, res) => {
           // 6. DEFAULT GREETING: If no active session or greeting text received, display the 4-Option Menu!
           await sendWhatsAppInteractiveMenu(from);
         }
-      }
-    }
-  } else {
-    res.sendStatus(404);
+  } catch (err) {
+    console.error("[Message Processing Error]:", err);
   }
-});
+}
 
 async function sendWhatsAppMessage(to, text) {
+  const token = (process.env.WHATSAPP_TOKEN || 'EAAYGQ5vs7aoBSnpS3LoOsVVz6ryqTuQCbYFz0QXcSV4qiTa6ZAmD3VAKOqMNsoZAnDESkH4bZCfNXyTtVErOtmtRUbhbQxHja1QmMd4tEI8zzwZBZBDFqS7bzso8eBG8GZB8x6HkYr3bG6mqT2kbZBWWJFXiF4J1c9TpTyuKhfIxEtkLAcu3dRrBtDLDJZAtZAw1xLwZDZD').trim();
+  const phoneId = (process.env.PHONE_NUMBER_ID || '1412570758603853').trim();
   try {
-    const res = await axios.post(`https://graph.facebook.com/v17.0/${process.env.PHONE_NUMBER_ID}/messages`, {
+    const res = await axios.post(`https://graph.facebook.com/v21.0/${phoneId}/messages`, {
       messaging_product: "whatsapp",
       to: to,
       text: { body: text }
     }, {
       headers: {
-        "Authorization": `Bearer ${process.env.WHATSAPP_TOKEN}`,
+        "Authorization": `Bearer ${token}`,
         "Content-Type": "application/json"
       }
     });
