@@ -1548,12 +1548,17 @@ app.get('/payment-callback', async (req, res) => {
 
 // POST /paystack-webhook - Asynchronous webhook confirmation from Paystack
 app.post('/paystack-webhook', async (req, res) => {
-  res.sendStatus(200);
-  const event = req.body;
-  if (event && event.event === 'charge.success') {
-    const reference = event.data.reference;
-    await handleSuccessfulPayment(reference, event.data.amount / 100);
+  try {
+    const event = req.body;
+    if (event && event.event === 'charge.success') {
+      const reference = event.data.reference;
+      console.log(`[Paystack Webhook] Charge success for reference: ${reference}`);
+      await handleSuccessfulPayment(reference, event.data.amount / 100);
+    }
+  } catch (err) {
+    console.error("[Paystack Webhook Error]:", err);
   }
+  return res.sendStatus(200);
 });
 
 // --- Core Order Processing & Paystack Payment Generation ---
