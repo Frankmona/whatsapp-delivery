@@ -58,7 +58,7 @@
       </nav>
 
       <div class="flex items-center space-x-3">
-        <a href="https://wa.me/2348083819090?text=Hello%20FM%20XPRESS%2C%20I%20run%20a%20business%20in%20Abuja%20and%20want%20to%20partner%20for%20bulk%20multi-drop%20deliveries." target="_blank" class="px-5 py-2.5 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 transition flex items-center gap-2">
+        <a href="https://wa.me/2347037858093?text=Hello%20FM%20XPRESS%2C%20I%20run%20a%20business%20in%20Abuja%20and%20want%20to%20partner%20for%20bulk%20multi-drop%20deliveries." target="_blank" class="px-5 py-2.5 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 transition flex items-center gap-2">
           <i class="fa-brands fa-whatsapp text-sm"></i>
           <span>Partner WhatsApp</span>
         </a>
@@ -100,8 +100,8 @@
         <!-- Trust Badges -->
         <div class="pt-8 grid grid-cols-2 sm:grid-cols-4 gap-4 text-left border-t border-slate-800/80">
           <div class="p-3">
-            <div class="text-xl font-extrabold text-white">₦1,200</div>
-            <div class="text-xs text-slate-400">Flat partner rate/drop</div>
+            <div class="text-xl font-extrabold text-white">Wholesale Rates</div>
+            <div class="text-xs text-slate-400">Custom batch discounts</div>
           </div>
           <div class="p-3">
             <div class="text-xl font-extrabold text-purple-400">Zero Friction</div>
@@ -202,9 +202,9 @@
           </div>
 
           <div class="bg-gradient-to-br from-purple-950/50 to-slate-950 border border-purple-500/30 rounded-2xl p-5 space-y-2">
-            <span class="text-xs font-bold uppercase tracking-wider text-purple-400">FM XPRESS Bulk Rate (₦1,200 / drop)</span>
-            <div class="text-2xl font-extrabold text-emerald-400" id="calc-fmx-cost">₦468,000 / mo</div>
-            <p class="text-xs text-purple-300/80">Batch pickup with dedicated ridermanifest.</p>
+            <span class="text-xs font-bold uppercase tracking-wider text-purple-400">FM XPRESS Multi-Drop Rate</span>
+            <div class="text-2xl font-extrabold text-emerald-400" id="calc-fmx-cost">Custom Volume Rate</div>
+            <p class="text-xs text-purple-300/80">Single-pickup batch route with dedicated rider manifest.</p>
           </div>
         </div>
 
@@ -215,7 +215,7 @@
             <div class="text-3xl sm:text-4xl font-black text-white" id="calc-savings-total">₦507,000 Saved / Month</div>
           </div>
           <a href="#partner-form" class="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs uppercase tracking-wider shadow-lg transition">
-            Lock In This Rate
+            Get Custom Partner Quote
           </a>
         </div>
 
@@ -345,7 +345,7 @@
       <div class="flex items-center space-x-6">
         <a href="/" class="hover:text-slate-300 transition">Book Single Dispatch</a>
         <a href="/admin" class="hover:text-slate-300 transition">Dispatch Admin</a>
-        <a href="https://wa.me/2348083819090" target="_blank" class="hover:text-slate-300 transition">WhatsApp Support</a>
+        <a href="https://wa.me/2347037858093" target="_blank" class="hover:text-slate-300 transition">WhatsApp Support</a>
       </div>
     </div>
   </footer>
@@ -360,15 +360,12 @@
       document.getElementById('calc-drops-display').textContent = `${drops} Drops / Day`;
 
       const traditionalRate = 2500;
-      const fmxRate = 1200;
-
       const monthlyTraditional = drops * traditionalRate * days;
-      const monthlyFmx = drops * fmxRate * days;
-      const monthlySavings = monthlyTraditional - monthlyFmx;
+      const estimatedSavings = Math.round(monthlyTraditional * 0.50);
 
       document.getElementById('calc-traditional-cost').textContent = '₦' + monthlyTraditional.toLocaleString('en-NG') + ' / mo';
-      document.getElementById('calc-fmx-cost').textContent = '₦' + monthlyFmx.toLocaleString('en-NG') + ' / mo';
-      document.getElementById('calc-savings-total').textContent = '₦' + monthlySavings.toLocaleString('en-NG') + ' Saved / Month';
+      document.getElementById('calc-fmx-cost').textContent = 'Custom Volume Rate';
+      document.getElementById('calc-savings-total').textContent = 'Save up to ₦' + estimatedSavings.toLocaleString('en-NG') + ' / Month';
     }
 
     // Run on load
@@ -391,9 +388,9 @@
         `📍 *Pickup Address:* ${address}\n` +
         `📦 *Estimated Daily Drops:* ${volume}\n` +
         `⏰ *Preferred Time:* ${time || 'Flexible'}\n\n` +
-        `Please onboard my kitchen/store for the ₦1,200/drop partner rate.`;
+        `Please connect with me to discuss our custom partner rate.`;
 
-      const waUrl = `https://wa.me/2348083819090?text=${encodeURIComponent(message)}`;
+      const waUrl = `https://wa.me/2347037858093?text=${encodeURIComponent(message)}`;
       window.open(waUrl, '_blank');
       alert(`🎉 Thank you, ${contactName}! We are opening WhatsApp to finalize your partner onboarding.`);
     }
