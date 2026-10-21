@@ -75,6 +75,30 @@ function setRiderCurrentZone(riderId, zoneName) {
   saveRiderZones(data);
 }
 
+// --- B2B Multi-Drop Batch Storage ---
+const BATCHES_FILE = path.join(__dirname, 'batches.json');
+
+function getBatches() {
+  try {
+    if (!fs.existsSync(BATCHES_FILE)) {
+      fs.writeFileSync(BATCHES_FILE, '[]', 'utf8');
+      return [];
+    }
+    const raw = fs.readFileSync(BATCHES_FILE, 'utf8');
+    return JSON.parse(raw);
+  } catch (err) {
+    return [];
+  }
+}
+
+function saveBatches(data) {
+  try {
+    fs.writeFileSync(BATCHES_FILE, JSON.stringify(data, null, 2), 'utf8');
+  } catch (err) {
+    console.error('Failed to save batches:', err);
+  }
+}
+
 function extractDistrictName(address) {
   if (!address) return 'Kubwa';
   const lower = address.toLowerCase();
@@ -88,6 +112,15 @@ function extractDistrictName(address) {
     }
   }
   return address.split(',')[0].trim();
+}
+
+function normalizePhoneNumber(phone) {
+  if (!phone) return '';
+  let cleaned = String(phone).replace(/[^0-9]/g, '');
+  if (cleaned.startsWith('0') && cleaned.length === 11) {
+    cleaned = '234' + cleaned.slice(1);
+  }
+  return cleaned;
 }
 
 // --- Admin Authentication & Role Management ---
@@ -412,6 +445,14 @@ app.get('/merch', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'merch.html'));
 });
 
+app.get('/merchant', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'merchant.html'));
+});
+
+app.get('/vendor', (req, res) => {
+  res.redirect('/merchant');
+});
+
 app.get('/api/settings', authMiddleware('admin'), (req, res) => {
   res.json(getPricingSettings());
 });
@@ -710,6 +751,251 @@ app.delete('/api/riders/:id', authMiddleware('admin'), async (req, res) => {
     await supabase.from('orders').update({ rider_id: null }).eq('rider_id', id);
     const { error } = await supabase.from('riders').delete().eq('id', id);
     if (error) throw error;
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// --- B2B Multi-Drop Batch API Endpoints ---
+
+async function sendBatchManifestToRider(batch) {
+  if (!batch.rider_phone) return;
+  
+  let manifestText = `📦 *B2B BATCH DISPATCH ASSIGNED - FM XPRESS*\n\n` +
+    `🏪 *Vendor:* ${batch.vendor_name}\n` +
+    `📍 *Pickup:* ${batch.pickup_address}\n` +
+    `🔢 *Total Deliveries:* ${batch.stops.length} Drops\n` +
+    `💰 *Batch Value:* ₦${batch.total_amount.toLocaleString('en-NG')}\n\n` +
+    `🗺️ *YOUR DELIVERY ROUTE STOPS:*\n`;
+
+  batch.stops.forEach((stop, i) => {
+    const statusIcon = stop.status === 'delivered' ? '✅' : '📍';
+    manifestText += `\n${i + 1}️⃣ *Stop ${i + 1}:* ${stop.recipient_name || 'Customer'} (+${stop.recipient_phone || 'N/A'})\n` +
+      `   ${statusIcon} ${stop.delivery_address}\n` +
+      `   🏷️ ${stop.package_tag || 'Standard Package'}\n`;
+  });
+
+  manifestText += `\n👉 *Instructions:* As you deliver each item, reply:\n` +
+    `*DELIVERED 1* (when stop 1 is dropped)\n` +
+    `*DELIVERED 2* (when stop 2 is dropped)\n` +
+    `*DELIVERED ALL* (when whole batch is finished)\n\n` +
+    `Ride safely! 🚀`;
+
+  await sendWhatsAppMessage(batch.rider_phone, manifestText);
+}
+
+// 1. GET /api/batches - List all batches with live progress
+app.get('/api/batches', authMiddleware(), async (req, res) => {
+  try {
+    const batches = getBatches();
+    batches.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    
+    const enriched = batches.map(b => {
+      const deliveredCount = (b.stops || []).filter(s => s.status === 'delivered').length;
+      const progressPercent = b.stops.length > 0 ? Math.round((deliveredCount / b.stops.length) * 100) : 0;
+      return {
+        ...b,
+        delivered_count: deliveredCount,
+        progress_percent: progressPercent
+      };
+    });
+    
+    res.json(enriched);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 2. POST /api/batches - Create a new multi-drop batch
+app.post('/api/batches', authMiddleware(), async (req, res) => {
+  try {
+    const { 
+      vendor_name, 
+      vendor_phone, 
+      pickup_address, 
+      rider_id, 
+      rate_per_drop, 
+      drops, 
+      notify_recipients 
+    } = req.body;
+
+    if (!vendor_name || !pickup_address || !Array.isArray(drops) || drops.length === 0) {
+      return res.status(400).json({ error: 'Vendor name, pickup address, and at least one delivery drop are required.' });
+    }
+
+    const batches = getBatches();
+    const batchTimestamp = Date.now();
+    const batchId = `batch_${batchTimestamp}`;
+    const batchRef = `FMX_B${batchTimestamp.toString().slice(-5)}`;
+    const perDrop = Number(rate_per_drop) || 1200;
+
+    let rider = null;
+    if (rider_id) {
+      const { data: rData } = await supabase.from('riders').select('*').eq('id', rider_id).maybeSingle();
+      rider = rData;
+    }
+
+    const stops = [];
+    for (let i = 0; i < drops.length; i++) {
+      const d = drops[i];
+      const stopNum = i + 1;
+      const orderRef = `${batchRef}_${stopNum < 10 ? '0' + stopNum : stopNum}`;
+      
+      try {
+        await supabase.from('orders').insert([{
+          customer_phone: (d.recipient_phone || vendor_phone || '2349036869830').replace(/\D/g, ''),
+          pickup_address: pickup_address.trim(),
+          delivery_address: (d.delivery_address || '').trim(),
+          package_size: `[${vendor_name}] ${d.package_tag || 'Batch Item'}`,
+          distance_km: 4.5,
+          price_ngn: perDrop,
+          status: 'paid',
+          paystack_reference: orderRef,
+          rider_id: rider ? rider.id : null
+        }]);
+      } catch (dbErr) {
+        console.warn(`[Batch DB Warning for ${orderRef}]:`, dbErr.message);
+      }
+
+      stops.push({
+        stop_number: stopNum,
+        recipient_name: (d.recipient_name || '').trim(),
+        recipient_phone: (d.recipient_phone || '').replace(/\D/g, ''),
+        delivery_address: (d.delivery_address || '').trim(),
+        package_tag: (d.package_tag || '').trim(),
+        order_reference: orderRef,
+        status: 'pending'
+      });
+    }
+
+    const newBatch = {
+      id: batchId,
+      reference: batchRef,
+      vendor_name: vendor_name.trim(),
+      vendor_phone: (vendor_phone || '').replace(/\D/g, ''),
+      pickup_address: pickup_address.trim(),
+      rider_id: rider ? rider.id : null,
+      rider_name: rider ? rider.name : 'Unassigned',
+      rider_phone: rider ? rider.phone_number : null,
+      rate_per_drop: perDrop,
+      total_drops: stops.length,
+      total_amount: stops.length * perDrop,
+      status: 'in_progress',
+      created_at: new Date().toISOString(),
+      stops
+    };
+
+    batches.push(newBatch);
+    saveBatches(batches);
+
+    if (rider) {
+      await supabase.from('riders').update({ status: 'busy' }).eq('id', rider.id);
+      await sendBatchManifestToRider(newBatch);
+    }
+
+    if (notify_recipients) {
+      for (const stop of stops) {
+        if (stop.recipient_phone) {
+          const trackUrl = `https://fmxpress.tekvolutionhq.com/track/${stop.order_reference}`;
+          const recipientAlert = `🍽️ *Delivery on the way from ${newBatch.vendor_name}!*\n\n` +
+            `Hi ${stop.recipient_name || 'Customer'}, your package *(#${stop.package_tag || 'Order'})* has been dispatched via *FM XPRESS*.\n\n` +
+            `🏍️ *Rider:* ${newBatch.rider_name} (+${newBatch.rider_phone || '09036869830'})\n` +
+            `📍 *Destination:* ${stop.delivery_address}\n` +
+            `🔍 *Track live:* ${trackUrl}\n\n` +
+            `Thank you for choosing *${newBatch.vendor_name}*!`;
+          
+          sendWhatsAppMessage(stop.recipient_phone, recipientAlert).catch(err => {
+            console.error(`[Recipient Alert Error to ${stop.recipient_phone}]:`, err.message);
+          });
+        }
+      }
+    }
+
+    res.json({ success: true, batch: newBatch });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 3. PUT /api/batches/:id/stop/:stopNum/deliver - Mark specific stop delivered
+app.put('/api/batches/:id/stop/:stopNum/deliver', authMiddleware(), async (req, res) => {
+  try {
+    const { id, stopNum } = req.params;
+    const batches = getBatches();
+    const batch = batches.find(b => b.id === id);
+
+    if (!batch) return res.status(404).json({ error: 'Batch not found.' });
+
+    const num = parseInt(stopNum, 10);
+    const stop = batch.stops.find(s => s.stop_number === num);
+    if (!stop) return res.status(404).json({ error: 'Stop not found.' });
+
+    stop.status = 'delivered';
+    stop.delivered_at = new Date().toISOString();
+
+    if (stop.order_reference) {
+      await supabase.from('orders').update({ status: 'delivered' }).eq('paystack_reference', stop.order_reference);
+    }
+
+    const remaining = batch.stops.filter(s => s.status !== 'delivered');
+    if (remaining.length === 0) {
+      batch.status = 'completed';
+      batch.completed_at = new Date().toISOString();
+      if (batch.rider_id) {
+        await supabase.from('riders').update({ status: 'available' }).eq('id', batch.rider_id);
+      }
+    }
+
+    saveBatches(batches);
+    res.json({ success: true, batch });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 4. PUT /api/batches/:id/deliver-all - Mark entire batch delivered
+app.put('/api/batches/:id/deliver-all', authMiddleware(), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const batches = getBatches();
+    const batch = batches.find(b => b.id === id);
+
+    if (!batch) return res.status(404).json({ error: 'Batch not found.' });
+
+    const now = new Date().toISOString();
+    for (const stop of batch.stops) {
+      stop.status = 'delivered';
+      stop.delivered_at = now;
+      if (stop.order_reference) {
+        await supabase.from('orders').update({ status: 'delivered' }).eq('paystack_reference', stop.order_reference);
+      }
+    }
+
+    batch.status = 'completed';
+    batch.completed_at = now;
+    if (batch.rider_id) {
+      await supabase.from('riders').update({ status: 'available' }).eq('id', batch.rider_id);
+    }
+
+    saveBatches(batches);
+    res.json({ success: true, batch });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 5. POST /api/batches/:id/resend-manifest - Resend WhatsApp route to rider
+app.post('/api/batches/:id/resend-manifest', authMiddleware(), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const batches = getBatches();
+    const batch = batches.find(b => b.id === id);
+
+    if (!batch) return res.status(404).json({ error: 'Batch not found.' });
+    if (!batch.rider_phone) return res.status(400).json({ error: 'No rider phone assigned to this batch.' });
+
+    await sendBatchManifestToRider(batch);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -1975,38 +2261,197 @@ async function processIncomingWhatsAppMessage(from, message) {
           const msg_body = message.text.body.trim();
           console.log(`[WhatsApp] Text content from ${from}: "${msg_body}"`);
           
-          // 1. Rider completion command: "DELIVERED" or "DONE"
-          if (msg_body.toUpperCase().startsWith('DELIVERED') || msg_body.toUpperCase().startsWith('DONE')) {
-            console.log(`[Rider Command] Processing delivery completion from ${from}`);
-            const { data: riderMatch } = await supabase.from('riders').select('*').eq('phone_number', from);
-            if (riderMatch && riderMatch.length > 0) {
-              const rider = riderMatch[0];
-              const { data: activeOrders } = await supabase
-                .from('orders')
-                .select('*')
-                .eq('rider_id', rider.id)
-                .eq('status', 'paid')
-                .order('created_at', { ascending: false })
-                .limit(1);
+          // 1. Rider completion command: "DELIVERED" or "DONE" (supports single order or B2B batch stops)
+          const upperMsg = msg_body.toUpperCase().trim();
+          if (upperMsg.startsWith('DELIVERED') || upperMsg.startsWith('DONE')) {
+            console.log(`[Rider Command] Processing delivery command from ${from}: "${msg_body}"`);
+            const senderClean = normalizePhoneNumber(from);
+            const { data: allRiders } = await supabase.from('riders').select('*');
+            const rider = (allRiders || []).find(r => normalizePhoneNumber(r.phone_number) === senderClean);
 
-              if (activeOrders && activeOrders.length > 0) {
-                await supabase.from('orders').update({ status: 'delivered' }).eq('id', order.id);
+            if (!rider) {
+              await sendWhatsAppMessage(from, `⚠️ This phone number is not registered as an active FM XPRESS rider.`);
+              return;
+            }
+
+            // Check if rider has an active B2B multi-drop batch
+            const batches = getBatches();
+            const activeBatch = batches.find(b => 
+              (b.rider_id === rider.id || normalizePhoneNumber(b.rider_phone) === senderClean) && 
+              b.status === 'in_progress'
+            );
+
+            if (activeBatch) {
+              // --- A. Batch Complete All Command (e.g. DELIVERED ALL, DONE ALL) ---
+              if (upperMsg.includes('ALL')) {
+                const now = new Date().toISOString();
+                for (const stop of activeBatch.stops) {
+                  stop.status = 'delivered';
+                  stop.delivered_at = now;
+                  if (stop.order_reference) {
+                    await supabase.from('orders').update({ status: 'delivered' }).eq('paystack_reference', stop.order_reference);
+                  }
+                  if (stop.recipient_phone) {
+                    await sendWhatsAppMessage(
+                      stop.recipient_phone,
+                      `🎉 *Delivery Complete!*\n\nYour order from *${activeBatch.vendor_name}* has been delivered by your FM XPRESS rider (${rider.name}).\n\nThank you for choosing FM XPRESS! 🚚`
+                    );
+                  }
+                }
+                activeBatch.status = 'completed';
+                activeBatch.completed_at = now;
+                saveBatches(batches);
+
                 await supabase.from('riders').update({ status: 'available' }).eq('id', rider.id);
-
-                // Update rider station to delivery area
-                const newZone = extractDistrictName(order.delivery_address);
+                const lastStop = activeBatch.stops[activeBatch.stops.length - 1];
+                const newZone = extractDistrictName(lastStop ? lastStop.delivery_address : '');
                 setRiderCurrentZone(rider.id, newZone);
-                console.log(`[Rider Location Updated] Rider ${rider.name} is now stationed at: ${newZone}`);
 
-                console.log(`[Rider Command] Order ${order.id} marked delivered, rider ${rider.name} available`);
+                await sendWhatsAppMessage(
+                  from,
+                  `🏁 *BATCH COMPLETE!*\n\nAll ${activeBatch.stops.length} stops for *${activeBatch.vendor_name}* have been marked as delivered.\n\nYour status is reset to *AVAILABLE* at *${newZone}*. Outstanding work, ${rider.name}! ⭐`
+                );
+                return;
+              }
 
-                await sendWhatsAppMessage(from, `✅ Fantastic job, ${rider.name}! Order ${order.paystack_reference} is marked as *DELIVERED*.\n\nYour status is reset to *AVAILABLE* at *${newZone}* for new delivery jobs.`);
-                await sendWhatsAppMessage(order.customer_phone, `🎉 *Delivery Complete!*\n\nYour package has been successfully delivered by ${rider.name}.\n\nThank you for choosing *FM XPRESS*! 🚚`);
-              } else {
-                await sendWhatsAppMessage(from, `You don't have any active delivery assigned right now.`);
+              // --- B. Batch Specific Stop Command (e.g. DELIVERED 1, DONE 2, DELIVERED STOP 3) ---
+              const stopMatch = upperMsg.match(/(?:DELIVERED|DONE)(?:\s*(?:STOP|#)?\s*(\d+))/i);
+              if (stopMatch) {
+                const stopNum = parseInt(stopMatch[1], 10);
+                const stop = activeBatch.stops.find(s => s.stop_number === stopNum);
+
+                if (!stop) {
+                  await sendWhatsAppMessage(
+                    from,
+                    `⚠️ Stop #${stopNum} was not found in your current batch of ${activeBatch.stops.length} stops.`
+                  );
+                  return;
+                }
+
+                if (stop.status === 'delivered') {
+                  await sendWhatsAppMessage(
+                    from,
+                    `ℹ️ Stop #${stopNum} (${stop.recipient_name}) was already marked as delivered.`
+                  );
+                  return;
+                }
+
+                stop.status = 'delivered';
+                stop.delivered_at = new Date().toISOString();
+                if (stop.order_reference) {
+                  await supabase.from('orders').update({ status: 'delivered' }).eq('paystack_reference', stop.order_reference);
+                }
+
+                if (stop.recipient_phone) {
+                  await sendWhatsAppMessage(
+                    stop.recipient_phone,
+                    `🎉 *Delivery Complete!*\n\nYour order from *${activeBatch.vendor_name}* has been delivered by your FM XPRESS rider (${rider.name}).\n\nThank you for choosing FM XPRESS! 🚚`
+                  );
+                }
+
+                const remaining = activeBatch.stops.filter(s => s.status !== 'delivered');
+                if (remaining.length === 0) {
+                  activeBatch.status = 'completed';
+                  activeBatch.completed_at = new Date().toISOString();
+                  await supabase.from('riders').update({ status: 'available' }).eq('id', rider.id);
+                  const newZone = extractDistrictName(stop.delivery_address || '');
+                  setRiderCurrentZone(rider.id, newZone);
+                  saveBatches(batches);
+
+                  await sendWhatsAppMessage(
+                    from,
+                    `🏁 *BATCH COMPLETE!*\n\nAll ${activeBatch.stops.length} stops completed for *${activeBatch.vendor_name}*!\n\nYour status is now *AVAILABLE* at *${newZone}*. Excellent job, ${rider.name}! 🚀`
+                  );
+                } else {
+                  saveBatches(batches);
+                  const nextStop = remaining[0];
+                  await sendWhatsAppMessage(
+                    from,
+                    `✅ *Stop #${stopNum} Delivered!* (${stop.recipient_name})\n\n` +
+                    `📊 *Progress:* ${activeBatch.stops.length - remaining.length} of ${activeBatch.stops.length} completed.\n\n` +
+                    `➡️ *Next Stop (#${nextStop.stop_number})*:\n` +
+                    `👤 *${nextStop.recipient_name}* (+${nextStop.recipient_phone})\n` +
+                    `📍 ${nextStop.delivery_address}\n` +
+                    `🏷️ ${nextStop.package_tag || 'Standard Package'}\n\n` +
+                    `Reply *DELIVERED ${nextStop.stop_number}* when dropped!`
+                  );
+                }
+                return;
+              }
+
+              // --- C. Bare DELIVERED / DONE command on an active batch ---
+              const remaining = activeBatch.stops.filter(s => s.status !== 'delivered');
+              if (remaining.length === 1) {
+                // Only 1 stop left, mark it completed
+                const soleStop = remaining[0];
+                soleStop.status = 'delivered';
+                soleStop.delivered_at = new Date().toISOString();
+                if (soleStop.order_reference) {
+                  await supabase.from('orders').update({ status: 'delivered' }).eq('paystack_reference', soleStop.order_reference);
+                }
+                if (soleStop.recipient_phone) {
+                  await sendWhatsAppMessage(
+                    soleStop.recipient_phone,
+                    `🎉 *Delivery Complete!*\n\nYour order from *${activeBatch.vendor_name}* has been delivered by your FM XPRESS rider (${rider.name}).\n\nThank you for choosing FM XPRESS! 🚚`
+                  );
+                }
+                activeBatch.status = 'completed';
+                activeBatch.completed_at = new Date().toISOString();
+                await supabase.from('riders').update({ status: 'available' }).eq('id', rider.id);
+                const newZone = extractDistrictName(soleStop.delivery_address || '');
+                setRiderCurrentZone(rider.id, newZone);
+                saveBatches(batches);
+
+                await sendWhatsAppMessage(
+                  from,
+                  `🏁 *BATCH COMPLETE!*\n\nFinal stop #${soleStop.stop_number} delivered! All ${activeBatch.stops.length} stops completed for *${activeBatch.vendor_name}*.\n\nYour status is reset to *AVAILABLE* at *${newZone}*. Great job, ${rider.name}! ⭐`
+                );
+                return;
+              }
+
+              // Multiple stops remaining: guide the rider
+              await sendWhatsAppMessage(
+                from,
+                `📦 *Active Batch:* ${activeBatch.vendor_name} (${remaining.length} drops remaining).\n\n` +
+                `Please reply with the stop number you just delivered, e.g.:\n` +
+                `*DELIVERED ${remaining[0].stop_number}*\n\n` +
+                `Or reply *DELIVERED ALL* when all deliveries are complete.`
+              );
+              return;
+            }
+
+            // --- D. Standard Single Order Delivery Completion ---
+            const { data: activeOrders } = await supabase
+              .from('orders')
+              .select('*')
+              .eq('rider_id', rider.id)
+              .eq('status', 'paid')
+              .order('created_at', { ascending: false })
+              .limit(1);
+
+            if (activeOrders && activeOrders.length > 0) {
+              const order = activeOrders[0];
+              await supabase.from('orders').update({ status: 'delivered' }).eq('id', order.id);
+              await supabase.from('riders').update({ status: 'available' }).eq('id', rider.id);
+
+              // Update rider station to delivery area
+              const newZone = extractDistrictName(order.delivery_address || '');
+              setRiderCurrentZone(rider.id, newZone);
+              console.log(`[Rider Location Updated] Rider ${rider.name} is now stationed at: ${newZone}`);
+              console.log(`[Rider Command] Order ${order.id} marked delivered, rider ${rider.name} available`);
+
+              await sendWhatsAppMessage(
+                from,
+                `✅ Fantastic job, ${rider.name}! Order ${order.paystack_reference} is marked as *DELIVERED*.\n\nYour status is reset to *AVAILABLE* at *${newZone}* for new delivery jobs.`
+              );
+              if (order.customer_phone) {
+                await sendWhatsAppMessage(
+                  order.customer_phone,
+                  `🎉 *Delivery Complete!*\n\nYour package has been successfully delivered by ${rider.name}.\n\nThank you for choosing *FM XPRESS*! 🚚`
+                );
               }
             } else {
-              await sendWhatsAppMessage(from, `This number is not registered as an active FM XPRESS rider.`);
+              await sendWhatsAppMessage(from, `You don't have any active delivery assigned right now.`);
             }
             return;
           }

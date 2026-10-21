@@ -65,6 +65,10 @@
         <button onclick="switchTab('pricing')" id="tab-btn-pricing" class="tab-btn px-4 py-3 text-sm font-bold flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition shrink-0">
           <i class="fa-solid fa-calculator text-emerald-400"></i> Pricing &amp; Route Tools
         </button>
+        <button onclick="switchTab('batches')" id="tab-btn-batches" class="tab-btn px-4 py-3 text-sm font-bold flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition shrink-0">
+          <i class="fa-solid fa-layer-group text-purple-400"></i> B2B Batches
+          <span id="tab-batches-count-badge" class="px-2 py-0.5 rounded-full text-[11px] bg-slate-800 text-purple-300 font-semibold ml-1">0</span>
+        </button>
         <button onclick="switchTab('team')" id="tab-btn-team" class="tab-btn px-4 py-3 text-sm font-bold flex items-center gap-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 transition shrink-0">
           <i class="fa-solid fa-shield-halved text-indigo-400"></i> Team &amp; Roles
         </button>
@@ -470,6 +474,98 @@
       </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- TAB 5: B2B MULTI-DROP & BULK BATCHES       -->
+    <!-- ========================================== -->
+    <div id="tab-batches" class="tab-pane hidden space-y-8">
+      
+      <!-- Top Action & Description Banner -->
+      <div class="bg-gradient-to-r from-purple-950/40 via-slate-900 to-slate-900 border border-purple-500/20 rounded-3xl p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl">
+        <div class="space-y-2">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-400 border border-purple-500/30">
+            <i class="fa-solid fa-utensils"></i> For Food Vendors, Supermarkets &amp; Merchants
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+            Multi-Drop &amp; Bulk Dispatch
+          </h2>
+          <p class="text-sm text-slate-400 max-w-2xl">
+            Single pickup with multiple delivery stops on a single rider route. Automates route manifests over WhatsApp to riders and sends automated live tracking links to every customer.
+          </p>
+        </div>
+        <div class="flex items-center gap-3 shrink-0">
+          <button onclick="openCreateBatchModal()" class="px-5 py-3 rounded-2xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm shadow-lg shadow-purple-600/30 transition flex items-center gap-2.5">
+            <i class="fa-solid fa-plus-circle text-base"></i>
+            <span>+ Create Bulk Batch</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- KPI Metrics Row -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider">Active Batches</span>
+            <i class="fa-solid fa-layer-group text-purple-400 text-lg"></i>
+          </div>
+          <div class="text-2xl font-bold text-white" id="stat-batch-active">0</div>
+          <p class="text-xs text-purple-400 mt-1">Currently on route</p>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider">Completed Batches</span>
+            <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i>
+          </div>
+          <div class="text-2xl font-bold text-white" id="stat-batch-completed">0</div>
+          <p class="text-xs text-emerald-400 mt-1">All drops completed</p>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider">Total Drops Handled</span>
+            <i class="fa-solid fa-box text-sky-400 text-lg"></i>
+          </div>
+          <div class="text-2xl font-bold text-white" id="stat-batch-drops">0</div>
+          <p class="text-xs text-slate-500 mt-1">Individual drop-offs</p>
+        </div>
+
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-sm">
+          <div class="flex items-center justify-between text-slate-400 mb-2">
+            <span class="text-xs font-semibold uppercase tracking-wider">B2B Volume</span>
+            <i class="fa-solid fa-money-bill-wave text-amber-400 text-lg"></i>
+          </div>
+          <div class="text-2xl font-bold text-white" id="stat-batch-revenue">₦0</div>
+          <p class="text-xs text-slate-500 mt-1">Total batch billing</p>
+        </div>
+      </section>
+
+      <!-- Batches Management Section -->
+      <section class="space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <i class="fa-solid fa-clipboard-list text-purple-400"></i> Dispatch Manifests &amp; Routes
+            </h3>
+            <p class="text-xs text-slate-400">Live monitoring of all batch dispatches and real-time delivery status</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="setBatchFilter('all')" id="batch-filter-all" class="batch-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-800 text-white transition">All</button>
+            <button onclick="setBatchFilter('in_progress')" id="batch-filter-in_progress" class="batch-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition">Active</button>
+            <button onclick="setBatchFilter('completed')" id="batch-filter-completed" class="batch-filter-btn px-3 py-1.5 rounded-xl text-xs font-bold text-slate-400 hover:text-white transition">Completed</button>
+          </div>
+        </div>
+
+        <!-- Dynamic Batches Container -->
+        <div id="batches-list" class="space-y-4">
+          <div class="py-16 text-center text-slate-500 bg-slate-900/40 rounded-2xl border border-slate-800">
+            <i class="fa-solid fa-spinner fa-spin text-2xl text-purple-400 mb-3"></i>
+            <p class="text-sm font-semibold text-slate-400">Loading B2B Batches...</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
   </main>
 
   <!-- ========================================== -->
@@ -588,6 +684,136 @@
           <button type="button" onclick="toggleUserModal(false)" class="px-4 py-2 rounded-xl text-sm font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300">Cancel</button>
           <button type="submit" id="btn-save-user" class="px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow">Create Account</button>
         </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: CREATE B2B BULK BATCH              -->
+  <!-- ========================================== -->
+  <div id="modal-create-batch" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-3xl w-full p-6 sm:p-8 space-y-6 shadow-2xl my-8">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div>
+          <h3 class="text-xl font-bold text-white flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-sm font-bold">
+              <i class="fa-solid fa-layer-group"></i>
+            </span>
+            Create Multi-Drop Batch Dispatch
+          </h3>
+          <p class="text-xs text-slate-400 mt-1">Single pickup for food vendors, supermarkets &amp; corporate clients</p>
+        </div>
+        <button onclick="closeCreateBatchModal()" class="text-slate-400 hover:text-white p-2">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+
+      <form id="create-batch-form" onsubmit="handleCreateBatchSubmit(event)" class="space-y-6">
+        
+        <!-- Vendor & Pickup Details -->
+        <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 sm:p-5 space-y-4">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-store"></i> 1. Merchant &amp; Pickup Point
+          </h4>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Business / Vendor Name *</label>
+              <input type="text" id="batch-vendor-name" required placeholder="e.g. Mama Put Kitchen, Fluffy Bakes" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Vendor WhatsApp Phone</label>
+              <input type="text" id="batch-vendor-phone" placeholder="e.g. 08012345678" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Pickup Address (Kitchen / Store) *</label>
+            <input type="text" id="batch-pickup-address" required placeholder="e.g. Plot 14, 3rd Avenue, Gwarinpa, Abuja" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+          </div>
+        </div>
+
+        <!-- Rider & Pricing Details -->
+        <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 sm:p-5 space-y-4">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-motorcycle"></i> 2. Dispatch Assignment &amp; Pricing
+          </h4>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Assign Rider</label>
+              <select id="batch-rider-select" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                <option value="">⚡ Auto-assign best available rider</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-300 mb-1">Partner Rate Per Drop (₦)</label>
+              <input type="number" id="batch-rate-per-drop" value="1200" min="500" step="100" oninput="recalculateBatchTotal()" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+            </div>
+          </div>
+
+          <!-- Total Calculation Banner -->
+          <div class="flex items-center justify-between p-3 rounded-xl bg-purple-950/30 border border-purple-500/20 text-xs">
+            <span class="text-purple-300 font-medium">Batch Summary:</span>
+            <span class="font-bold text-white text-sm" id="batch-summary-preview">0 Stops • Total ₦0</span>
+          </div>
+        </div>
+
+        <!-- Multi-Drop Stops Builder -->
+        <div class="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-4 sm:p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-purple-400 flex items-center gap-1.5">
+              <i class="fa-solid fa-location-crosshairs"></i> 3. Delivery Drops (<span id="batch-stops-count">0</span> stops)
+            </h4>
+            <button type="button" onclick="toggleQuickPasteBox()" class="text-xs text-purple-400 hover:text-purple-300 font-medium flex items-center gap-1">
+              <i class="fa-solid fa-paste"></i> <span id="quick-paste-btn-text">Quick Paste Manifest</span>
+            </button>
+          </div>
+
+          <!-- Quick Paste Textarea Helper -->
+          <div id="quick-paste-container" class="hidden bg-slate-900 border border-purple-500/30 rounded-xl p-3.5 space-y-3">
+            <div class="flex items-center justify-between text-xs text-slate-300">
+              <span class="font-semibold">Bulk Paste Customer Stops (1 per line):</span>
+              <span class="text-slate-500">Format: Name, Phone, Address, [Package/Food Tag]</span>
+            </div>
+            <textarea id="quick-paste-input" rows="4" placeholder="Chidi Okafor, 08031234567, 14 Aminu Kano Wuse 2, 2x Jollof Rice&#10;Fatima Bello, 08129876543, Plot 45 Gwarinpa Estate, Fried Rice&#10;Emeka Eze, 09055443322, Kubwa Phase 4 Total, 3x Egusi &amp; Poundo" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-3 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 font-mono"></textarea>
+            <div class="flex justify-end gap-2">
+              <button type="button" onclick="parseQuickPasteStops()" class="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-bold">
+                Populate Stops Below
+              </button>
+            </div>
+          </div>
+
+          <!-- Individual Stop Rows Container -->
+          <div id="batch-stops-list" class="space-y-3">
+            <!-- Dynamic rows will be inserted here -->
+          </div>
+
+          <button type="button" onclick="addBatchStopRow()" class="w-full py-2.5 border-2 border-dashed border-slate-800 hover:border-purple-500/50 rounded-xl text-xs font-bold text-slate-400 hover:text-purple-400 transition flex items-center justify-center gap-2">
+            <i class="fa-solid fa-plus"></i> Add Another Delivery Stop
+          </button>
+        </div>
+
+        <!-- Options & Submit -->
+        <div class="space-y-4">
+          <label class="flex items-center gap-2.5 text-xs text-slate-300 cursor-pointer">
+            <input type="checkbox" id="batch-notify-recipients" checked class="rounded bg-slate-900 border-slate-700 text-purple-600 focus:ring-purple-500">
+            <span>Send automated WhatsApp notification with live tracking link to every recipient</span>
+          </label>
+
+          <div class="pt-2 flex justify-end gap-3">
+            <button type="button" onclick="closeCreateBatchModal()" class="px-5 py-2.5 rounded-xl text-sm font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300">
+              Cancel
+            </button>
+            <button type="submit" id="btn-submit-batch" class="px-6 py-2.5 rounded-xl text-sm font-bold bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-600/30 transition flex items-center gap-2">
+              <i class="fa-solid fa-paper-plane"></i>
+              <span>Dispatch Route to Rider</span>
+            </button>
+          </div>
+        </div>
+
       </form>
     </div>
   </div>
@@ -839,6 +1065,8 @@
         fetchTeam();
       } else if (tab === 'pricing') {
         fetchPricing();
+      } else if (tab === 'batches') {
+        fetchBatches();
       }
     }
 
@@ -1409,11 +1637,436 @@
       }
     }
 
+    // --- B2B Batches Management ---
+    let allBatches = [];
+    let batchFilter = 'all';
+
+    async function fetchBatches() {
+      try {
+        const res = await authFetch('/api/batches');
+        allBatches = await res.json();
+        renderBatches();
+        updateBatchStats();
+      } catch (err) {
+        console.error('Error fetching batches:', err);
+      }
+    }
+
+    function setBatchFilter(filter) {
+      batchFilter = filter;
+      document.querySelectorAll('.batch-filter-btn').forEach(btn => {
+        btn.classList.remove('bg-slate-800', 'text-white');
+        btn.classList.add('text-slate-400');
+      });
+      const active = document.getElementById(`batch-filter-${filter}`);
+      if (active) {
+        active.classList.add('bg-slate-800', 'text-white');
+        active.classList.remove('text-slate-400');
+      }
+      renderBatches();
+    }
+
+    function updateBatchStats() {
+      if (!Array.isArray(allBatches)) return;
+      const active = allBatches.filter(b => b.status === 'in_progress').length;
+      const completed = allBatches.filter(b => b.status === 'completed').length;
+      let totalDrops = 0;
+      let totalRevenue = 0;
+
+      allBatches.forEach(b => {
+        totalDrops += (b.stops || []).length;
+        totalRevenue += (b.total_amount || 0);
+      });
+
+      document.getElementById('stat-batch-active').textContent = active;
+      document.getElementById('stat-batch-completed').textContent = completed;
+      document.getElementById('stat-batch-drops').textContent = totalDrops;
+      document.getElementById('stat-batch-revenue').textContent = '₦' + totalRevenue.toLocaleString('en-NG');
+      document.getElementById('tab-batches-count-badge').textContent = active;
+    }
+
+    function renderBatches() {
+      const container = document.getElementById('batches-list');
+      if (!container || !Array.isArray(allBatches)) return;
+
+      const filtered = allBatches.filter(b => {
+        if (batchFilter === 'all') return true;
+        return b.status === batchFilter;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="py-16 text-center text-slate-500 bg-slate-900/40 rounded-2xl border border-slate-800">
+            <i class="fa-solid fa-layer-group text-3xl mb-3 text-slate-600"></i>
+            <p class="text-sm font-semibold text-slate-400">No batches in this category.</p>
+            <p class="text-xs text-slate-500 mt-1">Click "+ Create Bulk Batch" to dispatch your first multi-drop delivery.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(batch => {
+        const isCompleted = batch.status === 'completed';
+        const progressPercent = batch.progress_percent || 0;
+        const deliveredCount = batch.delivered_count || 0;
+        const totalStops = (batch.stops || []).length;
+        const formattedDate = new Date(batch.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ', ' + new Date(batch.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' });
+
+        const statusBadge = isCompleted
+          ? `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><i class="fa-solid fa-circle-check mr-1"></i> Completed</span>`
+          : `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20"><i class="fa-solid fa-motorcycle mr-1"></i> On Route</span>`;
+
+        const stopsHtml = (batch.stops || []).map(stop => {
+          const isStopDone = stop.status === 'delivered';
+          const stopBadge = isStopDone
+            ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Delivered</span>`
+            : `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/10 text-sky-400 border border-sky-500/20">Pending</span>`;
+
+          const actionBtn = isStopDone
+            ? `<span class="text-xs text-emerald-400 font-semibold"><i class="fa-solid fa-check-double mr-1"></i> Done</span>`
+            : `<button onclick="markBatchStopDelivered('${batch.id}', ${stop.stop_number})" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-600/80 hover:bg-emerald-500 text-white transition flex items-center gap-1"><i class="fa-solid fa-check"></i> Deliver</button>`;
+
+          return `
+            <tr class="hover:bg-slate-800/40 transition">
+              <td class="py-2.5 px-3 text-xs font-bold text-slate-300">#${stop.stop_number}</td>
+              <td class="py-2.5 px-3 text-xs">
+                <div class="font-semibold text-white">${stop.recipient_name}</div>
+                <div class="text-[11px] text-slate-400">${stop.recipient_phone ? '+' + stop.recipient_phone : 'No phone'}</div>
+              </td>
+              <td class="py-2.5 px-3 text-xs text-slate-300 max-w-xs truncate">
+                <i class="fa-solid fa-location-dot text-rose-400 mr-1"></i> ${stop.delivery_address}
+              </td>
+              <td class="py-2.5 px-3 text-xs text-slate-400">
+                <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 text-[11px]">${stop.package_tag || 'Standard'}</span>
+              </td>
+              <td class="py-2.5 px-3 text-xs">${stopBadge}</td>
+              <td class="py-2.5 px-3 text-xs text-right whitespace-nowrap space-x-2">
+                ${stop.order_reference ? `<a href="/track/${stop.order_reference}" target="_blank" class="px-2 py-1 rounded-lg text-[11px] font-semibold bg-slate-800 hover:bg-slate-700 text-sky-400 transition inline-flex items-center gap-1" title="Live Customer Tracking"><i class="fa-solid fa-arrow-up-right-from-square"></i> Track</a>` : ''}
+                ${actionBtn}
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        return `
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+            <!-- Batch Header -->
+            <div class="p-5 border-b border-slate-800 bg-slate-900/60 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+              <div class="space-y-1">
+                <div class="flex items-center gap-3">
+                  <h4 class="text-base font-bold text-white flex items-center gap-2">
+                    <span class="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center text-xs font-bold">
+                      <i class="fa-solid fa-store"></i>
+                    </span>
+                    ${batch.vendor_name}
+                  </h4>
+                  ${statusBadge}
+                </div>
+                <div class="text-xs text-slate-400 flex flex-wrap items-center gap-3">
+                  <span><i class="fa-solid fa-location-dot text-emerald-400 mr-1"></i> <strong>Pickup:</strong> ${batch.pickup_address}</span>
+                  <span>•</span>
+                  <span><i class="fa-solid fa-calendar text-slate-500 mr-1"></i> ${formattedDate}</span>
+                </div>
+              </div>
+
+              <!-- Rider & Actions -->
+              <div class="flex flex-wrap items-center gap-3">
+                <div class="bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
+                  <span class="text-slate-500 block text-[10px] uppercase font-bold">Rider</span>
+                  <span class="text-slate-200 font-semibold flex items-center gap-1.5">
+                    <i class="fa-solid fa-motorcycle text-amber-400"></i> ${batch.rider_name || 'Unassigned'}
+                  </span>
+                </div>
+                <div class="bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800 text-xs">
+                  <span class="text-slate-500 block text-[10px] uppercase font-bold">Amount</span>
+                  <span class="text-emerald-400 font-bold">₦${(batch.total_amount || 0).toLocaleString('en-NG')}</span>
+                </div>
+                
+                <button onclick="resendBatchManifest('${batch.id}')" title="Resend Route to Rider WhatsApp" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition flex items-center gap-1.5">
+                  <i class="fa-brands fa-whatsapp text-emerald-400"></i> Resend Route
+                </button>
+
+                ${!isCompleted ? `
+                  <button onclick="markBatchAllDelivered('${batch.id}')" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-check-double"></i> Complete Batch
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="px-5 py-3 bg-slate-950/40 border-b border-slate-800/80 flex items-center justify-between gap-4 text-xs">
+              <div class="flex items-center gap-2 text-slate-300 font-semibold">
+                <span>Progress:</span>
+                <span class="text-purple-400 font-bold">${deliveredCount} of ${totalStops} Drops Delivered (${progressPercent}%)</span>
+              </div>
+              <div class="w-48 bg-slate-800 rounded-full h-2 overflow-hidden shrink-0">
+                <div class="bg-gradient-to-r from-purple-500 to-emerald-400 h-2 rounded-full transition-all duration-500" style="width: ${progressPercent}%"></div>
+              </div>
+            </div>
+
+            <!-- Stops Table -->
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs text-slate-300">
+                <thead class="bg-slate-800/40 uppercase tracking-wider text-slate-400 text-[10px] border-b border-slate-800">
+                  <tr>
+                    <th class="py-2.5 px-3">Stop</th>
+                    <th class="py-2.5 px-3">Recipient</th>
+                    <th class="py-2.5 px-3">Delivery Address</th>
+                    <th class="py-2.5 px-3">Tag / Note</th>
+                    <th class="py-2.5 px-3">Status</th>
+                    <th class="py-2.5 px-3 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60">
+                  ${stopsHtml}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Modal Helpers
+    function openCreateBatchModal() {
+      document.getElementById('create-batch-form').reset();
+      document.getElementById('batch-rate-per-drop').value = 1200;
+      
+      // Populate Rider Select
+      const select = document.getElementById('batch-rider-select');
+      select.innerHTML = '<option value="">⚡ Auto-assign best available rider</option>' +
+        (allRiders || []).map(r => `
+          <option value="${r.id}">${r.name} (${r.status === 'available' ? '✅ Available' : '⚠️ ' + r.status}) - ${r.current_zone || 'Kubwa'}</option>
+        `).join('');
+
+      // Reset stops list and add 2 initial empty rows
+      document.getElementById('batch-stops-list').innerHTML = '';
+      addBatchStopRow();
+      addBatchStopRow();
+
+      document.getElementById('modal-create-batch').classList.remove('hidden');
+    }
+
+    function closeCreateBatchModal() {
+      document.getElementById('modal-create-batch').classList.add('hidden');
+    }
+
+    function toggleQuickPasteBox() {
+      const box = document.getElementById('quick-paste-container');
+      const btnText = document.getElementById('quick-paste-btn-text');
+      if (box.classList.contains('hidden')) {
+        box.classList.remove('hidden');
+        btnText.textContent = 'Hide Quick Paste';
+      } else {
+        box.classList.add('hidden');
+        btnText.textContent = 'Quick Paste Manifest';
+      }
+    }
+
+    function parseQuickPasteStops() {
+      const raw = document.getElementById('quick-paste-input').value.trim();
+      if (!raw) return;
+
+      const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+      lines.forEach(line => {
+        const parts = line.split(',').map(p => p.trim());
+        if (parts.length >= 3) {
+          const name = parts[0] || '';
+          const phone = parts[1] || '';
+          const address = parts[2] || '';
+          const tag = parts.slice(3).join(', ') || '';
+          addBatchStopRow(name, phone, address, tag);
+        }
+      });
+
+      document.getElementById('quick-paste-input').value = '';
+      toggleQuickPasteBox();
+    }
+
+    function addBatchStopRow(name = '', phone = '', address = '', tag = '') {
+      const container = document.getElementById('batch-stops-list');
+      const idx = container.children.length + 1;
+
+      const row = document.createElement('div');
+      row.className = 'batch-stop-row bg-slate-900 border border-slate-800 rounded-xl p-3 space-y-2 relative';
+      row.innerHTML = `
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-purple-400 stop-index-label">Stop #${idx}</span>
+          <button type="button" onclick="removeBatchStopRow(this)" class="text-slate-500 hover:text-rose-400 text-xs p-1" title="Remove stop">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <input type="text" placeholder="Recipient Name *" value="${name}" required class="stop-name bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-500">
+          <input type="text" placeholder="WhatsApp Phone (e.g. 08012345678) *" value="${phone}" required class="stop-phone bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-500">
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <input type="text" placeholder="Delivery Address *" value="${address}" required class="stop-address sm:col-span-2 bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-500">
+          <input type="text" placeholder="Package/Food Tag (e.g. Rice x2)" value="${tag}" class="stop-tag bg-slate-950 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-purple-500">
+        </div>
+      `;
+      container.appendChild(row);
+      recalculateBatchTotal();
+    }
+
+    function removeBatchStopRow(btn) {
+      const row = btn.closest('.batch-stop-row');
+      if (row) row.remove();
+      const rows = document.querySelectorAll('.batch-stop-row');
+      rows.forEach((r, i) => {
+        const lbl = r.querySelector('.stop-index-label');
+        if (lbl) lbl.textContent = `Stop #${i + 1}`;
+      });
+      recalculateBatchTotal();
+    }
+
+    function recalculateBatchTotal() {
+      const rows = document.querySelectorAll('.batch-stop-row');
+      const count = rows.length;
+      const rate = parseInt(document.getElementById('batch-rate-per-drop').value, 10) || 1200;
+      const total = count * rate;
+
+      const countSpan = document.getElementById('batch-stops-count');
+      if (countSpan) countSpan.textContent = count;
+
+      const summary = document.getElementById('batch-summary-preview');
+      if (summary) {
+        summary.textContent = `${count} Drops @ ₦${rate.toLocaleString('en-NG')} = Total ₦${total.toLocaleString('en-NG')}`;
+      }
+    }
+
+    async function handleCreateBatchSubmit(e) {
+      e.preventDefault();
+      const submitBtn = document.getElementById('btn-submit-batch');
+      const vendor_name = document.getElementById('batch-vendor-name').value.trim();
+      const vendor_phone = document.getElementById('batch-vendor-phone').value.trim();
+      const pickup_address = document.getElementById('batch-pickup-address').value.trim();
+      const rider_id = document.getElementById('batch-rider-select').value;
+      const rate_per_drop = parseInt(document.getElementById('batch-rate-per-drop').value, 10) || 1200;
+      const notify_recipients = document.getElementById('batch-notify-recipients').checked;
+
+      const rows = document.querySelectorAll('.batch-stop-row');
+      if (rows.length === 0) {
+        alert('Please add at least 1 delivery stop.');
+        return;
+      }
+
+      const stops = [];
+      let valid = true;
+      rows.forEach((r, i) => {
+        const name = r.querySelector('.stop-name').value.trim();
+        const phone = r.querySelector('.stop-phone').value.trim();
+        const address = r.querySelector('.stop-address').value.trim();
+        const tag = r.querySelector('.stop-tag').value.trim();
+
+        if (!name || !phone || !address) {
+          valid = false;
+        }
+        stops.push({
+          stop_number: i + 1,
+          recipient_name: name,
+          recipient_phone: phone,
+          delivery_address: address,
+          package_tag: tag
+        });
+      });
+
+      if (!valid) {
+        alert('Please fill in Name, Phone, and Delivery Address for all stops.');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i> Creating Batch &amp; Alerting Rider...`;
+
+      try {
+        const res = await authFetch('/api/batches', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            vendor_name,
+            vendor_phone,
+            pickup_address,
+            rider_id: rider_id || undefined,
+            rate_per_drop,
+            notify_recipients,
+            stops
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          closeCreateBatchModal();
+          await fetchBatches();
+          alert(`🎉 Batch created successfully!\n\nRider assigned and route manifest sent via WhatsApp.\nTotal Stops: ${stops.length}\nBatch Ref: ${data.batch.id}`);
+        } else {
+          alert('Failed to create batch: ' + (data.error || 'Server error'));
+        }
+      } catch (err) {
+        alert('Error creating batch: ' + err.message);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `<i class="fa-solid fa-paper-plane mr-2"></i> Dispatch Route to Rider`;
+      }
+    }
+
+    async function markBatchStopDelivered(batchId, stopNum) {
+      if (!confirm(`Mark Stop #${stopNum} as delivered?`)) return;
+      try {
+        const res = await authFetch(`/api/batches/${batchId}/stop/${stopNum}/deliver`, {
+          method: 'PUT'
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          await fetchBatches();
+        } else {
+          alert('Failed to update stop: ' + (data.error || 'Server error'));
+        }
+      } catch (err) {
+        alert('Error updating stop: ' + err.message);
+      }
+    }
+
+    async function markBatchAllDelivered(batchId) {
+      if (!confirm('Mark all remaining stops in this batch as DELIVERED?')) return;
+      try {
+        const res = await authFetch(`/api/batches/${batchId}/deliver-all`, {
+          method: 'PUT'
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          await fetchBatches();
+        } else {
+          alert('Failed to deliver batch: ' + (data.error || 'Server error'));
+        }
+      } catch (err) {
+        alert('Error delivering batch: ' + err.message);
+      }
+    }
+
+    async function resendBatchManifest(batchId) {
+      try {
+        const res = await authFetch(`/api/batches/${batchId}/resend-manifest`, {
+          method: 'POST'
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          alert('✅ Route manifest resent to rider WhatsApp successfully!');
+        } else {
+          alert('Failed to resend manifest: ' + (data.error || 'Server error'));
+        }
+      } catch (err) {
+        alert('Error resending manifest: ' + err.message);
+      }
+    }
+
     function refreshData() {
       if (!localStorage.getItem('fm_admin_token')) return;
       fetchStats();
       fetchOrders();
       fetchRiders();
+      fetchBatches();
       if (currentTab === 'team') fetchTeam();
     }
 
@@ -1444,7 +2097,7 @@
 
           // Handle initial tab from URL hash
           const initialTab = window.location.hash.replace('#', '') || 'orders';
-          if (['orders', 'fleet', 'pricing', 'team'].includes(initialTab)) {
+          if (['orders', 'fleet', 'pricing', 'team', 'batches'].includes(initialTab)) {
             switchTab(initialTab);
           } else {
             switchTab('orders');
