@@ -1485,10 +1485,11 @@ async function sendWhatsAppInteractiveMenu(to) {
 }
 
 async function sendWhatsAppButtons(to, bodyText, buttons) {
+  const cleanTo = normalizePhoneNumber(to);
   const payload = {
     messaging_product: "whatsapp",
     recipient_type: "individual",
-    to: to,
+    to: cleanTo,
     type: "interactive",
     interactive: {
       type: "button",
@@ -2456,6 +2457,99 @@ async function processIncomingWhatsAppMessage(from, message) {
             return;
           }
 
+          // 1.5 Registered Rider Console & Auto-Dispatcher
+          const senderClean = normalizePhoneNumber(from);
+          const { data: allRiders } = await supabase.from('riders').select('*');
+          const matchedRider = (allRiders || []).find(r => normalizePhoneNumber(r.phone_number) === senderClean);
+
+          if (matchedRider) {
+            const riderZone = getRiderCurrentZone(matchedRider.id);
+
+            // Command: ONLINE / READY
+            if (['ONLINE', 'READY', 'DUTY', 'ON'].includes(upperMsg)) {
+              await supabase.from('riders').update({ status: 'available' }).eq('id', matchedRider.id);
+              matchedRider.status = 'available';
+              await sendWhatsAppMessage(
+                from,
+                `🟢 *Status: AVAILABLE*\n\nHello, *${matchedRider.name}*! You are online and stationed at *${riderZone}*.\n\nYour WhatsApp is now active with live dispatch. New delivery assignments will be sent here automatically! 🏍️`
+              );
+              return;
+            }
+
+            // Command: OFFLINE / STOP
+            if (['OFFLINE', 'STOP', 'OFF'].includes(upperMsg)) {
+              await supabase.from('riders').update({ status: 'offline' }).eq('id', matchedRider.id);
+              matchedRider.status = 'offline';
+              await sendWhatsAppMessage(
+                from,
+                `⚪ *Status: OFFLINE*\n\nYou are marked off-duty. Reply *ONLINE* whenever you are back on the road.`
+              );
+              return;
+            }
+
+            // Check if rider has an active B2B batch
+            const batches = getBatches();
+            const activeBatch = batches.find(b => 
+              (b.rider_id === matchedRider.id || normalizePhoneNumber(b.rider_phone) === senderClean) && 
+              b.status === 'in_progress'
+            );
+
+            if (activeBatch) {
+              const remaining = activeBatch.stops.filter(s => s.status !== 'delivered');
+              const nextStop = remaining[0];
+              await sendWhatsAppMessage(
+                from,
+                `📦 *ACTIVE B2B BATCH: ${activeBatch.vendor_name}*\n\n` +
+                `📊 *Progress:* ${activeBatch.stops.length - remaining.length} of ${activeBatch.stops.length} drops done.\n\n` +
+                `➡️ *Current Stop (#${nextStop.stop_number}):*\n` +
+                `👤 *${nextStop.recipient_name}* (+${nextStop.recipient_phone})\n` +
+                `📍 ${nextStop.delivery_address}\n` +
+                `🏷️ ${nextStop.package_tag || 'Standard Package'}\n\n` +
+                `Reply *DELIVERED ${nextStop.stop_number}* when dropped off!`
+              );
+              return;
+            }
+
+            // Check if rider has an active single order
+            const { data: activeOrders } = await supabase
+              .from('orders')
+              .select('*')
+              .eq('rider_id', matchedRider.id)
+              .eq('status', 'paid')
+              .order('created_at', { ascending: false })
+              .limit(1);
+
+            if (activeOrders && activeOrders.length > 0) {
+              const order = activeOrders[0];
+              await sendWhatsAppMessage(
+                from,
+                `🔔 *ACTIVE DISPATCH ASSIGNMENT:*\n\n` +
+                `🆔 *Order Ref:* ${order.paystack_reference}\n` +
+                `📍 *Pickup:* ${order.pickup_address}\n` +
+                `🏁 *Delivery:* ${order.delivery_address}\n` +
+                `📏 *Distance:* ${order.distance_km || 0} km\n` +
+                `👤 *Customer Phone:* +${order.customer_phone}\n\n` +
+                `👉 *Action:* Reply *DELIVERED* when package is safely delivered!`
+              );
+              return;
+            }
+
+            // Default Rider Greeting
+            await sendWhatsAppMessage(
+              from,
+              `🏍️ *FM XPRESS RIDER CONSOLE*\n\n` +
+              `Welcome, *${matchedRider.name}*!\n` +
+              `Status: *${(matchedRider.status || 'available').toUpperCase()}* (Zone: ${riderZone})\n\n` +
+              `✅ Your WhatsApp is connected to live dispatch.\n\n` +
+              `*Quick Commands:*\n` +
+              `• *ONLINE* - Set status to Available\n` +
+              `• *OFFLINE* - Set status to Off-Duty\n` +
+              `• *STATUS* - Check current active delivery\n` +
+              `• *DELIVERED* - Complete delivery`
+            );
+            return;
+          }
+
           // 2. Customer cancel / reset / menu commands
           if (['CANCEL', 'RESET', 'MENU', 'START'].includes(msg_body.toUpperCase())) {
             delete customerSessions[from];
@@ -2667,10 +2761,11 @@ async function processIncomingWhatsAppMessage(from, message) {
 async function sendWhatsAppMessage(to, text) {
   const token = (process.env.WHATSAPP_TOKEN || 'EAAYGQ5vs7aoBSnpS3LoOsVVz6ryqTuQCbYFz0QXcSV4qiTa6ZAmD3VAKOqMNsoZAnDESkH4bZCfNXyTtVErOtmtRUbhbQxHja1QmMd4tEI8zzwZBZBDFqS7bzso8eBG8GZB8x6HkYr3bG6mqT2kbZBWWJFXiF4J1c9TpTyuKhfIxEtkLAcu3dRrBtDLDJZAtZAw1xLwZDZD').trim();
   const phoneId = (process.env.PHONE_NUMBER_ID || '1412570758603853').trim();
+  const cleanTo = normalizePhoneNumber(to);
   try {
     const res = await axios.post(`https://graph.facebook.com/v21.0/${phoneId}/messages`, {
       messaging_product: "whatsapp",
-      to: to,
+      to: cleanTo,
       text: { body: text }
     }, {
       headers: {
@@ -2678,9 +2773,9 @@ async function sendWhatsAppMessage(to, text) {
         "Content-Type": "application/json"
       }
     });
-    console.log(`[WhatsApp] Message successfully sent to ${to}: ID ${res.data.messages[0].id}`);
+    console.log(`[WhatsApp] Message successfully sent to ${cleanTo}: ID ${res.data.messages[0].id}`);
   } catch (error) {
-    console.error("[WhatsApp] Error sending message:", error.response ? error.response.data : error.message);
+    console.error(`[WhatsApp] Error sending message to ${cleanTo}:`, error.response ? error.response.data : error.message);
   }
 }
 
