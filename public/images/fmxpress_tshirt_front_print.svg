@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="900" viewBox="0 0 2400 900">
+  <g transform="translate(1200, 480)" text-anchor="middle">
+    <text y="0" font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="240" letter-spacing="-5">
+      <tspan fill="#FFFFFF">FM</tspan>
+      <tspan fill="#10B981"> XPRESS</tspan>
+    </text>
+    <text y="140" font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="70" fill="#94A3B8" letter-spacing="25">
+      DISPATCH &amp; LOGISTICS
+    </text>
+    <path d="M -450 190 L 450 190" stroke="#10B981" stroke-width="12" stroke-linecap="round" />
+  </g>
+</svg>
