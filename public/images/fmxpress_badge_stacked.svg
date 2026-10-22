@@ -44,10 +44,10 @@
     <path d="M 308 194 C 328 198, 332 218, 328 230 L 308 226 Z" fill="#34D399"/>
   </g>
 
-  <!-- TYPOGRAPHY BELOW CREST -->
+  <!-- TYPOGRAPHY BELOW CREST - NO ABUJA -->
   <g transform="translate(145, 680)">
     <text x="0" y="0" font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="88" letter-spacing="-2" fill="#0F172A">FM</text>
     <text x="155" y="0" font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="88" letter-spacing="-2" fill="#10B981">XPRESS</text>
-    <text x="2" y="44" font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="20" letter-spacing="8" fill="#64748B">DISPATCH &amp; LOGISTICS</text>
+    <text x="2" y="44" font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="22" letter-spacing="10" fill="#64748B">DISPATCH &amp; LOGISTICS</text>
   </g>
 </svg>

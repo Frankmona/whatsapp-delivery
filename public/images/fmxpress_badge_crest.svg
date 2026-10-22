@@ -7,7 +7,6 @@
     </linearGradient>
   </defs>
 
-  <!-- PURE SQUIRCLE EMBLEM -->
   <g transform="translate(100, 100)">
     <rect x="0" y="0" width="600" height="600" rx="150" fill="url(#crestGrad)" />
     <rect x="15" y="15" width="570" height="570" rx="135" fill="none" stroke="#FFFFFF" stroke-width="7" opacity="0.4" />
