@@ -12,7 +12,7 @@
 
   <div class="bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)] rounded-2xl p-3.5 shadow-md max-w-2xl mx-auto space-y-3">
     
-    <!-- HEADER BAR: TITLE & COLOR TOGGLES -->
+    <!-- HEADER BAR: TITLE, TAGLINE & COLOR TOGGLES -->
     <div class="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--border)] pb-2.5">
       <div>
         <div class="flex items-center gap-2">
@@ -20,10 +20,12 @@
             FM <span class="text-emerald-500">XPRESS</span>
           </span>
           <span class="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/30">
-            RIDER UNIFORM PROTOTYPE
+            OFFICIAL UNIFORM
           </span>
         </div>
-        <p class="text-[11px] text-[var(--muted-foreground)]">Dispatch Uniform • Front Chest &amp; Scannable Barcode/QR Back</p>
+        <p class="text-[11px] text-[var(--muted-foreground)]">
+          <span class="text-emerald-500 font-bold">Your Package. Our Priority.</span> • Fast. Reliable. Convenient.
+        </p>
       </div>
 
       <!-- COLOR SELECTOR -->
@@ -111,13 +113,16 @@
             <line x1="77" y1="278" x2="223" y2="278" stroke="#475569" stroke-width="0.75" stroke-dasharray="3,2" opacity="0.4"/>
 
             <!-- FRONT CHEST BRAND PRINT (26cm centered) -->
-            <g transform="translate(150, 118)" text-anchor="middle">
+            <g transform="translate(150, 114)" text-anchor="middle">
               <text y="0" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="21" letter-spacing="-0.5">
                 <tspan id="front-fm-text" fill="#FFFFFF" class="tshirt-transition">FM</tspan>
                 <tspan fill="#10B981" font-weight="900"> XPRESS</tspan>
               </text>
-              <text id="front-sub" y="14" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="6.5" fill="#94a3b8" letter-spacing="2.5" class="tshirt-transition">
+              <text id="front-sub" y="13.5" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="6.5" fill="#94a3b8" letter-spacing="2.5" class="tshirt-transition">
                 DISPATCH &amp; LOGISTICS
+              </text>
+              <text id="front-tagline" y="23" font-family="system-ui, -apple-system, sans-serif" font-weight="700" font-size="5.2" fill="#10B981" letter-spacing="0.8" class="tshirt-transition">
+                Your Package. Our Priority.
               </text>
             </g>
           </svg>
@@ -174,73 +179,76 @@
             <line x1="77" y1="278" x2="223" y2="278" stroke="#475569" stroke-width="0.75" stroke-dasharray="3,2" opacity="0.4"/>
 
             <!-- BACK BRAND GRAPHIC, QR CODE & LOGISTICS BARCODE -->
-            <g transform="translate(150, 56)" text-anchor="middle">
+            <g transform="translate(150, 48)" text-anchor="middle">
               <!-- TOP SHOULDER BRAND -->
-              <text y="0" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="16" letter-spacing="-0.5">
+              <text y="0" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="15" letter-spacing="-0.5">
                 <tspan id="back-fm-text" fill="#FFFFFF" class="tshirt-transition">FM</tspan>
                 <tspan fill="#10B981" font-weight="900"> XPRESS</tspan>
               </text>
-              <text y="10.5" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="5.2" fill="#10B981" letter-spacing="1.5">
+              <text id="back-tagline" y="8.5" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="4.6" fill="#FFFFFF" letter-spacing="0.5" opacity="0.9" class="tshirt-transition">
+                YOUR PACKAGE. OUR PRIORITY.
+              </text>
+              <text y="16.5" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="4.8" fill="#10B981" letter-spacing="1.2">
                 CHAT &amp; BOOK ON WHATSAPP
               </text>
 
               <!-- QR CODE & BARCODE CONTAINER BADGE -->
-              <g transform="translate(-37, 16)">
+              <g transform="translate(-37, 21)">
                 <!-- Crisp White Card with soft shadow -->
-                <rect width="74" height="90" rx="7" fill="#FFFFFF" filter="drop-shadow(0 3px 8px rgba(0,0,0,0.45))"/>
+                <rect width="74" height="88" rx="7" fill="#FFFFFF" filter="drop-shadow(0 3px 8px rgba(0,0,0,0.45))"/>
                 
                 <!-- === QR CODE SECTION (Top) === -->
                 <!-- Top-Left Finder -->
-                <rect x="7" y="6" width="14" height="14" fill="#0f172a" rx="1.5"/>
-                <rect x="9" y="8" width="10" height="10" fill="#FFFFFF" rx="1"/>
-                <rect x="11" y="10" width="6" height="6" fill="#0f172a" rx="0.5"/>
+                <rect x="7" y="5.5" width="14" height="14" fill="#0f172a" rx="1.5"/>
+                <rect x="9" y="7.5" width="10" height="10" fill="#FFFFFF" rx="1"/>
+                <rect x="11" y="9.5" width="6" height="6" fill="#0f172a" rx="0.5"/>
 
                 <!-- Top-Right Finder -->
-                <rect x="53" y="6" width="14" height="14" fill="#0f172a" rx="1.5"/>
-                <rect x="55" y="8" width="10" height="10" fill="#FFFFFF" rx="1"/>
-                <rect x="57" y="10" width="6" height="6" fill="#0f172a" rx="0.5"/>
+                <rect x="53" y="5.5" width="14" height="14" fill="#0f172a" rx="1.5"/>
+                <rect x="55" y="7.5" width="10" height="10" fill="#FFFFFF" rx="1"/>
+                <rect x="57" y="9.5" width="6" height="6" fill="#0f172a" rx="0.5"/>
 
                 <!-- Bottom-Left Finder -->
-                <rect x="7" y="38" width="14" height="14" fill="#0f172a" rx="1.5"/>
-                <rect x="9" y="40" width="10" height="10" fill="#FFFFFF" rx="1"/>
-                <rect x="11" y="42" width="6" height="6" fill="#0f172a" rx="0.5"/>
+                <rect x="7" y="37.5" width="14" height="14" fill="#0f172a" rx="1.5"/>
+                <rect x="9" y="39.5" width="10" height="10" fill="#FFFFFF" rx="1"/>
+                <rect x="11" y="41.5" width="6" height="6" fill="#0f172a" rx="0.5"/>
 
                 <!-- QR Data Matrix Dots -->
-                <rect x="24" y="6" width="4" height="4" fill="#0f172a"/>
-                <rect x="31" y="6" width="5" height="4" fill="#0f172a"/>
-                <rect x="39" y="6" width="4" height="4" fill="#0f172a"/>
-                <rect x="46" y="6" width="4" height="4" fill="#0f172a"/>
-                <rect x="24" y="13" width="5" height="4" fill="#0f172a"/>
-                <rect x="32" y="13" width="4" height="4" fill="#0f172a"/>
-                <rect x="42" y="13" width="5" height="4" fill="#0f172a"/>
-                <rect x="7" y="23" width="4" height="4" fill="#0f172a"/>
-                <rect x="14" y="23" width="4" height="4" fill="#0f172a"/>
-                <rect x="23" y="22" width="6" height="6" fill="#10B981" rx="1"/>
-                <rect x="32" y="22" width="6" height="6" fill="#10B981" rx="1"/>
-                <rect x="41" y="22" width="6" height="6" fill="#10B981" rx="1"/>
-                <rect x="50" y="23" width="5" height="4" fill="#0f172a"/>
-                <rect x="58" y="23" width="4" height="4" fill="#0f172a"/>
-                <rect x="24" y="31" width="4" height="4" fill="#0f172a"/>
-                <rect x="32" y="31" width="6" height="4" fill="#0f172a"/>
-                <rect x="42" y="31" width="4" height="4" fill="#0f172a"/>
-                <rect x="24" y="38" width="5" height="4" fill="#0f172a"/>
-                <rect x="32" y="38" width="5" height="4" fill="#0f172a"/>
-                <rect x="40" y="38" width="4" height="4" fill="#0f172a"/>
-                <rect x="48" y="38" width="4" height="4" fill="#0f172a"/>
-                <rect x="24" y="46" width="4" height="5" fill="#0f172a"/>
-                <rect x="32" y="46" width="5" height="5" fill="#0f172a"/>
-                <rect x="41" y="46" width="5" height="5" fill="#0f172a"/>
+                <rect x="24" y="5.5" width="4" height="4" fill="#0f172a"/>
+                <rect x="31" y="5.5" width="5" height="4" fill="#0f172a"/>
+                <rect x="39" y="5.5" width="4" height="4" fill="#0f172a"/>
+                <rect x="46" y="5.5" width="4" height="4" fill="#0f172a"/>
+                <rect x="24" y="12.5" width="5" height="4" fill="#0f172a"/>
+                <rect x="32" y="12.5" width="4" height="4" fill="#0f172a"/>
+                <rect x="42" y="12.5" width="5" height="4" fill="#0f172a"/>
+                <rect x="7" y="22.5" width="4" height="4" fill="#0f172a"/>
+                <rect x="14" y="22.5" width="4" height="4" fill="#0f172a"/>
+                <rect x="23" y="21.5" width="6" height="6" fill="#10B981" rx="1"/>
+                <rect x="32" y="21.5" width="6" height="6" fill="#10B981" rx="1"/>
+                <rect x="41" y="21.5" width="6" height="6" fill="#10B981" rx="1"/>
+                <rect x="50" y="22.5" width="5" height="4" fill="#0f172a"/>
+                <rect x="58" y="22.5" width="4" height="4" fill="#0f172a"/>
+                <rect x="24" y="30.5" width="4" height="4" fill="#0f172a"/>
+                <rect x="32" y="30.5" width="6" height="4" fill="#0f172a"/>
+                <rect x="42" y="30.5" width="4" height="4" fill="#0f172a"/>
+                <rect x="24" y="37.5" width="5" height="4" fill="#0f172a"/>
+                <rect x="32" y="37.5" width="5" height="4" fill="#0f172a"/>
+                <rect x="40" y="37.5" width="4" height="4" fill="#0f172a"/>
+                <rect x="48" y="37.5" width="4" height="4" fill="#0f172a"/>
+                <rect x="24" y="45.5" width="4" height="5" fill="#0f172a"/>
+                <rect x="32" y="45.5" width="5" height="5" fill="#0f172a"/>
+                <rect x="41" y="45.5" width="5" height="5" fill="#0f172a"/>
 
                 <!-- SCAN TO CHAT LABEL -->
-                <text x="37" y="58.5" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="4.8" fill="#0f172a" text-anchor="middle" letter-spacing="0.4">
+                <text x="37" y="57.5" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="4.7" fill="#0f172a" text-anchor="middle" letter-spacing="0.4">
                   SCAN TO BOOK ON WHATSAPP
                 </text>
 
                 <!-- DIVIDER LINE -->
-                <line x1="6" y1="61.5" x2="68" y2="61.5" stroke="#e2e8f0" stroke-width="0.8"/>
+                <line x1="6" y1="60.5" x2="68" y2="60.5" stroke="#e2e8f0" stroke-width="0.8"/>
 
                 <!-- === LOGISTICS 1D BARCODE SECTION (Bottom) === -->
-                <g transform="translate(6, 64.5)">
+                <g transform="translate(6, 63)">
                   <!-- Code 128 Industrial Dispatch Bars -->
                   <rect x="0" y="0" width="1.2" height="15" fill="#0f172a"/>
                   <rect x="2" y="0" width="2" height="15" fill="#0f172a"/>
@@ -266,17 +274,22 @@
                   <rect x="60.5" y="0" width="1.5" height="15" fill="#0f172a"/>
 
                   <!-- Human-Readable Barcode ID -->
-                  <text x="31" y="21.5" font-family="'Courier New', Courier, monospace" font-weight="900" font-size="4.2" fill="#475569" text-anchor="middle" letter-spacing="1">
+                  <text x="31" y="21" font-family="'Courier New', Courier, monospace" font-weight="900" font-size="4.2" fill="#475569" text-anchor="middle" letter-spacing="1">
                     *FMX-LOGISTICS*
                   </text>
                 </g>
               </g>
 
+              <!-- BRAND PROMISE -->
+              <text y="119.5" font-family="system-ui, -apple-system, sans-serif" font-weight="800" font-size="5" fill="#10B981" letter-spacing="1.2">
+                FAST • RELIABLE • CONVENIENT
+              </text>
+
               <!-- BOTTOM PHONE NUMBER & WEBSITE -->
-              <text id="back-phone" y="122" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="10.5" fill="#FFFFFF" letter-spacing="0.8" class="tshirt-transition">
+              <text id="back-phone" y="129.5" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="10.5" fill="#FFFFFF" letter-spacing="0.8" class="tshirt-transition">
                 0903 686 9830
               </text>
-              <text y="131" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="5.5" fill="#64748b" letter-spacing="0.5">
+              <text y="137.5" font-family="system-ui, -apple-system, sans-serif" font-weight="600" font-size="5.2" fill="#64748b" letter-spacing="0.5">
                 fmxpress.tekvolutionhq.com
               </text>
             </g>
@@ -292,8 +305,8 @@
     <div class="bg-[var(--background)] border border-[var(--border)] rounded-xl p-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
       <div class="flex items-center gap-2">
         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span class="font-bold text-[var(--foreground)]">Print Spec:</span>
-        <span class="text-[var(--muted-foreground)]">Round-Neck (Crewneck) • 100% Combed Cotton (180–200 GSM)</span>
+        <span class="font-bold text-[var(--foreground)]">Brand Promise:</span>
+        <span class="text-emerald-500 font-bold">Fast. Reliable. Convenient.</span>
       </div>
       <div class="flex items-center gap-2 font-mono text-[11px]">
         <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-bold">#10B981 Speed Emerald</span>
@@ -316,8 +329,10 @@
 
       const frontFmText = document.getElementById('front-fm-text');
       const backFmText = document.getElementById('back-fm-text');
+      const backTagline = document.getElementById('back-tagline');
       const backPhone = document.getElementById('back-phone');
       const frontSub = document.getElementById('front-sub');
+      const frontTagline = document.getElementById('front-tagline');
 
       // Reset button classes
       [btnBlack, btnWhite, btnGreen].forEach(btn => {
@@ -340,8 +355,10 @@
 
         frontFmText.setAttribute('fill', '#0f172a');
         backFmText.setAttribute('fill', '#0f172a');
+        backTagline.setAttribute('fill', '#0f172a');
         backPhone.setAttribute('fill', '#0f172a');
         frontSub.setAttribute('fill', '#475569');
+        frontTagline.setAttribute('fill', '#059669');
       } else if (color === 'green') {
         btnGreen.className = activeClass;
         frontBody.setAttribute('fill', 'url(#greenFrontGrad)');
@@ -356,8 +373,10 @@
 
         frontFmText.setAttribute('fill', '#FFFFFF');
         backFmText.setAttribute('fill', '#FFFFFF');
+        backTagline.setAttribute('fill', '#FFFFFF');
         backPhone.setAttribute('fill', '#FFFFFF');
         frontSub.setAttribute('fill', '#A7F3D0');
+        frontTagline.setAttribute('fill', '#FFFFFF');
       } else {
         btnBlack.className = activeClass;
         frontBody.setAttribute('fill', 'url(#blackFrontGrad)');
@@ -372,8 +391,10 @@
 
         frontFmText.setAttribute('fill', '#FFFFFF');
         backFmText.setAttribute('fill', '#FFFFFF');
+        backTagline.setAttribute('fill', '#FFFFFF');
         backPhone.setAttribute('fill', '#FFFFFF');
         frontSub.setAttribute('fill', '#94a3b8');
+        frontTagline.setAttribute('fill', '#10B981');
       }
     }
   </script>
