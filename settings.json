@@ -5,5 +5,6 @@
   "far_pickup_surcharge": 800,
   "allow_far_pickup_with_surcharge": false,
   "public_url": "https://fmxpress.tekvolutionhq.com",
-  "google_maps_api_key": "AIzaSyBCUwXq-swtUc7fOET9Ag-jB5GUqF2q6jo"
+  "google_maps_api_key": "AIzaSyBCUwXq-swtUc7fOET9Ag-jB5GUqF2q6jo",
+  "admin_notify_phones": "2347037858093"
 }

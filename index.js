@@ -25,7 +25,11 @@ const customerSessions = {};
 function getPricingSettings() {
   try {
     const raw = fs.readFileSync(path.join(__dirname, 'settings.json'), 'utf8');
-    return JSON.parse(raw);
+    const settings = JSON.parse(raw);
+    if (!settings.admin_notify_phones) {
+      settings.admin_notify_phones = process.env.ADMIN_NOTIFY_PHONES || '2347037858093';
+    }
+    return settings;
   } catch (err) {
     return {
       base_fee: 1500,
@@ -34,7 +38,8 @@ function getPricingSettings() {
       far_pickup_surcharge: 800,
       allow_far_pickup_with_surcharge: false,
       public_url: process.env.PUBLIC_URL || 'https://fmxpress.tekvolutionhq.com',
-      google_maps_api_key: process.env.GOOGLE_MAPS_API_KEY || ''
+      google_maps_api_key: process.env.GOOGLE_MAPS_API_KEY || '',
+      admin_notify_phones: process.env.ADMIN_NOTIFY_PHONES || '2347037858093'
     };
   }
 }
@@ -466,7 +471,8 @@ app.post('/api/settings', authMiddleware('admin'), (req, res) => {
       far_pickup_surcharge, 
       allow_far_pickup_with_surcharge,
       public_url,
-      google_maps_api_key
+      google_maps_api_key,
+      admin_notify_phones
     } = req.body;
     
     const current = getPricingSettings();
@@ -490,6 +496,9 @@ app.post('/api/settings', authMiddleware('admin'), (req, res) => {
     }
     if (google_maps_api_key !== undefined) {
       current.google_maps_api_key = google_maps_api_key.trim();
+    }
+    if (admin_notify_phones !== undefined) {
+      current.admin_notify_phones = admin_notify_phones.toString().trim();
     }
 
     savePricingSettings(current);
@@ -1660,6 +1669,61 @@ async function findBestAvailableRider(pickupAddress) {
   }
 }
 
+// --- Instant WhatsApp Notification to Admin & Fleet Supervisors ---
+async function notifyAdminsOnOrderPaid(order, assignedRider) {
+  try {
+    const settings = getPricingSettings();
+    const rawPhones = (settings.admin_notify_phones || process.env.ADMIN_NOTIFY_PHONES || '2347037858093').toString();
+    const phoneList = rawPhones
+      .split(/[,;]+/)
+      .map(p => normalizePhoneNumber(p.trim()))
+      .filter(p => p && p.length >= 10);
+
+    if (phoneList.length === 0) {
+      console.log('[Admin Alert] No admin phone numbers configured.');
+      return;
+    }
+
+    let alertMsg = '';
+    const cleanPrice = (Number(order.price_ngn) || 0).toLocaleString('en-NG');
+
+    if (assignedRider) {
+      alertMsg =
+        `🚨 *[FM XPRESS] NEW PAID ORDER ASSIGNED!* 🚨\n\n` +
+        `🆔 *Order Ref:* ${order.paystack_reference}\n` +
+        `💰 *Amount Paid:* ₦${cleanPrice}\n` +
+        `📍 *Pickup:* ${order.pickup_address}\n` +
+        `🏁 *Delivery:* ${order.delivery_address}\n` +
+        `📏 *Distance:* ${order.distance_km || 0} km\n` +
+        `📦 *Package:* ${(order.package_size || 'STANDARD').toUpperCase()}\n` +
+        `👤 *Customer Phone:* +${order.customer_phone}\n\n` +
+        `🏍️ *Assigned Rider:* *${assignedRider.name}* (+${assignedRider.phone_number})\n` +
+        `⏳ *Status:* Waiting for rider to proceed to pickup\n\n` +
+        `👉 *Prompt Rider Manually:*\n` +
+        `• Call: tel:+${assignedRider.phone_number}\n` +
+        `• WhatsApp: https://wa.me/${assignedRider.phone_number}?text=Hello%20${encodeURIComponent(assignedRider.name)},%20active%20order%20${order.paystack_reference}%20is%20waiting%20for%20pickup.%20Please%20proceed%20now!`;
+    } else {
+      alertMsg =
+        `⚠️ *[FM XPRESS ALERT] PAID ORDER WAITING - NO RIDER!* ⚠️\n\n` +
+        `A customer just completed payment, but *NO RIDERS ARE CURRENTLY AVAILABLE*.\n\n` +
+        `🆔 *Order Ref:* ${order.paystack_reference}\n` +
+        `💰 *Amount Paid:* ₦${cleanPrice}\n` +
+        `📍 *Pickup:* ${order.pickup_address}\n` +
+        `🏁 *Delivery:* ${order.delivery_address}\n` +
+        `👤 *Customer Phone:* +${order.customer_phone}\n\n` +
+        `⚡ *Action Required:* Please open the Admin Dashboard or call a rider directly!\n` +
+        `🔗 Dashboard: https://fmxpress.tekvolutionhq.com/admin`;
+    }
+
+    for (const phone of phoneList) {
+      console.log(`[Admin Alert] Dispatching WhatsApp alert to admin phone: ${phone}`);
+      await sendWhatsAppMessage(phone, alertMsg);
+    }
+  } catch (err) {
+    console.error('[Admin Alert Error]:', err.message);
+  }
+}
+
 // --- Shared Payment Confirmation Handler (Used by Callback and Webhook) ---
 async function handleSuccessfulPayment(reference, paidAmount) {
   console.log(`[Payment] Processing payment confirmation for reference: ${reference}`);
@@ -1725,6 +1789,9 @@ async function handleSuccessfulPayment(reference, paidAmount) {
 
       await sendWhatsAppMessage(assignedRider.phone_number, riderMsg);
 
+      // Notify Admins on WhatsApp
+      await notifyAdminsOnOrderPaid(order, assignedRider);
+
       return { order, rider: assignedRider };
     } else {
       console.log(`[Dispatch] No available riders right now. Order ${order.paystack_reference} queued.`);
@@ -1732,6 +1799,9 @@ async function handleSuccessfulPayment(reference, paidAmount) {
         `We have received your payment for order *${order.paystack_reference}*.\n\n` +
         `⏳ All our dispatch riders are currently on active deliveries. Your order has been placed in our priority queue! The next available rider will be assigned to you shortly.`;
       await sendWhatsAppMessage(order.customer_phone, queueMsg);
+
+      // Notify Admins on WhatsApp (Action needed)
+      await notifyAdminsOnOrderPaid(order, null);
 
       return { order, rider: null };
     }
@@ -2457,8 +2527,74 @@ async function processIncomingWhatsAppMessage(from, message) {
             return;
           }
 
-          // 1.5 Registered Rider Console & Auto-Dispatcher
+          // 1.4 Admin & Dispatcher WhatsApp Console
           const senderClean = normalizePhoneNumber(from);
+          const currentSettings = getPricingSettings();
+          const rawAdminPhones = (currentSettings.admin_notify_phones || process.env.ADMIN_NOTIFY_PHONES || '2347037858093').toString();
+          const adminPhoneList = rawAdminPhones
+            .split(/[,;]+/)
+            .map(p => normalizePhoneNumber(p.trim()))
+            .filter(p => p && p.length >= 10);
+          const isAdminSender = adminPhoneList.includes(senderClean);
+
+          if (isAdminSender && !['CANCEL', 'RESET', 'MENU', 'START'].includes(upperMsg)) {
+            // Admin Command: ORDERS
+            if (['ORDERS', 'ORDER', 'LIVE'].includes(upperMsg)) {
+              const { data: recentOrders } = await supabase
+                .from('orders')
+                .select('*, riders(name, phone_number)')
+                .order('created_at', { ascending: false })
+                .limit(5);
+
+              if (!recentOrders || recentOrders.length === 0) {
+                await sendWhatsAppMessage(from, `📋 *No orders recorded in database yet.*`);
+                return;
+              }
+
+              let text = `📋 *LATEST ORDERS (FM XPRESS)*\n\n`;
+              recentOrders.forEach((o, i) => {
+                const rInfo = o.riders ? `${o.riders.name} (+${o.riders.phone_number})` : 'Unassigned';
+                const statusEmoji = o.status === 'delivered' ? '✅' : (o.status === 'paid' ? '🟡' : '⏳');
+                text += `${i + 1}. *${o.paystack_reference}* ${statusEmoji} [${(o.status || '').toUpperCase()}]\n` +
+                  `   📍 Pickup: ${o.pickup_address}\n` +
+                  `   🏁 Drop: ${o.delivery_address}\n` +
+                  `   🏍️ Rider: ${rInfo}\n` +
+                  `   💰 ₦${(Number(o.price_ngn) || 0).toLocaleString('en-NG')}\n\n`;
+              });
+              text += `🔗 Full Dashboard: https://fmxpress.tekvolutionhq.com/admin`;
+              await sendWhatsAppMessage(from, text);
+              return;
+            }
+
+            // Admin Command: RIDERS
+            if (['RIDERS', 'FLEET', 'RIDER'].includes(upperMsg)) {
+              const { data: allRidersList } = await supabase.from('riders').select('*');
+              let text = `🏍️ *FLEET RIDERS STATUS:*\n\n`;
+              (allRidersList || []).forEach(r => {
+                const icon = r.status === 'available' ? '🟢' : (r.status === 'busy' ? '🟡' : '⚪');
+                text += `${icon} *${r.name}* (+${r.phone_number})\n   Status: *${(r.status || 'offline').toUpperCase()}*\n\n`;
+              });
+              await sendWhatsAppMessage(from, text);
+              return;
+            }
+
+            // Admin Greeting & Quick Menu
+            if (['ADMIN', 'HI', 'HELLO', 'STATUS', 'HELP'].includes(upperMsg) || upperMsg.length <= 4) {
+              await sendWhatsAppMessage(
+                from,
+                `👑 *FM XPRESS DISPATCH ADMIN CONSOLE*\n\n` +
+                `Hello Admin! You are registered for *live dispatch alerts*.\n` +
+                `Whenever an order is paid, you'll receive immediate details and prompt links right here.\n\n` +
+                `*Quick Commands:*\n` +
+                `• *ORDERS* - View last 5 orders & status\n` +
+                `• *RIDERS* - Check rider fleet availability\n` +
+                `• *MENU* - Switch to normal customer booking flow`
+              );
+              return;
+            }
+          }
+
+          // 1.5 Registered Rider Console & Auto-Dispatcher
           const { data: allRiders } = await supabase.from('riders').select('*');
           const matchedRider = (allRiders || []).find(r => normalizePhoneNumber(r.phone_number) === senderClean);
 

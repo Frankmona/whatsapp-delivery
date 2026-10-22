@@ -130,13 +130,37 @@
             </h2>
             <p class="text-xs text-slate-400">Real-time status of incoming WhatsApp delivery bookings</p>
           </div>
-          <div class="flex items-center gap-3">
+          <div class="flex flex-wrap items-center gap-2.5">
+            <button id="btn-sound-toggle" onclick="toggleSoundAlerts()" class="text-xs font-semibold px-3 py-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition flex items-center gap-1.5 shadow-sm" title="Toggle audio chime on new orders">
+              <i class="fa-solid fa-volume-high text-emerald-400"></i> Sound: ON
+            </button>
+            <button onclick="playDispatchChime(true)" class="text-xs font-medium px-2.5 py-1.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-300 hover:text-white transition flex items-center gap-1" title="Test audio alert chime">
+              <i class="fa-solid fa-bell text-amber-400"></i> Test
+            </button>
             <div class="relative">
               <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-xs text-slate-500"></i>
-              <input type="text" id="order-search" oninput="handleOrderSearch(event)" placeholder="Search customer or ref..." class="bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 w-48 sm:w-60">
+              <input type="text" id="order-search" oninput="handleOrderSearch(event)" placeholder="Search customer or ref..." class="bg-slate-900 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 w-44 sm:w-56">
             </div>
             <span class="text-xs text-slate-400 bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800" id="orders-count">Loading...</span>
           </div>
+        </div>
+
+        <!-- Filter Pills Bar -->
+        <div class="flex flex-wrap items-center gap-2 pt-1">
+          <button id="filter-all" onclick="setOrderStatusFilter('all')" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 transition shadow-sm">
+            All Orders
+          </button>
+          <button id="filter-paid" onclick="setOrderStatusFilter('paid')" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+            Awaiting Pickup / In Transit
+            <span id="awaiting-badge-count" class="hidden px-1.5 py-0.2 bg-amber-500/20 text-amber-300 rounded-full text-[10px] font-bold border border-amber-500/30">0</span>
+          </button>
+          <button id="filter-delivered" onclick="setOrderStatusFilter('delivered')" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition">
+            Delivered
+          </button>
+          <button id="filter-pending" onclick="setOrderStatusFilter('pending')" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition">
+            Pending Payment
+          </button>
         </div>
 
         <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
@@ -332,7 +356,16 @@
                 <span class="text-[11px] text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">40,000 Free / mo</span>
               </div>
               <input type="password" id="google-maps-api-key-input" placeholder="AIzaSy..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-emerald-400 focus:outline-none focus:border-emerald-500 font-mono">
-              <p class="text-[11px] text-slate-500 mt-1">Gives 100% exact road distances &amp; street lookups matching Google Maps and Uber (5.1 km). OpenRouteService acts as backup.</p>
+            <!-- Admin & Dispatcher WhatsApp Alert Numbers -->
+            <div class="pt-3 border-t border-slate-800/80">
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="block text-xs font-semibold uppercase text-emerald-400 flex items-center gap-1.5">
+                  <i class="fa-brands fa-whatsapp text-emerald-400"></i> Dispatch Alert WhatsApp Numbers
+                </label>
+                <span class="text-[11px] text-emerald-400 font-semibold bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Instant Notification</span>
+              </div>
+              <input type="text" id="admin-notify-phones-input" placeholder="07037858093, 08012345678" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-emerald-300 focus:outline-none focus:border-emerald-500 font-mono">
+              <p class="text-[11px] text-slate-400 mt-1">Numbers that receive WhatsApp alerts the moment an order is paid. You can replace with your staff's numbers anytime, or enter multiple numbers separated by commas.</p>
             </div>
 
             <button type="submit" class="w-full py-3 rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-600 hover:bg-emerald-500 text-white transition shadow flex items-center justify-center gap-2">
@@ -880,7 +913,67 @@
     let riderFilter = 'all';
     let riderSearch = '';
     let orderSearch = '';
+    let orderStatusFilter = 'all';
+    let soundAlertsEnabled = true;
+    let knownPaidOrderIds = new Set();
+    let isFirstOrdersLoad = true;
     let pollTimer = null;
+    let audioCtx = null;
+
+    function playDispatchChime(force = false) {
+      if (!force && !soundAlertsEnabled) return;
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        if (!audioCtx) audioCtx = new AudioContext();
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const now = audioCtx.currentTime;
+        
+        // E5 chime tone (659.25Hz)
+        const osc1 = audioCtx.createOscillator();
+        const gain1 = audioCtx.createGain();
+        osc1.type = 'triangle';
+        osc1.frequency.setValueAtTime(659.25, now);
+        gain1.gain.setValueAtTime(0.35, now);
+        gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+        osc1.connect(gain1);
+        gain1.connect(audioCtx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.45);
+
+        // B5 chime tone (987.77Hz)
+        const osc2 = audioCtx.createOscillator();
+        const gain2 = audioCtx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(987.77, now + 0.12);
+        gain2.gain.setValueAtTime(0.4, now + 0.12);
+        gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+        osc2.connect(gain2);
+        gain2.connect(audioCtx.destination);
+        osc2.start(now + 0.12);
+        osc2.stop(now + 0.7);
+      } catch (err) {
+        console.warn('[Audio Alert] Error playing chime:', err);
+      }
+    }
+
+    function toggleSoundAlerts() {
+      soundAlertsEnabled = !soundAlertsEnabled;
+      const btn = document.getElementById('btn-sound-toggle');
+      if (btn) {
+        btn.innerHTML = soundAlertsEnabled 
+          ? `<i class="fa-solid fa-volume-high text-emerald-400"></i> Sound: ON`
+          : `<i class="fa-solid fa-volume-xmark text-slate-500"></i> Sound: OFF`;
+        btn.className = soundAlertsEnabled
+          ? `text-xs font-semibold px-3 py-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition flex items-center gap-1.5 shadow-sm`
+          : `text-xs font-semibold px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-800 text-slate-400 hover:bg-slate-700 transition flex items-center gap-1.5`;
+      }
+      if (soundAlertsEnabled) {
+        playDispatchChime(true);
+      }
+    }
 
     // --- Authentication & Helpers ---
     function togglePasswordVisibility() {
@@ -1100,10 +1193,42 @@
       try {
         const res = await authFetch('/api/orders');
         allOrders = await res.json();
+
+        // Sound Chime Alert on newly arrived paid orders
+        if (Array.isArray(allOrders)) {
+          let hasNewPaidOrder = false;
+          allOrders.forEach(o => {
+            if (o.status === 'paid') {
+              if (!isFirstOrdersLoad && !knownPaidOrderIds.has(o.id)) {
+                hasNewPaidOrder = true;
+              }
+              knownPaidOrderIds.add(o.id);
+            }
+          });
+
+          if (hasNewPaidOrder) {
+            playDispatchChime();
+          }
+          isFirstOrdersLoad = false;
+        }
+
         renderOrders();
       } catch (err) {
         console.error('Error fetching orders:', err);
       }
+    }
+
+    function setOrderStatusFilter(filter) {
+      orderStatusFilter = filter;
+      ['filter-all', 'filter-paid', 'filter-delivered', 'filter-pending'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.className = (id === `filter-${filter}`)
+            ? 'px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500 text-slate-950 transition shadow-sm'
+            : 'px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-900 text-slate-400 hover:text-white border border-slate-800 transition flex items-center gap-1.5';
+        }
+      });
+      renderOrders();
     }
 
     function handleOrderSearch(e) {
@@ -1115,7 +1240,22 @@
       const tbody = document.getElementById('orders-table');
       if (!Array.isArray(allOrders)) return;
 
+      const awaitingCount = allOrders.filter(o => o.status === 'paid').length;
+      const awaitingBadge = document.getElementById('awaiting-badge-count');
+      if (awaitingBadge) {
+        awaitingBadge.textContent = awaitingCount;
+        if (awaitingCount > 0) {
+          awaitingBadge.classList.remove('hidden');
+        } else {
+          awaitingBadge.classList.add('hidden');
+        }
+      }
+
       const filtered = allOrders.filter(o => {
+        if (orderStatusFilter === 'paid' && o.status !== 'paid') return false;
+        if (orderStatusFilter === 'delivered' && o.status !== 'delivered') return false;
+        if (orderStatusFilter === 'pending' && (o.status === 'paid' || o.status === 'delivered')) return false;
+
         if (!orderSearch) return true;
         const phone = (o.customer_phone || '').toLowerCase();
         const ref = (o.paystack_reference || '').toLowerCase();
@@ -1128,25 +1268,56 @@
       document.getElementById('tab-orders-count-badge').textContent = allOrders.length;
 
       if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-slate-500">${orderSearch ? 'No matching orders found.' : 'No orders yet.'}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" class="py-12 text-center text-slate-500">${orderSearch || orderStatusFilter !== 'all' ? 'No matching orders found.' : 'No orders yet.'}</td></tr>`;
         return;
       }
 
       tbody.innerHTML = filtered.map(order => {
         let badge = '';
+        let rowClass = 'hover:bg-slate-800/30 transition';
+
         if (order.status === 'delivered') {
           badge = `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Delivered</span>`;
         } else if (order.status === 'paid') {
-          badge = `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-sky-500/10 text-sky-400 border border-sky-500/20">In Transit</span>`;
+          badge = `<span class="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 inline-flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span> Awaiting / Transit</span>`;
+          rowClass = 'border-l-4 border-l-amber-500 bg-amber-500/5 hover:bg-amber-500/10 transition';
         } else {
-          badge = `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">Pending Pay</span>`;
+          badge = `<span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-800 text-slate-400 border border-slate-700">Pending Pay</span>`;
         }
 
-        const riderName = order.riders ? order.riders.name : '<span class="text-slate-500">Unassigned</span>';
+        let riderDisplay = '';
+        if (order.riders) {
+          const rPhone = order.riders.phone_number;
+          const rName = encodeURIComponent(order.riders.name);
+          const oRef = encodeURIComponent(order.paystack_reference || '');
+          
+          riderDisplay = `
+            <div class="font-medium text-white text-xs">${order.riders.name}</div>
+            <div class="text-[11px] text-slate-400 font-mono">+${rPhone}</div>
+          `;
+
+          if (order.status === 'paid') {
+            riderDisplay += `
+              <div class="flex items-center gap-1.5 mt-1.5">
+                <a href="tel:+${rPhone}" class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/30 transition" title="Direct Phone Call">
+                  <i class="fa-solid fa-phone"></i> Call
+                </a>
+                <a href="https://wa.me/${rPhone}?text=Hello%20${rName},%20active%20order%20${oRef}%20is%20waiting%20for%20pickup.%20Please%20proceed%20now!" target="_blank" class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-sky-500/10 text-sky-400 hover:bg-sky-500/20 border border-sky-500/30 transition" title="Message on WhatsApp">
+                  <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                </a>
+              </div>
+            `;
+          }
+        } else {
+          riderDisplay = order.status === 'paid'
+            ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 animate-pulse"><i class="fa-solid fa-triangle-exclamation"></i> Rider Needed</span>`
+            : `<span class="text-slate-500 text-xs">Unassigned</span>`;
+        }
+
         const formattedDate = new Date(order.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ', ' + new Date(order.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' });
 
         return `
-          <tr class="hover:bg-slate-800/30 transition">
+          <tr class="${rowClass}">
             <td class="py-3.5 px-4">
               <div class="font-semibold text-white text-xs">${order.paystack_reference || 'Ref N/A'}</div>
               <div class="text-xs text-slate-400">+${order.customer_phone}</div>
@@ -1159,8 +1330,8 @@
             <td class="py-3.5 px-4 font-bold text-white text-sm">
               ₦${(order.price_ngn || 0).toLocaleString('en-NG')}
             </td>
-            <td class="py-3.5 px-4 text-xs font-medium">
-              ${riderName}
+            <td class="py-3.5 px-4 text-xs">
+              ${riderDisplay}
             </td>
             <td class="py-3.5 px-4">
               ${badge}
@@ -1561,6 +1732,11 @@
         if (data.google_maps_api_key) {
           document.getElementById('google-maps-api-key-input').value = data.google_maps_api_key;
         }
+        if (data.admin_notify_phones !== undefined) {
+          document.getElementById('admin-notify-phones-input').value = data.admin_notify_phones;
+        } else {
+          document.getElementById('admin-notify-phones-input').value = '2347037858093';
+        }
       } catch (err) {
         console.error('Error fetching pricing:', err);
       }
@@ -1575,6 +1751,7 @@
       const allow_far_pickup_with_surcharge = document.getElementById('allow-surcharge-toggle').checked;
       const public_url = document.getElementById('public-url-input').value.trim();
       const google_maps_api_key = document.getElementById('google-maps-api-key-input').value.trim();
+      const admin_notify_phones = document.getElementById('admin-notify-phones-input').value.trim();
 
       try {
         const res = await authFetch('/api/settings', {
@@ -1587,7 +1764,8 @@
             far_pickup_surcharge, 
             allow_far_pickup_with_surcharge,
             public_url,
-            google_maps_api_key
+            google_maps_api_key,
+            admin_notify_phones
           })
         });
         if (res.ok) {
