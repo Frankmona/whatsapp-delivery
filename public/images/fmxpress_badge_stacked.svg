@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="850" viewBox="0 0 800 850">
+  <defs>
+    <linearGradient id="badgeGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="50%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+  </defs>
+
+  <!-- SQUIRCLE EMBLEM -->
+  <g transform="translate(130, 40)">
+    <rect x="0" y="0" width="540" height="540" rx="135" fill="url(#badgeGrad2)" />
+    <rect x="13" y="13" width="514" height="514" rx="122" fill="none" stroke="#FFFFFF" stroke-width="6" opacity="0.4" />
+
+    <!-- Speed Lines -->
+    <path d="M 60 225 L 160 225" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round" opacity="0.45" />
+    <path d="M 38 288 L 148 288" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round" opacity="0.8" />
+    <path d="M 75 350 L 175 350" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round" opacity="0.45" />
+
+    <!-- Motorcycle Courier in Motion -->
+    <!-- Rear Wheel -->
+    <circle cx="188" cy="380" r="58" fill="#0B1329" stroke="#FFFFFF" stroke-width="14"/>
+    <circle cx="188" cy="380" r="23" fill="#10B981"/>
+    
+    <!-- Front Wheel -->
+    <circle cx="405" cy="380" r="58" fill="#0B1329" stroke="#FFFFFF" stroke-width="14"/>
+    <circle cx="405" cy="380" r="23" fill="#10B981"/>
+
+    <!-- Motorcycle Chassis -->
+    <path d="M 188 380 L 260 325 L 332 325 L 405 380 L 360 300 L 280 300 Z" fill="#FFFFFF"/>
+    
+    <!-- Fork & Handlebars -->
+    <path d="M 405 380 L 345 250 L 315 254" stroke="#FFFFFF" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M 345 250 L 376 214 L 350 210 Z" fill="#A7F3D0"/>
+
+    <!-- Delivery Box -->
+    <rect x="144" y="242" width="90" height="85" rx="18" fill="#FFFFFF" stroke="#0B1329" stroke-width="9"/>
+    <path d="M 162 284 L 216 284" stroke="#10B981" stroke-width="11" stroke-linecap="round"/>
+
+    <!-- Courier Rider Leaning Forward -->
+    <path d="M 216 288 C 230 248, 266 235, 312 258 L 338 285 L 312 315 L 266 306 Z" fill="#0B1329"/>
+    <path d="M 278 264 L 328 278 L 340 260" stroke="#0B1329" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <circle cx="298" cy="210" r="40" fill="#0B1329" stroke="#FFFFFF" stroke-width="6"/>
+    <path d="M 308 194 C 328 198, 332 218, 328 230 L 308 226 Z" fill="#34D399"/>
+  </g>
+
+  <!-- TYPOGRAPHY BELOW CREST -->
+  <g transform="translate(145, 680)">
+    <text x="0" y="0" font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="88" letter-spacing="-2" fill="#0F172A">FM</text>
+    <text x="155" y="0" font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="88" letter-spacing="-2" fill="#10B981">XPRESS</text>
+    <text x="2" y="44" font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="20" letter-spacing="8" fill="#64748B">DISPATCH &amp; LOGISTICS</text>
+  </g>
+</svg>
