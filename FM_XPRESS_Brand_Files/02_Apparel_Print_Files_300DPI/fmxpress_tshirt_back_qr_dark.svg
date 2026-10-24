@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="3200" viewBox="0 0 2400 3200">
+  <g transform="translate(1200, 360)" text-anchor="middle">
+    <!-- Top FM XPRESS Brand -->
+    <text y="0" font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="220" letter-spacing="-4">
+      <tspan fill="#FFFFFF">FM</tspan>
+      <tspan fill="#10B981"> XPRESS</tspan>
+    </text>
+
+    <!-- White Card Container for PURE QR Code (Shifted up since text removed) -->
+    <g transform="translate(-600, 140)">
+      <rect width="1200" height="1300" rx="100" fill="#FFFFFF"/>
+      
+      <!-- PURE HIGH RESOLUTION QR CODE -->
+      <!-- Top Left Finder -->
+      <rect x="120" y="100" width="240" height="240" fill="#0F172A" rx="30"/>
+      <rect x="160" y="140" width="160" height="160" fill="#FFFFFF" rx="18"/>
+      <rect x="195" y="175" width="90" height="90" fill="#0F172A" rx="12"/>
+
+      <!-- Top Right Finder -->
+      <rect x="840" y="100" width="240" height="240" fill="#0F172A" rx="30"/>
+      <rect x="880" y="140" width="160" height="160" fill="#FFFFFF" rx="18"/>
+      <rect x="915" y="175" width="90" height="90" fill="#0F172A" rx="12"/>
+
+      <!-- Bottom Left Finder -->
+      <rect x="120" y="760" width="240" height="240" fill="#0F172A" rx="30"/>
+      <rect x="160" y="800" width="160" height="160" fill="#FFFFFF" rx="18"/>
+      <rect x="195" y="835" width="90" height="90" fill="#0F172A" rx="12"/>
+
+      <!-- QR Pattern Elements -->
+      <rect x="420" y="100" width="70" height="70" fill="#0F172A"/>
+      <rect x="540" y="100" width="80" height="70" fill="#0F172A"/>
+      <rect x="670" y="100" width="70" height="70" fill="#0F172A"/>
+      <rect x="420" y="210" width="80" height="70" fill="#0F172A"/>
+      <rect x="550" y="210" width="70" height="70" fill="#0F172A"/>
+      <rect x="710" y="210" width="80" height="70" fill="#0F172A"/>
+      
+      <!-- Central Emerald Brand Target inside QR -->
+      <rect x="400" y="380" width="110" height="110" fill="#10B981" rx="20"/>
+      <rect x="545" y="380" width="110" height="110" fill="#10B981" rx="20"/>
+      <rect x="690" y="380" width="110" height="110" fill="#10B981" rx="20"/>
+
+      <rect x="420" y="550" width="70" height="70" fill="#0F172A"/>
+      <rect x="540" y="550" width="90" height="70" fill="#0F172A"/>
+      <rect x="700" y="550" width="70" height="70" fill="#0F172A"/>
+      <rect x="420" y="670" width="80" height="70" fill="#0F172A"/>
+      <rect x="550" y="670" width="80" height="70" fill="#0F172A"/>
+      <rect x="680" y="670" width="70" height="70" fill="#0F172A"/>
+      <rect x="800" y="670" width="70" height="70" fill="#0F172A"/>
+      
+      <rect x="420" y="790" width="70" height="80" fill="#0F172A"/>
+      <rect x="540" y="790" width="80" height="80" fill="#0F172A"/>
+      <rect x="690" y="790" width="80" height="80" fill="#0F172A"/>
+      <rect x="830" y="790" width="70" height="80" fill="#0F172A"/>
+      <rect x="940" y="790" width="80" height="80" fill="#0F172A"/>
+
+      <rect x="420" y="930" width="80" height="90" fill="#0F172A"/>
+      <rect x="550" y="930" width="90" height="90" fill="#0F172A"/>
+      <rect x="700" y="930" width="90" height="90" fill="#0F172A"/>
+      <rect x="830" y="930" width="80" height="90" fill="#0F172A"/>
+
+      <text x="600" y="1190" font-family="-apple-system, 'SF Pro Display', Arial, sans-serif" font-weight="900" font-size="64" fill="#0F172A" letter-spacing="4">
+        SCAN TO BOOK ON WHATSAPP
+      </text>
+    </g>
+
+    <!-- Brand Promise -->
+    <text y="1600" font-family="-apple-system, 'SF Pro Display', Arial, sans-serif" font-weight="800" font-size="76" fill="#10B981" letter-spacing="18">
+      FAST • RELIABLE • CONVENIENT
+    </text>
+
+    <!-- Phone Number & Website -->
+    <text y="1790" font-family="-apple-system, 'SF Pro Display', Arial, sans-serif" font-weight="900" font-size="155" fill="#FFFFFF" letter-spacing="8">
+      0903 686 9830
+    </text>
+    <text y="1910" font-family="-apple-system, 'SF Pro Display', Arial, sans-serif" font-weight="600" font-size="78" fill="#94A3B8" letter-spacing="8">
+      fmxpress.tekvolutionhq.com
+    </text>
+  </g>
+</svg>

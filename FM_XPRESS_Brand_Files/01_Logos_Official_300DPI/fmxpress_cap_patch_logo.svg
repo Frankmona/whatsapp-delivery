@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="2400" viewBox="0 0 2400 2400">
+  <defs>
+    <linearGradient id="capGrad2400" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="50%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+  </defs>
+
+  <!-- CAP EMBROIDERY PATCH -->
+  <g transform="translate(300, 300)">
+    <!-- Base Squircle with Merrowed Border -->
+    <rect x="0" y="0" width="1800" height="1800" rx="450" fill="url(#capGrad2400)" />
+    <!-- Outer Raised Edge -->
+    <rect x="24" y="24" width="1752" height="1752" rx="426" fill="none" stroke="#A7F3D0" stroke-width="16" opacity="0.6"/>
+    <!-- Inner Stitch Line -->
+    <rect x="56" y="56" width="1688" height="1688" rx="394" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-dasharray="20,16" opacity="0.5"/>
+
+    <!-- TOP TYPOGRAPHY: FM XPRESS EST. 2023 -->
+    <text x="900" y="420" text-anchor="middle" font-family="-apple-system, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif" font-weight="900" font-size="164" letter-spacing="6" fill="#FFFFFF">FM XPRESS</text>
+    <text x="900" y="516" text-anchor="middle" font-family="-apple-system, 'SF Pro Display', Arial, sans-serif" font-weight="700" font-size="52" letter-spacing="16" fill="#D1FAE5" opacity="0.9">EST. 2023</text>
+
+    <!-- MOTORCYCLE COURIER EMBLEM -->
+    <g transform="translate(900, 1120)">
+      <!-- Speed Lines -->
+      <path d="M -580 -160 L -340 -160" stroke="#FFFFFF" stroke-width="36" stroke-linecap="round" opacity="0.45" />
+      <path d="M -640 0 L -360 0" stroke="#FFFFFF" stroke-width="44" stroke-linecap="round" opacity="0.85" />
+      <path d="M -540 160 L -300 160" stroke="#FFFFFF" stroke-width="36" stroke-linecap="round" opacity="0.45" />
+
+      <!-- Rear Wheel -->
+      <circle cx="-270" cy="240" r="152" fill="#0B1329" stroke="#FFFFFF" stroke-width="36"/>
+      <circle cx="-270" cy="240" r="60" fill="#10B981"/>
+
+      <!-- Front Wheel -->
+      <circle cx="300" cy="240" r="152" fill="#0B1329" stroke="#FFFFFF" stroke-width="36"/>
+      <circle cx="300" cy="240" r="60" fill="#10B981"/>
+
+      <!-- Motorcycle Chassis -->
+      <path d="M -270 240 L -80 100 L 110 100 L 300 240 L 180 40 L -40 40 Z" fill="#FFFFFF"/>
+
+      <!-- Fork & Handlebars -->
+      <path d="M 300 240 L 150 -100 L 70 -84" stroke="#FFFFFF" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <path d="M 150 -100 L 230 -190 L 160 -200 Z" fill="#A7F3D0"/>
+
+      <!-- Delivery Box -->
+      <rect x="-380 -120" width="240" height="224" rx="48" fill="#FFFFFF" stroke="#0B1329" stroke-width="24"/>
+      <path d="M -336 -8 L -184 -8" stroke="#10B981" stroke-width="28" stroke-linecap="round"/>
+
+      <!-- Courier Rider -->
+      <path d="M -200 4 C -160 -104, -60 -140, 60 -80 L 132 -8 L 60 76 L -60 52 Z" fill="#0B1329"/>
+      <path d="M -30 -60 L 100 -24 L 132 -70" stroke="#0B1329" stroke-width="44" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <circle cx="24" cy="-210" r="104" fill="#0B1329" stroke="#FFFFFF" stroke-width="16"/>
+      <path d="M 48 -250 C 100 -240, 112 -190, 100 -160 L 48 -170 Z" fill="#34D399"/>
+    </g>
+  </g>
+</svg>

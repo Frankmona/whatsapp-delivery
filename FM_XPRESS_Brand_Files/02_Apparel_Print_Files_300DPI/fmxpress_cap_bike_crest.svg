@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="2400" viewBox="0 0 2400 2400">
+  <defs>
+    <linearGradient id="capCrestGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="50%" stop-color="#10B981" />
+      <stop offset="100%" stop-color="#047857" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(300, 300)">
+    <rect x="0" y="0" width="1800" height="1800" rx="450" fill="url(#capCrestGrad)" />
+    <rect x="45" y="45" width="1710" height="1710" rx="405" fill="none" stroke="#FFFFFF" stroke-width="21" opacity="0.4" />
+
+    <!-- Speed Lines -->
+    <path d="M 210 750 L 540 750" stroke="#FFFFFF" stroke-width="45" stroke-linecap="round" opacity="0.45" />
+    <path d="M 135 960 L 495 960" stroke="#FFFFFF" stroke-width="54" stroke-linecap="round" opacity="0.8" />
+    <path d="M 255 1170 L 585 1170" stroke="#FFFFFF" stroke-width="45" stroke-linecap="round" opacity="0.45" />
+
+    <!-- Wheels -->
+    <circle cx="630" cy="1260" r="192" fill="#0B1329" stroke="#FFFFFF" stroke-width="48"/>
+    <circle cx="630" cy="1260" r="78" fill="#10B981"/>
+    
+    <circle cx="1350" cy="1260" r="192" fill="#0B1329" stroke="#FFFFFF" stroke-width="48"/>
+    <circle cx="1350" cy="1260" r="78" fill="#10B981"/>
+
+    <!-- Chassis & Fork -->
+    <path d="M 630 1260 L 870 1080 L 1110 1080 L 1350 1260 L 1200 1005 L 930 1005 Z" fill="#FFFFFF"/>
+    <path d="M 1350 1260 L 1155 825 L 1050 846" stroke="#FFFFFF" stroke-width="48" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <path d="M 1155 825 L 1260 708 L 1170 696 Z" fill="#A7F3D0"/>
+
+    <!-- Delivery Box -->
+    <rect x="480" y="804" width="300" height="282" rx="60" fill="#FFFFFF" stroke="#0B1329" stroke-width="30"/>
+    <path d="M 540 945 L 720 945" stroke="#10B981" stroke-width="36" stroke-linecap="round"/>
+
+    <!-- Courier Rider -->
+    <path d="M 720 960 C 768 822, 888 780, 1038 858 L 1128 948 L 1038 1050 L 888 1020 Z" fill="#0B1329"/>
+    <path d="M 930 876 L 1092 924 L 1134 864" stroke="#0B1329" stroke-width="54" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    <circle cx="996" cy="696" r="132" fill="#0B1329" stroke="#FFFFFF" stroke-width="19.5"/>
+    <path d="M 1026 648 C 1092 660, 1104 726, 1092 762 L 1026 750 Z" fill="#34D399"/>
+  </g>
+</svg>
