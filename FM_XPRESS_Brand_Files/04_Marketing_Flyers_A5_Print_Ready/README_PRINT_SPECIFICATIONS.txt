@@ -5,7 +5,7 @@ Brand Name:       FM XPRESS (Dispatch & Logistics)
 Flyer Format:     A5 Double-Sided (Front & Back)
 Target Audience:  E-Commerce Vendors, Boutiques, Restaurants, Corporate & Individuals
 Primary Contact:  WhatsApp Booking Bot: 0903 686 9830 | fmxpress.tekvolutionhq.com
-Support Helplines:Admin Helpline: 0703 785 8093 | Owner Desk: 0906 795 7295
+Support Helplines:Support 1: 0703 785 8093 | Support 2: 0906 795 7295
 ========================================================================
 
 ------------------------------------------------------------------------
@@ -52,7 +52,7 @@ Support Helplines:Admin Helpline: 0703 785 8093 | Owner Desk: 0906 795 7295
     typography, and crop bleed marks.
 
 - fmxpress_flyer_a5_back.svg
-    Vector SVG of the Back Cover with workflow steps, pricing tables, and city coverage grid.
+    Vector SVG of the Back Cover with workflow steps, delivery commitment guarantees, and helplines.
 
 [Interactive Web & Print Engine]
 - fmxpress_flyer_a5_printable.html
@@ -72,17 +72,18 @@ SIDE 1: FRONT COVER (The Hook & Customer Conversion)
 - High-Conversion WhatsApp Card:
     * 100% Genuine, Scannable Vector WhatsApp QR Code (encoded to https://wa.me/2349036869830).
     * Bold WhatsApp Booking Line: 0903 686 9830.
-- Helplines: Admin Helpline (0703 785 8093) | Owner Desk (0906 795 7295).
+- Helplines: Support 1 (0703 785 8093) | Support 2 (0906 795 7295).
 
-SIDE 2: BACK COVER (Details, Pricing, Coverage & B2B Partnerships)
+SIDE 2: BACK COVER (Details, Workflow, Commitments & B2B Partnerships)
 - Headline: "HOW DISPATCH WORKS WITH FM XPRESS (Simple 3-Step WhatsApp Booking)".
 - 3 Visual Steps: 1. Send Details -> 2. Confirm & Pay -> 3. Rider Arrives.
-- Transparent Fair-Distance Pricing:
-    * Base Pickup Fee: ₦1,500
-    * Per-Kilometer Rate: ₦200 / km (verified GPS driving distance).
-- 15+ Abuja Coverage Stations: Wuse, Maitama, Garki, CBD, Jabi, Utako, Gwarinpa, Kubwa, Asokoro, Apo, Lugbe, Life Camp, Dawaki, etc.
+- Service Commitments & Delivery Guarantees (2x2 Grid):
+    * Rapid Doorstep Pickup (Under 30-min dispatch avg.)
+    * Weatherproof & Insulated Boxes (Pristine package protection)
+    * Real-Time WhatsApp Updates (Live route and driver alerts)
+    * Secure Cashless Checkout (Paystack 1-tap card, transfer & USSD)
 - B2B Vendor & Merchant Partner Box: Special bulk batch rates for Abuja cake artists, boutiques, food vendors, and online stores.
-- Direct Contact Channels: WhatsApp Bot (0903 686 9830), Admin (0703 785 8093), Owner (0906 795 7295).
+- Direct Contact Channels: WhatsApp Bot (0903 686 9830), Support 1 (0703 785 8093), Support 2 (0906 795 7295).
 - Corporate details & operating hours (Mon – Sat, 7:00 AM – 8:00 PM).
 
 ========================================================================
