@@ -1607,7 +1607,8 @@ async function handleGetPrice(from) {
 async function handleSupport(from) {
   const supportMsg = `💬 *FM XPRESS Customer Support*\n\n` +
     `Need help with a pickup, tracking, or booking? We're here for you!\n\n` +
-    `📞 *Call / Direct WhatsApp:* +234 703 785 8093\n` +
+    `📞 *Admin Helpline:* +234 703 785 8093\n` +
+    `📞 *Owner / Management Desk:* +234 906 795 7295\n` +
     `📧 *Email:* support@fmxpress.com\n` +
     `⏰ *Operating Hours:* Mon – Sat, 7:00 AM – 8:00 PM\n\n` +
     `_Reply MENU anytime to return to main options._`;
@@ -1773,7 +1774,10 @@ async function handleSuccessfulPayment(reference, paidAmount) {
         `📞 *Rider Contact:* +${assignedRider.phone_number}\n` +
         `📍 *Pickup Address:* ${order.pickup_address}\n` +
         `🏁 *Delivery Address:* ${order.delivery_address}\n\n` +
-        `Your rider is heading to the pickup location now! 🚀`;
+        `Your rider is heading to the pickup location now! 🚀\n\n` +
+        `💬 *Helpline & Dispatch Escalations:*\n` +
+        `• Admin Helpline: +234 703 785 8093\n` +
+        `• Owner Desk: +234 906 795 7295`;
 
       await sendWhatsAppMessage(order.customer_phone, customerMsg);
 
