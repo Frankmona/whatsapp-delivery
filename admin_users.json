@@ -4,7 +4,7 @@
     "email": "musa@fmxpress.com",
     "password_hash": "03a565edabfbebe24662965ffad51565:c72f254e20a4d0798dbff77d0d5a1d57b0a526ce719e1ea53899d0ebdcbbec4fbf9601dade7585512503dcd76cc3a7eec4301d2077c383301be3386efb7a5018",
     "name": "Musa Dispatch",
-    "role": "dispatcher",
+    "role": "admin",
     "created_at": "2026-10-17T15:03:23.119Z"
   }
 ]

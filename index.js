@@ -458,11 +458,11 @@ app.get('/vendor', (req, res) => {
   res.redirect('/merchant');
 });
 
-app.get('/api/settings', authMiddleware('admin'), (req, res) => {
+app.get('/api/settings', authMiddleware(), (req, res) => {
   res.json(getPricingSettings());
 });
 
-app.post('/api/settings', authMiddleware('admin'), (req, res) => {
+app.post('/api/settings', authMiddleware(), (req, res) => {
   try {
     const { 
       base_fee, 
