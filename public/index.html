@@ -69,11 +69,11 @@
     <div class="max-w-7xl mx-auto flex items-center justify-center flex-wrap gap-2 sm:gap-4">
       <span class="inline-flex items-center gap-1.5">
         <span class="w-2 h-2 rounded-full bg-slate-950 animate-ping"></span>
-        <span>🚀 OFFICIAL ABUJA LAUNCH IN:</span>
+        <span id="topBarLabel">🚀 OFFICIAL ABUJA LAUNCH IN:</span>
         <span id="topBarCountdown" class="font-mono bg-slate-950 text-emerald-400 font-black px-2 py-0.5 rounded text-[11px] tracking-wider">10d 00h 00m 00s</span>
       </span>
       <span class="hidden sm:inline text-slate-950/60">•</span>
-      <a href="https://wa.me/2349036869830?text=Hi%20FM%20XPRESS%2C%20please%20add%20me%20to%20your%20client%20list" target="_blank" class="underline hover:text-white transition font-black">
+      <a id="topBarLink" href="https://wa.me/2349036869830?text=Hi%20FM%20XPRESS%2C%20please%20add%20me%20to%20your%20client%20list" target="_blank" class="underline hover:text-white transition font-black">
         Join WhatsApp Client List &rarr;
       </a>
     </div>
@@ -107,8 +107,8 @@
       <div class="flex items-center gap-3">
         <a href="/merchant" class="hidden sm:inline-flex text-xs font-bold text-purple-400 hover:text-purple-300 px-3 py-2 rounded-lg bg-purple-500/10 border border-purple-500/30 transition">Merchant Fleet</a>
         <a href="/admin" class="text-xs font-semibold text-slate-400 hover:text-white px-3 py-2 rounded-lg border border-slate-800 transition">Admin</a>
-        <a href="https://wa.me/2349036869830?text=Hi%20FM%20XPRESS%2C%20please%20add%20me%20to%20your%20client%20list" target="_blank" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-sm transition shadow-lg shadow-emerald-500/25">
-          <span>Join Client List</span>
+        <a id="navBtn" href="https://wa.me/2349036869830?text=Hi%20FM%20XPRESS%2C%20please%20add%20me%20to%20your%20client%20list" target="_blank" class="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-sm transition shadow-lg shadow-emerald-500/25">
+          <span id="navBtnText">Join Client List</span>
           <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.106.005.249-.04.39.299.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.044.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
         </a>
       </div>
@@ -122,7 +122,7 @@
       <div class="grid lg:grid-cols-12 gap-12 items-center">
         
         <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
-          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
+          <div id="heroBadgeStatus" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
             Abuja Pre-Launch • Official 10-Day Countdown
           </div>
@@ -138,7 +138,7 @@
             <div class="flex items-center justify-between gap-3">
               <div class="flex items-center gap-2.5">
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                <span class="text-xs font-black uppercase tracking-wider text-emerald-400">Official Launch Countdown</span>
+                <span id="heroCountdownTitle" class="text-xs font-black uppercase tracking-wider text-emerald-400">Official Launch Countdown</span>
               </div>
               <span class="text-[11px] font-bold px-3 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-mono">
                 10-Day Timer
@@ -146,7 +146,7 @@
             </div>
 
             <!-- Countdown 4 Boxes -->
-            <div class="grid grid-cols-4 gap-2 sm:gap-3 text-center">
+            <div id="heroCountdownBoxes" class="grid grid-cols-4 gap-2 sm:gap-3 text-center">
               <div class="bg-slate-950/90 border border-slate-800 rounded-2xl p-2.5 sm:p-3">
                 <div id="heroDays" class="text-2xl sm:text-4xl font-black text-white font-mono">10</div>
                 <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-1">Days</div>
@@ -167,9 +167,9 @@
 
             <!-- Join Client List Action -->
             <div class="flex flex-col sm:flex-row items-center gap-3 pt-1">
-              <a href="https://wa.me/2349036869830?text=Hi%20FM%20XPRESS%2C%20please%20add%20me%20to%20your%20client%20list" target="_blank" class="w-full sm:flex-1 flex items-center justify-center gap-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-3.5 px-6 rounded-xl text-sm transition shadow-lg shadow-emerald-500/25">
+              <a id="heroCtaBtn" href="https://wa.me/2349036869830?text=Hi%20FM%20XPRESS%2C%20please%20add%20me%20to%20your%20client%20list" target="_blank" class="w-full sm:flex-1 flex items-center justify-center gap-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-3.5 px-6 rounded-xl text-sm transition shadow-lg shadow-emerald-500/25">
                 <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.106.005.249-.04.39.299.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.044.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
-                <span>Join WhatsApp Client List</span>
+                <span id="heroCtaText">Join WhatsApp Client List</span>
               </a>
               <a href="#calculator" class="w-full sm:w-auto flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-200 font-bold px-5 py-3.5 rounded-xl text-sm border border-slate-800 transition">
                 <span>Check Rates 💰</span>
@@ -465,9 +465,9 @@
   </footer>
 
   <!-- FLOATING WHATSAPP BUTTON -->
-  <a href="https://wa.me/2349036869830?text=Hi%20FM%20XPRESS%2C%20please%20add%20me%20to%20your%20client%20list" target="_blank" class="fixed bottom-6 right-6 z-50 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold p-4 rounded-2xl shadow-2xl shadow-emerald-500/50 flex items-center gap-3 transition transform hover:scale-105">
+  <a id="floatingBtn" href="https://wa.me/2349036869830?text=Hi%20FM%20XPRESS%2C%20please%20add%20me%20to%20your%20client%20list" target="_blank" class="fixed bottom-6 right-6 z-50 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold p-4 rounded-2xl shadow-2xl shadow-emerald-500/50 flex items-center gap-3 transition transform hover:scale-105">
     <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.007c.106.005.249-.04.39.299.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86.173.086.275.072.376-.044.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.073.043.419-.101.824z"/></svg>
-    <span class="hidden sm:inline text-xs font-extrabold uppercase tracking-wider">Join Client List</span>
+    <span id="floatingBtnText" class="hidden sm:inline text-xs font-extrabold uppercase tracking-wider">Join Client List</span>
   </a>
 
   <!-- PRE-LAUNCH COUNTDOWN MODAL (SHOWS ONLY 1 & 3 - NO OPAY) -->
@@ -532,21 +532,78 @@
     function updateLaunchCountdown() {
       const now = new Date().getTime();
       const diff = LAUNCH_TARGET - now;
+      const isLaunched = diff <= 0;
 
-      let days = 0, hours = 0, mins = 0, secs = 0;
-      if (diff > 0) {
-        days = Math.floor(diff / (1000 * 60 * 60 * 24));
-        hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        secs = Math.floor((diff % (1000 * 60)) / 1000);
+      if (isLaunched) {
+        // --- 10 DAYS ELAPSED: AUTOMATICALLY LIFT PRE-LAUNCH POSTURE ---
+        const topBarLabel = document.getElementById('topBarLabel');
+        if (topBarLabel) topBarLabel.innerText = '🟢 LAUNCHED:';
+
+        const topBar = document.getElementById('topBarCountdown');
+        if (topBar) {
+          topBar.innerText = '⚡ WE ARE LIVE!';
+          topBar.className = 'font-mono bg-emerald-400 text-slate-950 font-black px-2.5 py-0.5 rounded text-[11px] tracking-wider animate-pulse';
+        }
+
+        const topBarLink = document.getElementById('topBarLink');
+        if (topBarLink) {
+          topBarLink.innerText = 'Book Dispatch on WhatsApp →';
+          topBarLink.href = 'https://wa.me/2349036869830?text=Hi%20FM%20XPRESS%2C%20I%20want%20to%20book%20a%20delivery';
+        }
+
+        const heroBadge = document.getElementById('heroBadgeStatus');
+        if (heroBadge) {
+          heroBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>🟢 LIVE NOW • Verified Dispatch Riders on Standby Across Abuja';
+        }
+
+        const heroCardTitle = document.getElementById('heroCountdownTitle');
+        if (heroCardTitle) heroCardTitle.innerText = 'FM XPRESS Is Officially Live!';
+
+        const heroCountdownBoxes = document.getElementById('heroCountdownBoxes');
+        if (heroCountdownBoxes && !heroCountdownBoxes.dataset.switched) {
+          heroCountdownBoxes.dataset.switched = 'true';
+          heroCountdownBoxes.innerHTML = `
+            <div class="col-span-4 p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-extrabold text-sm flex items-center justify-center gap-2">
+              <span class="text-xl">🏍️</span>
+              <span>Live On-Demand Motorcycle Dispatch Active • Instant Paystack Checkout</span>
+            </div>
+          `;
+        }
+
+        const heroCtaBtn = document.getElementById('heroCtaBtn');
+        const heroCtaText = document.getElementById('heroCtaText');
+        if (heroCtaText) heroCtaText.innerText = 'Book on WhatsApp Now';
+        if (heroCtaBtn) heroCtaBtn.href = 'https://wa.me/2349036869830?text=Hi%20FM%20XPRESS%2C%20I%20want%20to%20book%20a%20delivery%20and%20pay%20via%20Paystack';
+
+        const navBtn = document.getElementById('navBtn');
+        const navBtnText = document.getElementById('navBtnText');
+        if (navBtnText) navBtnText.innerText = 'Book Dispatch';
+        if (navBtn) navBtn.href = 'https://wa.me/2349036869830?text=Hi%20FM%20XPRESS%2C%20I%20want%20to%20book%20a%20delivery';
+
+        const floatingBtn = document.getElementById('floatingBtn');
+        const floatingBtnText = document.getElementById('floatingBtnText');
+        if (floatingBtnText) floatingBtnText.innerText = 'Book Dispatch';
+        if (floatingBtn) floatingBtn.href = 'https://wa.me/2349036869830?text=Hi%20FM%20XPRESS%2C%20I%20want%20to%20book%20a%20delivery';
+
+        const quickBtn = document.getElementById('quickBookWhatsApp');
+        if (quickBtn && quickBtn.innerText.includes('Join Client List')) {
+          quickBtn.innerText = 'Book This Route & Pay via Paystack →';
+        }
+        return;
       }
+
+      // Pre-launch countdown ticking
+      let days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      let hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      let mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      let secs = Math.floor((diff % (1000 * 60)) / 1000);
 
       const pad = (n) => String(n).padStart(2, '0');
 
       // Top bar
       const topBar = document.getElementById('topBarCountdown');
       if (topBar) {
-        topBar.innerText = diff > 0 ? `${days}d ${pad(hours)}h ${pad(mins)}m ${pad(secs)}s` : 'LAUNCHED - WE ARE LIVE!';
+        topBar.innerText = `${days}d ${pad(hours)}h ${pad(mins)}m ${pad(secs)}s`;
       }
 
       // Hero section
@@ -598,6 +655,21 @@
     }
 
     function handleQuickBookClick() {
+      const now = new Date().getTime();
+      const isLaunched = (LAUNCH_TARGET - now) <= 0;
+
+      if (isLaunched) {
+        // --- 10 DAYS ELAPSED: LIFT MODAL AND PROCEED DIRECTLY TO PAYSTACK BOOKING ---
+        const pickup = document.getElementById('quickPickup')?.value.trim();
+        const delivery = document.getElementById('quickDelivery')?.value.trim();
+        const text = (pickup && delivery)
+          ? `Hi FM XPRESS! I would like to book a delivery from ${pickup} to ${delivery}. Please send the Paystack payment link to dispatch my rider.`
+          : `Hi FM XPRESS! I want to book a delivery and pay via Paystack.`;
+        window.open(`https://wa.me/2349036869830?text=${encodeURIComponent(text)}`, '_blank');
+        return;
+      }
+
+      // In pre-launch: open countdown modal (shows only 1 and 3)
       openLaunchModal(lastEstimatedRouteText);
     }
 
