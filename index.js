@@ -128,6 +128,69 @@ function normalizePhoneNumber(phone) {
   return cleaned;
 }
 
+// --- 10-Day Pre-Launch Countdown & Client Leads Configuration ---
+const LAUNCH_TARGET = new Date('2026-11-05T09:00:00+01:00').getTime();
+
+function isPreLaunchActive() {
+  return Date.now() < LAUNCH_TARGET;
+}
+
+function getDaysUntilLaunch() {
+  const diff = LAUNCH_TARGET - Date.now();
+  if (diff <= 0) return 0;
+  return Math.max(1, Math.ceil(diff / (1000 * 60 * 60 * 24)));
+}
+
+// Client Leads / Priority Waitlist Storage
+const CLIENT_LEADS_FILE = path.join(__dirname, 'client_leads.json');
+
+function getClientLeads() {
+  try {
+    if (!fs.existsSync(CLIENT_LEADS_FILE)) {
+      fs.writeFileSync(CLIENT_LEADS_FILE, '[]', 'utf8');
+      return [];
+    }
+    const raw = fs.readFileSync(CLIENT_LEADS_FILE, 'utf8');
+    return JSON.parse(raw);
+  } catch (err) {
+    return [];
+  }
+}
+
+function saveClientLead(phone, details = {}) {
+  try {
+    const leads = getClientLeads();
+    const cleanPhone = normalizePhoneNumber(phone);
+    if (!cleanPhone) return null;
+    const existingIndex = leads.findIndex(l => l.phone === cleanPhone);
+    const leadData = {
+      phone: cleanPhone,
+      joined_at: new Date().toISOString(),
+      pickup_interest: details.pickup || null,
+      delivery_interest: details.delivery || null,
+      notes: details.notes || 'Joined via website countdown campaign',
+      source: details.source || 'WhatsApp Pre-Launch'
+    };
+
+    if (existingIndex >= 0) {
+      leads[existingIndex] = {
+        ...leads[existingIndex],
+        ...leadData,
+        last_active: new Date().toISOString()
+      };
+    } else {
+      leads.unshift(leadData);
+    }
+
+    fs.writeFileSync(CLIENT_LEADS_FILE, JSON.stringify(leads, null, 2), 'utf8');
+    console.log(`[Client List] Registered priority lead for +${cleanPhone}`);
+    return leadData;
+  } catch (err) {
+    console.error('[Client List] Failed to save lead:', err.message);
+    return null;
+  }
+}
+
 // --- Admin Authentication & Role Management ---
 const JWT_SECRET = process.env.JWT_SECRET || process.env.VERIFY_TOKEN || 'fm_xpress_jwt_secret_2026';
 const MASTER_ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@fmxpress.com').toLowerCase().trim();
@@ -677,6 +740,22 @@ app.get('/api/orders', authMiddleware(), async (req, res) => {
       .limit(50);
     if (error) throw error;
     res.json(data || []);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /api/leads - Priority Client Waitlist for 10-day countdown
+app.get('/api/leads', authMiddleware(), (req, res) => {
+  try {
+    const leads = getClientLeads();
+    res.json({
+      success: true,
+      total: leads.length,
+      isPreLaunch: isPreLaunchActive(),
+      daysUntilLaunch: getDaysUntilLaunch(),
+      leads
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -1455,6 +1534,12 @@ async function getDrivingDistance(coords1, coords2) {
 
 // --- Helper Functions for Paystack Payments ---
 async function generatePaystackLink(amountNGN, email, reference) {
+  // STRICT PRE-LAUNCH BLOCK: Prevent payment links from being generated during countdown
+  if (isPreLaunchActive()) {
+    console.warn(`[Paystack BLOCKED] Attempt to generate Paystack link (${reference}) during ${getDaysUntilLaunch()}-day pre-launch countdown. Payment creation is blocked until launch date (Nov 5, 2026).`);
+    return null;
+  }
+
   try {
     const secretKey = (process.env.PAYSTACK_SECRET_KEY || '').trim();
     const settings = getPricingSettings();
@@ -1483,6 +1568,18 @@ async function generatePaystackLink(amountNGN, email, reference) {
 
 // --- WhatsApp Interactive Messaging Helpers ---
 async function sendWhatsAppInteractiveMenu(to) {
+  if (isPreLaunchActive()) {
+    const days = getDaysUntilLaunch();
+    const bodyText = `👋 Welcome to *FM XPRESS*! 🏍️\n\nAbuja's fastest motorcycle dispatch is launching in *${days} days* (November 5, 2026)!\n\nWe are currently onboarding verified riders and building our *Priority Client List*. Payments & live dispatch will open on launch morning.\n\nHow can we help you today?`;
+    const buttons = [
+      { id: 'btn_join_client_list', title: '⭐ Join Client List' },
+      { id: 'btn_get_price', title: '💰 Delivery Rates' },
+      { id: 'btn_support', title: '💬 Speak to Support' }
+    ];
+    await sendWhatsAppButtons(to, bodyText, buttons);
+    return;
+  }
+
   const bodyText = `👋 Welcome to *FM XPRESS*! 🏍️\n\nFast & reliable dispatch delivery across Abuja.\n\nHow can we help you today?`;
   const buttons = [
     { id: 'btn_send_package', title: '📦 Send Package' },
@@ -1542,6 +1639,15 @@ async function sendWhatsAppButtons(to, bodyText, buttons) {
 // --- Menu Handlers ---
 async function handleSendPackage(from) {
   customerSessions[from] = { stage: 'AWAITING_PICKUP', startedAt: Date.now() };
+  if (isPreLaunchActive()) {
+    const days = getDaysUntilLaunch();
+    const promptText = `🚀 *FM XPRESS Pre-Launch Route Estimate & Reservation*\n\n` +
+      `Live dispatch officially launches in *${days} days* (Nov 5). Payments are strictly locked until launch.\n\n` +
+      `Enter your pickup and delivery addresses to calculate your exact fare and reserve your spot on our Priority Client List!\n\n` +
+      `📦 *Step 1 of 3: Pickup Location*\n_(e.g. 15 Ademola Adetokunbo Crescent, Wuse 2)_`;
+    await sendWhatsAppMessage(from, promptText);
+    return;
+  }
   const promptText = `📦 *Step 1 of 3: Pickup Location*\n_(e.g. 15 Ademola Adetokunbo Crescent, Wuse 2)_`;
   await sendWhatsAppMessage(from, promptText);
 }
@@ -1607,8 +1713,8 @@ async function handleGetPrice(from) {
 async function handleSupport(from) {
   const supportMsg = `💬 *FM XPRESS Customer Support*\n\n` +
     `Need help with a pickup, tracking, or booking? We're here for you!\n\n` +
-    `📞 *Admin Helpline:* +234 703 785 8093\n` +
-    `📞 *Owner / Management Desk:* +234 906 795 7295\n` +
+    `📞 *Support 1:* +234 703 785 8093\n` +
+    `📞 *Support 2:* +234 906 795 7295\n` +
     `📧 *Email:* support@fmxpress.com\n` +
     `⏰ *Operating Hours:* Mon – Sat, 7:00 AM – 8:00 PM\n\n` +
     `_Reply MENU anytime to return to main options._`;
@@ -1616,9 +1722,52 @@ async function handleSupport(from) {
   await sendWhatsAppMessage(from, supportMsg);
 }
 
+async function handleJoinClientList(from, details = {}) {
+  const days = getDaysUntilLaunch();
+  saveClientLead(from, {
+    pickup: details.pickup || null,
+    delivery: details.delivery || null,
+    notes: details.notes || details.rawMessage || 'Joined via website countdown campaign'
+  });
+
+  let text = `🎉 *WELCOME TO THE FM XPRESS PRIORITY CLIENT LIST!*\n\n` +
+    `Your WhatsApp number (+${from}) has been secured for our Abuja launch.\n\n` +
+    `⏱️ *Official Launch Date:* November 5, 2026 (${days} days countdown)\n` +
+    `🎁 *Your Early Member Perks:*\n` +
+    `• Priority rider allocation when we go live\n` +
+    `• Special launch discount on your first deliveries\n` +
+    `• Direct WhatsApp on-demand dispatch\n\n` +
+    `🔒 *PAYMENTS ARE CURRENTLY BLOCKED:*\n` +
+    `To protect all our customers, payments are completely locked until launch day when our riders are active on the road. No money will be taken right now.\n\n`;
+
+  if (details.pickup && details.delivery) {
+    text += `📍 *Saved Route Interest:* ${details.pickup} ➔ ${details.delivery}\n\n`;
+  }
+
+  text += `We will notify you right here on WhatsApp on launch morning with your discount code. Thank you for choosing *FM XPRESS* — Your Package. Our Priority! 🏍️💨`;
+
+  await sendWhatsAppMessage(from, text);
+}
+
 function matchMenuOption(text) {
   if (!text) return null;
   const t = text.toLowerCase().trim();
+
+  // Universal Client List trigger
+  if (t.includes('client list') || t.includes('client_list') || t.includes('waitlist') || t.includes('priority list') || t.includes('add me')) {
+    return 'menu_join_client_list';
+  }
+
+  // Pre-Launch Menu options
+  if (isPreLaunchActive()) {
+    if (t === '1' || t === '1️⃣' || t === 'join' || t === 'register' || t === 'list') return 'menu_join_client_list';
+    if (t === '2' || t === '2️⃣' || t === 'price' || t === 'pricing' || t === 'get price' || t === 'rates' || t === 'rate') return 'menu_get_price';
+    if (t === '3' || t === '3️⃣' || t === 'support' || t === 'speak to support' || t === 'help' || t === 'agent' || t === 'contact' || t === 'call') return 'menu_support';
+    if (t === '4' || t === '4️⃣' || t === 'send' || t === 'book') return 'menu_send_package';
+    return null;
+  }
+
+  // Live Post-Launch Menu options
   if (t === '1' || t === '1️⃣' || t === 'send' || t === 'send package' || t === 'send a package' || t === 'book') return 'menu_send_package';
   if (t === '2' || t === '2️⃣' || t === 'track' || t === 'track order' || t === 'track my delivery' || t.startsWith('track')) return 'menu_track_order';
   if (t === '3' || t === '3️⃣' || t === 'support' || t === 'speak to support' || t === 'help' || t === 'agent' || t === 'contact' || t === 'call') return 'menu_support';
@@ -1984,6 +2133,31 @@ async function processOrderAndSendPayment(from, pickup, delivery, size = 'medium
   // Dynamic Pricing: Base fee + (distance * rate) + Far-pickup surcharge (if applicable)
   const price = settings.base_fee + (Number(distanceKm) * settings.per_km_rate) + farPickupSurcharge;
   console.log(`[Pricing] Route: ${distanceKm} km (Base: ₦${settings.base_fee}, Rate: ₦${settings.per_km_rate}/km, Surcharge: ₦${farPickupSurcharge}). Calculated Price: ₦${price}`);
+
+  // STRICT PRE-LAUNCH BLOCK: Prevent payment generation during 10-day countdown
+  if (isPreLaunchActive()) {
+    const days = getDaysUntilLaunch();
+    const formattedPrice = price.toLocaleString('en-NG');
+    saveClientLead(from, {
+      pickup,
+      delivery,
+      notes: `Pre-launch route quote: ${pickup} ➔ ${delivery} (Est: ₦${formattedPrice})`
+    });
+
+    const launchNotice =
+      `🚀 *FM XPRESS OFFICIAL LAUNCH COUNTDOWN*\n\n` +
+      `Thank you for booking with *FM XPRESS*! Abuja's fastest motorcycle dispatch officially launches in *${days} days* (November 5, 2026).\n\n` +
+      `✅ *You're Added to the Priority Client List!*\n` +
+      `📍 *Route:* ${pickup} ➔ ${delivery}\n` +
+      `💰 *Estimated Fare:* ₦${formattedPrice} (${distanceKm} km)\n\n` +
+      `🔒 *PAYMENT IS CURRENTLY BLOCKED:*\n` +
+      `To protect all our customers, we strictly do NOT accept payments until our verified riders are active on the road on launch day. No money will be taken right now.\n\n` +
+      `🎁 *Launch Perk:* Because you registered early, your delivery will receive priority rider allocation and an exclusive launch discount on November 5th!\n\n` +
+      `We will message you right here on WhatsApp the moment live dispatch begins. Thank you for your patience! 🏍️💨`;
+
+    await sendWhatsAppMessage(from, launchNotice);
+    return;
+  }
   
   // Generate a unique reference for Paystack
   const paystackRef = 'FMX_' + Date.now();
@@ -2202,6 +2376,10 @@ async function processIncomingWhatsAppMessage(from, message) {
             const selectedId = interactive.list_reply.id;
             console.log(`[WhatsApp List Reply] from ${from}: ${selectedId}`);
 
+            if (selectedId === 'menu_join_client_list' || selectedId === 'btn_join_client_list') {
+              await handleJoinClientList(from);
+              return;
+            }
             if (selectedId === 'menu_send_package') {
               await handleSendPackage(from);
               return;
@@ -2224,6 +2402,18 @@ async function processIncomingWhatsAppMessage(from, message) {
           if (interactive.type === 'button_reply') {
             const btnId = interactive.button_reply.id;
             console.log(`[WhatsApp Button Reply] from ${from}: ${btnId}`);
+
+            if (btnId === 'btn_join_client_list' || btnId === 'menu_join_client_list') {
+              delete customerSessions[from];
+              await handleJoinClientList(from);
+              return;
+            }
+
+            if (btnId === 'btn_get_price' || btnId === 'menu_get_price') {
+              delete customerSessions[from];
+              await handleGetPrice(from);
+              return;
+            }
 
             if (btnId === 'btn_send_package' || btnId === 'menu_send_package') {
               delete customerSessions[from];
@@ -2335,6 +2525,21 @@ async function processIncomingWhatsAppMessage(from, message) {
         if (message.type === 'text') {
           const msg_body = message.text.body.trim();
           console.log(`[WhatsApp] Text content from ${from}: "${msg_body}"`);
+
+          // 0. Intercept Client List intent (from website pre-launch CTA or typed)
+          const lowerMsg = msg_body.toLowerCase();
+          if (lowerMsg.includes('client list') || lowerMsg.includes('add me') || lowerMsg.includes('join client') || lowerMsg.includes('waitlist') || lowerMsg.includes('priority launch')) {
+            delete customerSessions[from];
+            let pickup = null;
+            let delivery = null;
+            const routeMatch = msg_body.match(/from\s+([^\s,]+(?:,[^\s,]+)*?)\s+to\s+([^\s,]+(?:,[^\s,]+)*)/i);
+            if (routeMatch) {
+              pickup = routeMatch[1].trim();
+              delivery = routeMatch[2].trim();
+            }
+            await handleJoinClientList(from, { pickup, delivery, rawMessage: msg_body });
+            return;
+          }
           
           // 1. Rider completion command: "DELIVERED" or "DONE" (supports single order or B2B batch stops)
           const upperMsg = msg_body.toUpperCase().trim();
@@ -2704,6 +2909,10 @@ async function processIncomingWhatsAppMessage(from, message) {
           const matchedMenu = matchMenuOption(msg_body);
           if (matchedMenu) {
             delete customerSessions[from];
+            if (matchedMenu === 'menu_join_client_list') {
+              await handleJoinClientList(from);
+              return;
+            }
             if (matchedMenu === 'menu_send_package') {
               await handleSendPackage(from);
               return;
