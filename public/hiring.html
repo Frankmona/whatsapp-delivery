@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>We Are Hiring! Dispatch Rider Vacancy — FM XPRESS Kubwa, Abuja</title>
+  <meta name="description" content="FM XPRESS is hiring a reliable, hardworking Dispatch Rider in Kubwa, Abuja. Competitive monthly salary + commission on every delivery. Apply via WhatsApp today!">
+  <meta name="keywords" content="Dispatch rider job Abuja, hiring dispatch rider Kubwa, motorcycle courier vacancy Abuja, FM XPRESS hiring, delivery jobs Abuja">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="We Are Hiring! Dispatch Rider — FM XPRESS Kubwa, Abuja">
+  <meta property="og:description" content="Join Abuja's fastest motorcycle dispatch team! Monthly salary + commission on every delivery. Chat with us on WhatsApp: 0703 785 8093.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="/images/fmxpress_hiring_courier.jpg">
+  
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --flyer-w: 154mm;
+      --flyer-h: 216mm;
+      --trim-w: 148mm;
+      --trim-h: 210mm;
+      --brand-green: #10B981;
+      --brand-green-dark: #059669;
+      --brand-dark: #020617;
+      --brand-navy: #0B132B;
+      --brand-gold: #F59E0B;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #020617;
+      color: #F8FAFC;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-heading {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    /* Print Specific Setup for Exact A5 with 3mm Bleed */
+    @page {
+      size: 154mm 216mm;
+      margin: 0;
+    }
+
+    @media print {
+      body {
+        background: transparent !important;
+        padding: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .flyer-sheet {
+        box-shadow: none !important;
+        margin: 0 !important;
+        page-break-after: always;
+        break-after: page;
+      }
+      .bleed-box, .safe-box {
+        display: none !important;
+      }
+    }
+
+    /* Flyer Sheet Container */
+    .flyer-sheet {
+      width: var(--flyer-w);
+      height: var(--flyer-h);
+      box-sizing: border-box;
+      position: relative;
+      overflow: hidden;
+      margin: 0 auto;
+      background: #020617;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+
+    /* Visual Guides */
+    .bleed-box {
+      position: absolute;
+      inset: 3mm;
+      pointer-events: none;
+      border: 1px dashed rgba(245, 158, 11, 0.4);
+      z-index: 50;
+    }
+
+    .safe-box {
+      position: absolute;
+      inset: 8mm;
+      pointer-events: none;
+      border: 1px dotted rgba(16, 185, 129, 0.35);
+      z-index: 50;
+    }
+
+    .hide-guides .bleed-box,
+    .hide-guides .safe-box {
+      display: none !important;
+    }
+
+    /* Shimmer animation */
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(200%); }
+    }
+    .shimmer-badge::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      animation: shimmer 2.5s infinite;
+    }
+  </style>
+</head>
+<body class="selection:bg-emerald-500 selection:text-slate-950">
+
+  <!-- ========================================== -->
+  <!-- TOP ANNOUNCEMENT BAR & GLOBAL CONTROLS     -->
+  <!-- ========================================== -->
+  <div class="no-print sticky top-0 z-50 bg-slate-950/90 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <a href="/" class="flex items-center gap-2 group">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-slate-950 font-black text-base shadow-md">
+            🏍️
+          </div>
+          <div>
+            <span class="font-black text-white text-sm">FM <span class="text-emerald-400">XPRESS</span></span>
+            <span class="text-[10px] text-emerald-400/90 block font-semibold">RECRUITMENT PORTAL</span>
+          </div>
+        </a>
+        <span class="hidden sm:inline-block w-px h-5 bg-slate-800"></span>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <span>DISPATCH RIDER VACANCY • KUBWA</span>
+        </span>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-2">
+        <button onclick="toggleGuides()" id="toggle-guides-btn" class="px-3 py-1.5 rounded-xl border border-slate-700 bg-slate-900 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-ruler-combined text-amber-400"></i>
+          <span id="guide-btn-text">Hide Guides</span>
+        </button>
+
+        <button onclick="window.print()" class="px-3 py-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 text-xs font-bold flex items-center gap-1.5 transition shadow-sm">
+          <i class="fa-solid fa-print"></i>
+          <span>Print / Save PDF</span>
+        </button>
+
+        <a href="https://wa.me/2347037858093?text=Hi%20FM%20XPRESS%2C%20I%20am%20applying%20for%20the%20Dispatch%20Rider%20job%20in%20Kubwa." target="_blank" class="px-4 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs flex items-center gap-2 transition shadow-lg shadow-emerald-500/30">
+          <i class="fa-brands fa-whatsapp text-sm"></i>
+          <span>Apply on WhatsApp</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MAIN WEB BANNER / HERO INTRO               -->
+  <!-- ========================================== -->
+  <section class="no-print max-w-5xl mx-auto px-4 pt-8 pb-4 text-center space-y-3">
+    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-300 text-xs font-bold">
+      <i class="fa-solid fa-briefcase"></i> IMMEDIATE START • KUBWA FLEET EXPANSION
+    </div>
+    <h1 class="text-3xl sm:text-5xl font-black text-white font-heading tracking-tight">
+      We Are Hiring: <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-200">Dispatch Rider</span>
+    </h1>
+    <p class="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto">
+      FM XPRESS is seeking a reliable, hardworking dispatch rider residing in Kubwa or nearby. Earn competitive monthly base pay + performance commissions with daily/weekly payouts!
+    </p>
+
+    <!-- Download Options Bar -->
+    <div class="flex flex-wrap items-center justify-center gap-3 pt-3">
+      <a href="/downloads/FM_XPRESS_Dispatch_Rider_Hiring_Kit.zip" download class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-emerald-500 text-slate-200 hover:text-white text-xs font-bold flex items-center gap-2 transition shadow-sm">
+        <i class="fa-solid fa-file-zipper text-emerald-400"></i> Download Full Kit (ZIP)
+      </a>
+      <a href="/images/fmxpress_hiring_flyer_a5_300dpi.png" download="FM_XPRESS_Hiring_Flyer_300DPI.png" class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-emerald-500 text-slate-200 hover:text-white text-xs font-bold flex items-center gap-2 transition shadow-sm">
+        <i class="fa-solid fa-image text-teal-400"></i> High-Res 300 DPI PNG
+      </a>
+      <a href="/downloads/fmxpress_hiring_flyer_a5.pdf" download="FM_XPRESS_Dispatch_Rider_Hiring_A5.pdf" class="px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-emerald-500 text-slate-200 hover:text-white text-xs font-bold flex items-center gap-2 transition shadow-sm">
+        <i class="fa-solid fa-file-pdf text-rose-400"></i> Print-Ready PDF (A5)
+      </a>
+    </div>
+  </section>
+
+  <!-- ========================================== -->
+  <!-- THE OFFICIAL PRINT-READY A5 FLYER CANVAS  -->
+  <!-- ========================================== -->
+  <main class="py-6 px-2 flex justify-center">
+    <div class="flyer-sheet relative flex flex-col justify-between p-[8.5mm] select-none" id="flyer-canvas">
+      <!-- 3mm Bleed & Safe Guides -->
+      <div class="bleed-box" title="3mm Bleed Line (Trim Cut Margin)"></div>
+      <div class="safe-box" title="Safe Content Margin"></div>
+
+      <!-- Background Gradients & Glow Accents -->
+      <div class="absolute inset-0 bg-gradient-to-b from-[#0B132B] via-[#020617] to-[#041D17] pointer-events-none"></div>
+      <div class="absolute -top-24 -right-24 w-80 h-80 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-20 -left-20 w-80 h-80 bg-teal-500/15 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-emerald-600/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+      <!-- ======================================== -->
+      <!-- FLYER CONTENT (HELD WITHIN SAFE ZONE)    -->
+      <!-- ======================================== -->
+      <div class="relative z-10 flex flex-col h-full justify-between">
+
+        <!-- 1. HEADER: BRAND LOGO & HIRING PILL -->
+        <div class="flex items-center justify-between pb-2 border-b border-white/10">
+          <div class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-600 flex items-center justify-center text-slate-950 font-black text-lg shadow-md shadow-emerald-500/30">
+              🏍️
+            </div>
+            <div>
+              <div class="text-lg font-black tracking-tight leading-none">
+                <span class="text-white">FM</span><span class="text-emerald-400"> XPRESS</span>
+              </div>
+              <div class="text-[8.5px] font-bold uppercase tracking-[0.2em] text-emerald-400/90 mt-0.5">
+                DISPATCH &amp; LOGISTICS • KUBWA
+              </div>
+            </div>
+          </div>
+
+          <div class="relative overflow-hidden shimmer-badge px-2.5 py-1 rounded-full bg-gradient-to-r from-rose-500 to-amber-500 text-white text-[9.5px] font-black tracking-wider uppercase flex items-center gap-1.5 shadow-md">
+            <span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+            WE ARE HIRING!
+          </div>
+        </div>
+
+        <!-- 2. VACANCY HEADLINE & TITLE -->
+        <div class="pt-2 text-center space-y-1">
+          <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[9.5px] font-extrabold uppercase tracking-wider">
+            <span>📍 KUBWA, ABUJA • IMMEDIATE VACANCY</span>
+          </div>
+          <h2 class="text-[26px] leading-[1.08] font-black text-white font-heading tracking-tight">
+            DISPATCH RIDER<br>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-emerald-200">WANTED FOR IMMEDIATE EMPLOYMENT</span>
+          </h2>
+          <p class="text-[10px] text-slate-300 max-w-[95%] mx-auto font-medium leading-snug">
+            FM XPRESS is looking for a reliable, honest, and hardworking rider to join our dispatch fleet.
+          </p>
+        </div>
+
+        <!-- 3. HERO RECRUITMENT PHOTO -->
+        <div class="relative my-2 rounded-2xl overflow-hidden border-2 border-emerald-500/40 shadow-2xl h-[42mm] bg-slate-950">
+          <img 
+            src="/images/fmxpress_hiring_courier.jpg" 
+            alt="FM XPRESS Dispatch Rider Wanted in Abuja" 
+            class="w-full h-full object-cover object-top filter brightness-[0.98] contrast-[1.05]"
+          >
+          <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent"></div>
+
+          <!-- Overlay Badges on Photo -->
+          <div class="absolute top-2 left-2">
+            <span class="px-2.5 py-0.5 rounded-lg bg-slate-900/90 border border-emerald-500/40 text-emerald-300 font-bold text-[9px] backdrop-blur-md flex items-center gap-1">
+              <i class="fa-solid fa-motorcycle text-emerald-400 text-[9px]"></i> Commercial Bike Available
+            </span>
+          </div>
+
+          <div class="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-[9px]">
+            <span class="px-2 py-0.5 rounded-lg bg-amber-500/90 text-slate-950 font-black tracking-wide uppercase flex items-center gap-1 shadow-md">
+              <i class="fa-solid fa-money-bill-wave text-[9px]"></i> Attractive Base + Commission
+            </span>
+            <span class="px-2 py-0.5 rounded-lg bg-emerald-500 text-slate-950 font-black tracking-wider uppercase shadow-md">
+              Fast Payouts
+            </span>
+          </div>
+        </div>
+
+        <!-- 4. COMPENSATION & REMUNERATION BOX (GOLD & EMERALD) -->
+        <div class="p-2.5 rounded-2xl bg-gradient-to-r from-emerald-950/70 via-slate-900 to-amber-950/40 border border-emerald-500/30 shadow-lg space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="text-amber-300 font-black text-[11px] flex items-center gap-1.5 uppercase tracking-wide">
+              💰 Remuneration &amp; Benefits:
+            </span>
+            <span class="text-[9px] font-extrabold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
+              HIGH EARNINGS
+            </span>
+          </div>
+          <p class="text-white text-[10.5px] font-extrabold leading-snug">
+            Monthly Base Salary + Commission on Every Delivery!
+          </p>
+          <p class="text-slate-300 text-[9px] leading-tight">
+            ⚡ <em>The more deliveries you complete, the more you earn!</em> Fuel allowance, maintenance support, branded helmet &amp; uniform provided.
+          </p>
+        </div>
+
+        <!-- 5. JOB REQUIREMENTS CHECKLIST (2-COLUMN GRID) -->
+        <div class="my-1.5 space-y-1">
+          <div class="text-[10px] font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+            <i class="fa-solid fa-clipboard-check text-emerald-400"></i> Requirements &amp; Qualifications:
+          </div>
+
+          <div class="grid grid-cols-2 gap-1.5 text-[9px]">
+            <div class="p-1.5 rounded-xl bg-slate-900/80 border border-white/10 flex items-start gap-1.5">
+              <i class="fa-solid fa-circle-check text-emerald-400 text-[10px] mt-0.5 shrink-0"></i>
+              <span class="text-slate-200"><strong>Location:</strong> Reside in Kubwa or nearby</span>
+            </div>
+            <div class="p-1.5 rounded-xl bg-slate-900/80 border border-white/10 flex items-start gap-1.5">
+              <i class="fa-solid fa-circle-check text-emerald-400 text-[10px] mt-0.5 shrink-0"></i>
+              <span class="text-slate-200"><strong>Abuja Routes:</strong> Know city roads very well</span>
+            </div>
+            <div class="p-1.5 rounded-xl bg-slate-900/80 border border-white/10 flex items-start gap-1.5">
+              <i class="fa-solid fa-circle-check text-emerald-400 text-[10px] mt-0.5 shrink-0"></i>
+              <span class="text-slate-200"><strong>Education:</strong> Minimum WAEC / SSCE</span>
+            </div>
+            <div class="p-1.5 rounded-xl bg-slate-900/80 border border-white/10 flex items-start gap-1.5">
+              <i class="fa-solid fa-circle-check text-emerald-400 text-[10px] mt-0.5 shrink-0"></i>
+              <span class="text-slate-200"><strong>Documents:</strong> Valid rider's licence &amp; ID</span>
+            </div>
+            <div class="p-1.5 rounded-xl bg-slate-900/80 border border-white/10 flex items-start gap-1.5">
+              <i class="fa-solid fa-circle-check text-emerald-400 text-[10px] mt-0.5 shrink-0"></i>
+              <span class="text-slate-200"><strong>Device:</strong> Must own a smartphone</span>
+            </div>
+            <div class="p-1.5 rounded-xl bg-slate-900/80 border border-white/10 flex items-start gap-1.5">
+              <i class="fa-solid fa-circle-check text-emerald-400 text-[10px] mt-0.5 shrink-0"></i>
+              <span class="text-slate-200"><strong>Character:</strong> Honest, punctual &amp; respectful</span>
+            </div>
+          </div>
+          <div class="text-[8px] text-slate-400 italic text-center">
+            * Previous dispatch riding experience is an added advantage.
+          </div>
+        </div>
+
+        <!-- 6. HIGH-CONVERSION HOW TO APPLY & QR CODE CARD -->
+        <div class="p-2.5 rounded-2xl bg-gradient-to-br from-emerald-500/20 via-slate-900 to-slate-950 border-2 border-emerald-500/40 shadow-xl flex items-center justify-between gap-3">
+          <!-- Text CTA -->
+          <div class="space-y-1">
+            <div class="inline-block px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-black text-[8.5px] uppercase tracking-wider">
+              HOW TO APPLY NOW
+            </div>
+            <div class="text-white text-[12px] font-black leading-tight">
+              Chat on WhatsApp to Apply:
+            </div>
+            <a href="https://wa.me/2347037858093?text=Hi%20FM%20XPRESS%2C%20I%20am%20applying%20for%20the%20Dispatch%20Rider%20job%20in%20Kubwa." target="_blank" class="text-emerald-400 text-[15px] font-black block font-mono hover:underline">
+              📲 0703 785 8093
+            </a>
+            <div class="text-[8px] text-slate-400 space-y-0.5 pt-0.5">
+              <div>📞 <strong>Support 1:</strong> 0906 795 7295</div>
+              <div>📞 <strong>Support 2:</strong> 0903 686 9830</div>
+            </div>
+          </div>
+
+          <!-- Verified Scannable QR Code -->
+          <div class="text-center shrink-0">
+            <div class="bg-white p-1 rounded-xl shadow-lg border-2 border-emerald-400">
+              <img 
+                src="/images/fmxpress_hiring_qr.png" 
+                alt="Scan to Apply on WhatsApp: 07037858093" 
+                class="w-[20mm] h-[20mm] object-contain"
+              >
+            </div>
+            <span class="text-[7.5px] font-extrabold text-emerald-300 block mt-0.5 uppercase tracking-wider">
+              SCAN TO APPLY
+            </span>
+          </div>
+        </div>
+
+        <!-- 7. FOOTER MOTTO -->
+        <div class="pt-1 border-t border-white/10 flex items-center justify-between text-[8px] text-slate-400">
+          <span class="font-extrabold text-slate-300">FM XPRESS — Delivering with Speed &amp; Reliability!</span>
+          <span class="text-emerald-400 font-bold">Your Package. Our Priority.</span>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- ========================================== -->
+  <!-- ONLINE APPLICATION FORM & FAQ SECTION     -->
+  <!-- ========================================== -->
+  <section class="no-print max-w-4xl mx-auto px-4 py-12 space-y-8">
+    
+    <!-- Quick Contact Card -->
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 text-center space-y-4 shadow-xl">
+      <div class="w-14 h-14 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl flex items-center justify-center mx-auto text-2xl">
+        <i class="fa-brands fa-whatsapp"></i>
+      </div>
+      <h3 class="text-xl sm:text-2xl font-black text-white">Ready to Join FM XPRESS?</h3>
+      <p class="text-xs sm:text-sm text-slate-300 max-w-md mx-auto">
+        Tap the button below to message our hiring team directly on WhatsApp. Send your full name, location in Kubwa, and riding experience.
+      </p>
+      <a href="https://wa.me/2347037858093?text=Hi%20FM%20XPRESS%2C%20I%20am%20applying%20for%20the%20Dispatch%20Rider%20job%20in%20Kubwa." target="_blank" class="inline-flex items-center justify-center gap-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-4 px-8 rounded-2xl text-base transition shadow-xl shadow-emerald-500/30 transform hover:-translate-y-0.5">
+        <i class="fa-brands fa-whatsapp text-xl"></i>
+        <span>Chat on WhatsApp: 0703 785 8093</span>
+      </a>
+
+      <div class="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-400 pt-2">
+        <span>📞 Support 1: <strong class="text-slate-200">0906 795 7295</strong></span>
+        <span>•</span>
+        <span>📞 Support 2: <strong class="text-slate-200">0903 686 9830</strong></span>
+        <span>•</span>
+        <span>✉️ <strong class="text-slate-200">support@fmxpress.com</strong></span>
+      </div>
+    </div>
+
+    <!-- Frequently Asked Questions -->
+    <div class="space-y-4">
+      <h4 class="text-lg font-black text-white text-center">Frequently Asked Questions (Rider Vacancy)</h4>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1">
+          <strong class="text-emerald-400 block text-sm">Do I need to own my own bike?</strong>
+          <p class="text-slate-300">We have commercial motorcycles and fleet support available for qualified riders. If you already have a bike in good condition, you also receive additional maintenance allowances.</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1">
+          <strong class="text-emerald-400 block text-sm">How is payment disbursed?</strong>
+          <p class="text-slate-300">You receive a guaranteed monthly salary plus commissions earned per delivery. Commissions can be paid weekly or bi-weekly directly to your bank account.</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1">
+          <strong class="text-emerald-400 block text-sm">What areas will I cover?</strong>
+          <p class="text-slate-300">Our station hub is based in Kubwa. Deliveries range from intra-Kubwa runs to central districts (Wuse 2, Maitama, Jabi, Utako, Garki, Gwarinpa, Central Area).</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-1">
+          <strong class="text-emerald-400 block text-sm">When do interviews start?</strong>
+          <p class="text-slate-300">Immediately. Once you message us on WhatsApp with your documents and credentials, shortlisted candidates are invited for a physical interview and route test in Kubwa.</p>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ========================================== -->
+  <!-- FOOTER                                     -->
+  <!-- ========================================== -->
+  <footer class="no-print border-t border-slate-900 py-8 text-slate-500 text-xs text-center">
+    <div class="max-w-7xl mx-auto px-4 space-y-2">
+      <p class="font-extrabold text-slate-300">FM <span class="text-emerald-400">XPRESS</span> Logistics</p>
+      <p>Kubwa, Abuja, Nigeria • <a href="/" class="text-emerald-400 hover:underline">fmxpress.tekvolutionhq.com</a></p>
+      <p class="text-[11px] text-slate-600">© 2026 FM XPRESS. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Script for Toggle Guides -->
+  <script>
+    function toggleGuides() {
+      const canvas = document.getElementById('flyer-canvas');
+      const text = document.getElementById('guide-btn-text');
+      if (canvas.classList.contains('hide-guides')) {
+        canvas.classList.remove('hide-guides');
+        text.innerText = 'Hide Guides';
+      } else {
+        canvas.classList.add('hide-guides');
+        text.innerText = 'Show Guides';
+      }
+    }
+  </script>
+
+</body>
+</html>

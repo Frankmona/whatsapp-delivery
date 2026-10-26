@@ -521,6 +521,18 @@ app.get('/vendor', (req, res) => {
   res.redirect('/merchant');
 });
 
+app.get('/hiring', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'hiring.html'));
+});
+
+app.get('/jobs', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'hiring.html'));
+});
+
+app.get('/careers', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'hiring.html'));
+});
+
 app.get('/api/settings', authMiddleware(), (req, res) => {
   res.json(getPricingSettings());
 });
