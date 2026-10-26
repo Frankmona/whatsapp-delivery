@@ -1,0 +1,34 @@
+import subprocess
+import os
+
+svg_content = """<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 300 300">
+  <defs>
+    <linearGradient id="emeraldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34D399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+  </defs>
+  <rect width="300" height="300" fill="#0F172A"/>
+
+  <!-- Test 1: tspan in text-anchor middle -->
+  <g transform="translate(150, 60)">
+    <circle cx="0" cy="0" r="2" fill="red"/>
+    <text text-anchor="middle" font-family="-apple-system, 'SF Pro Display', Arial, sans-serif" font-weight="900" font-size="20">
+      <tspan fill="#FFFFFF">FM </tspan><tspan fill="#10B981">XPRESS</tspan>
+    </text>
+  </g>
+
+  <!-- Test 2: explicit coordinates -->
+  <g transform="translate(150, 120)">
+    <circle cx="0" cy="0" r="2" fill="red"/>
+    <!-- Center of "FM XPRESS": FM is ~32px wide, gap ~4px, XPRESS is ~78px wide. Total ~114px. Half is 57px. FM from -57, XPRESS from -21 -->
+    <text x="-57" y="0" font-family="-apple-system, 'SF Pro Display', Arial, sans-serif" font-weight="900" font-size="20" fill="#FFFFFF">FM</text>
+    <text x="-21" y="0" font-family="-apple-system, 'SF Pro Display', Arial, sans-serif" font-weight="900" font-size="20" fill="#10B981">XPRESS</text>
+  </g>
+</svg>"""
+
+with open("scratch/test_tspan.svg", "w") as f:
+    f.write(svg_content)
+
+subprocess.run(["sips", "-s", "format", "png", "scratch/test_tspan.svg", "--out", "scratch/test_tspan.png"], check=True)
+print("Rendered scratch/test_tspan.png successfully")

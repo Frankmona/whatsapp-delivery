@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FM XPRESS — Official A5 Marketing Flyer (Print Ready 300 DPI)</title>
+  <!-- Tailwind CSS & FontAwesome -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* A5 Page Setup with 3mm Bleed */
+    /* Standard A5: 148mm x 210mm. With 3mm bleed on all 4 sides: 154mm x 216mm */
+    :root {
+      --flyer-w: 154mm;
+      --flyer-h: 216mm;
+      --trim-w: 148mm;
+      --trim-h: 210mm;
+      --safe-w: 138mm;
+      --safe-h: 200mm;
+      --brand-green: #10B981;
+      --brand-green-dark: #059669;
+      --brand-emerald-deep: #064E3B;
+      --brand-gold: #F59E0B;
+      --brand-dark: #0B0F19;
+      --brand-navy: #0F172A;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0B0F19;
+      color: #FFFFFF;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .font-heading {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    /* Print Specific Styles */
+    @page {
+      size: 154mm 216mm; /* A5 + 3mm bleed */
+      margin: 0;
+    }
+
+    @media print {
+      body {
+        background: transparent !important;
+        padding: 0 !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .flyer-sheet {
+        box-shadow: none !important;
+        margin: 0 !important;
+        page-break-after: always;
+        break-after: page;
+      }
+      .bleed-indicator {
+        display: none !important;
+      }
+    }
+
+    /* Screen Flyer Canvas Container */
+    .flyer-sheet {
+      width: var(--flyer-w);
+      height: var(--flyer-h);
+      box-sizing: border-box;
+      position: relative;
+      overflow: hidden;
+      margin: 30px auto;
+      background: #0B0F19;
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    }
+
+    /* 3mm Bleed Margin Visual Guide */
+    .bleed-box {
+      position: absolute;
+      inset: 3mm;
+      pointer-events: none;
+      border: 1px dashed rgba(245, 158, 11, 0.4);
+      z-index: 50;
+    }
+
+    .safe-box {
+      position: absolute;
+      inset: 8mm;
+      pointer-events: none;
+      border: 1px dotted rgba(16, 185, 129, 0.35);
+      z-index: 50;
+    }
+
+    .hide-guides .bleed-box,
+    .hide-guides .safe-box,
+    .hide-guides .crop-mark {
+      display: none !important;
+    }
+
+    /* Crop Marks in Corners */
+    .crop-mark {
+      position: absolute;
+      z-index: 60;
+      pointer-events: none;
+    }
+    .crop-tl { top: 0; left: 0; width: 3mm; height: 3mm; border-right: 1px solid rgba(255,255,255,0.4); border-bottom: 1px solid rgba(255,255,255,0.4); }
+    .crop-tr { top: 0; right: 0; width: 3mm; height: 3mm; border-left: 1px solid rgba(255,255,255,0.4); border-bottom: 1px solid rgba(255,255,255,0.4); }
+    .crop-bl { bottom: 0; left: 0; width: 3mm; height: 3mm; border-right: 1px solid rgba(255,255,255,0.4); border-top: 1px solid rgba(255,255,255,0.4); }
+    .crop-br { bottom: 0; right: 0; width: 3mm; height: 3mm; border-left: 1px solid rgba(255,255,255,0.4); border-top: 1px solid rgba(255,255,255,0.4); }
+
+    /* Custom Glass Gradients */
+    .bg-gradient-emerald-card {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.05) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+    }
+    .bg-gradient-dark-card {
+      background: linear-gradient(180deg, #131A2B 0%, #0B101D 100%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+<body class="py-8 px-4">
+
+  <!-- Screen Top Control Bar (Non-Printing) -->
+  <header class="no-print max-w-5xl mx-auto mb-8 bg-slate-900/90 backdrop-blur-md border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-2xl">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
+          <h1 class="text-lg font-extrabold text-white tracking-tight">FM XPRESS — A5 Marketing Flyer (Double-Sided)</h1>
+        </div>
+        <p class="text-xs text-slate-400 mt-1">
+          Exact A5 Print Dimensions: <strong>148 × 210 mm</strong> + 3mm Bleed (<strong>154 × 216 mm</strong>) • 300 DPI High-Resolution Ready
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2.5">
+        <button onclick="toggleGuides()" id="btn-toggle-guides" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-2 transition cursor-pointer">
+          <i class="fa-solid fa-ruler-combined text-amber-400"></i> Toggle Bleed Guides
+        </button>
+        <button onclick="window.print()" class="px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider bg-emerald-500 hover:bg-emerald-400 text-slate-950 flex items-center gap-2 transition shadow-lg shadow-emerald-500/25 cursor-pointer">
+          <i class="fa-solid fa-print"></i> Print to PDF (A5 300 DPI)
+        </button>
+      </div>
+    </div>
+
+    <!-- Recommended Print Settings Banner -->
+    <div class="mt-4 pt-3 border-t border-slate-800/80 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] text-slate-300">
+      <div><span class="text-slate-500 block">Paper Stock:</span> 150–250 GSM Art Paper</div>
+      <div><span class="text-slate-500 block">Finish:</span> Gloss (Vibrant) or Silk Matte</div>
+      <div><span class="text-slate-500 block">Resolution:</span> 300 DPI Print Quality</div>
+      <div><span class="text-slate-500 block">Color Profile:</span> CMYK / Rich Black &amp; Emerald</div>
+    </div>
+  </header>
+
+  <!-- ====================================================================== -->
+  <!-- SIDE 1: FRONT COVER (The Hook, Courier Hero, Services & WhatsApp CTA) -->
+  <!-- ====================================================================== -->
+  <div class="flyer-sheet relative rounded-none flex flex-col justify-between p-[9mm] select-none" id="flyer-front">
+    <!-- Bleed & Crop Marks -->
+    <div class="crop-mark crop-tl"></div>
+    <div class="crop-mark crop-tr"></div>
+    <div class="crop-mark crop-bl"></div>
+    <div class="crop-mark crop-br"></div>
+    <div class="bleed-box" title="3mm Bleed Line (Trim Cut Edge)"></div>
+    <div class="safe-box" title="Safe Content Margin"></div>
+
+    <!-- Background Design Elements -->
+    <div class="absolute inset-0 bg-gradient-to-b from-[#0F172A] via-[#0B0F19] to-[#061A14] pointer-events-none"></div>
+    <!-- Emerald Radial Glow Accents -->
+    <div class="absolute -top-24 -right-24 w-80 h-80 bg-emerald-500/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute bottom-20 -left-20 w-72 h-72 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none"></div>
+
+    <!-- Content Wrapper (Held within Safe Zone) -->
+    <div class="relative z-10 flex flex-col h-full justify-between">
+
+      <!-- 1. HEADER SECTION: Brand Logo & Speed Pill -->
+      <div class="flex items-center justify-between pb-2 border-b border-white/10">
+        <!-- Logo Lockup -->
+        <div class="flex items-center gap-2.5">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-slate-950 font-black text-lg shadow-md shadow-emerald-500/30">
+            <i class="fa-solid fa-motorcycle text-base"></i>
+          </div>
+          <div>
+            <div class="text-xl font-black tracking-tight leading-none">
+              <span class="text-white">FM</span><span class="text-emerald-400"> XPRESS</span>
+            </div>
+            <div class="text-[9px] font-bold uppercase tracking-[0.2em] text-emerald-400/90 mt-0.5">
+              DISPATCH &amp; LOGISTICS
+            </div>
+          </div>
+        </div>
+
+        <!-- Trust / Speed Badge -->
+        <div class="px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-[10px] font-extrabold tracking-wide flex items-center gap-1.5 shadow-sm">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span>
+          ABUJA'S FASTEST DISPATCH
+        </div>
+      </div>
+
+      <!-- 2. HERO HEADLINE & VALUE PROPOSITION -->
+      <div class="pt-2.5 space-y-1 text-center">
+        <div class="inline-block px-3 py-0.5 rounded-md bg-amber-400/10 border border-amber-400/30 text-amber-300 text-[10px] font-bold uppercase tracking-wider mb-1">
+          ⚡ 30-Minute Rapid Doorstep Pickup
+        </div>
+        <h2 class="text-[23px] leading-[1.12] font-black text-white font-heading tracking-tight">
+          FAST, RELIABLE &amp; ON-TIME<br>
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-emerald-300 to-teal-200">DELIVERY ACROSS ABUJA</span>
+        </h2>
+        <p class="text-[10.5px] text-slate-300 max-w-[95%] mx-auto font-medium leading-snug pt-0.5">
+          From business documents &amp; e-commerce parcels to boutique fashion &amp; food drops — our vetted riders deliver with precision &amp; care.
+        </p>
+      </div>
+
+      <!-- 3. PHOTO VISUAL: DISPATCHER ON BIKE -->
+      <div class="relative my-2 rounded-2xl overflow-hidden border-2 border-emerald-500/30 shadow-2xl h-[42mm] bg-slate-950 group">
+        <img 
+          src="./assets/fmxpress_courier_photo.jpg" 
+          alt="FM XPRESS Dispatch Rider in Abuja" 
+          class="w-full h-full object-cover object-center filter brightness-[0.98] contrast-[1.05]"
+        >
+        <!-- Overlay Badges on Photo -->
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-transparent to-black/20"></div>
+
+        <div class="absolute bottom-2 left-2.5 right-2.5 flex items-center justify-between text-[9.5px]">
+          <span class="px-2.5 py-1 rounded-lg bg-slate-900/90 border border-emerald-500/40 text-emerald-300 font-bold backdrop-blur-md flex items-center gap-1">
+            <i class="fa-solid fa-shield-halved text-emerald-400 text-[10px]"></i> Insulated &amp; Rainproof Boxes
+          </span>
+          <span class="px-2.5 py-1 rounded-lg bg-emerald-500 text-slate-950 font-black tracking-wider uppercase text-[9px] shadow-sm">
+            Live WhatsApp Tracking
+          </span>
+        </div>
+      </div>
+
+      <!-- 4. KEY CORE SERVICES PILLARS (4-Card Grid) -->
+      <div class="grid grid-cols-2 gap-2 my-1">
+        <div class="p-2 rounded-xl bg-slate-900/80 border border-white/10 flex items-start gap-2 shadow-sm">
+          <div class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 text-xs">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <div>
+            <strong class="text-white text-[10.5px] block leading-tight font-bold">Express Same-Day</strong>
+            <span class="text-slate-400 text-[9px] leading-tight">Instant pickup &amp; direct drop</span>
+          </div>
+        </div>
+
+        <div class="p-2 rounded-xl bg-slate-900/80 border border-white/10 flex items-start gap-2 shadow-sm">
+          <div class="w-6 h-6 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center shrink-0 mt-0.5 text-xs">
+            <i class="fa-solid fa-box-open"></i>
+          </div>
+          <div>
+            <strong class="text-white text-[10.5px] block leading-tight font-bold">Parcels &amp; E-Commerce</strong>
+            <span class="text-slate-400 text-[9px] leading-tight">Vendors &amp; boutique orders</span>
+          </div>
+        </div>
+
+        <div class="p-2 rounded-xl bg-slate-900/80 border border-white/10 flex items-start gap-2 shadow-sm">
+          <div class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 mt-0.5 text-xs">
+            <i class="fa-solid fa-file-shield"></i>
+          </div>
+          <div>
+            <strong class="text-white text-[10.5px] block leading-tight font-bold">Urgent Documents</strong>
+            <span class="text-slate-400 text-[9px] leading-tight">Contracts &amp; office files</span>
+          </div>
+        </div>
+
+        <div class="p-2 rounded-xl bg-slate-900/80 border border-white/10 flex items-start gap-2 shadow-sm">
+          <div class="w-6 h-6 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0 mt-0.5 text-xs">
+            <i class="fa-solid fa-utensils"></i>
+          </div>
+          <div>
+            <strong class="text-white text-[10.5px] block leading-tight font-bold">Food &amp; Cakes Drop</strong>
+            <span class="text-slate-400 text-[9px] leading-tight">Fragile insulated handling</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. CONVERSION CALL TO ACTION: WHATSAPP QR CODE & BOOKING CARD -->
+      <div class="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 rounded-2xl p-3 shadow-xl text-slate-950 relative overflow-hidden my-1">
+        <!-- Subtle Pattern -->
+        <div class="absolute -right-8 -bottom-8 w-28 h-28 bg-white/15 rounded-full blur-xl pointer-events-none"></div>
+
+        <div class="flex items-center gap-3">
+          <!-- Real High-Res Vector Scannable WhatsApp QR Code -->
+          <div class="bg-white p-1.5 rounded-xl shrink-0 shadow-md">
+            <img 
+              src="./assets/whatsapp_qr.svg" 
+              alt="Scan to Book on WhatsApp" 
+              class="w-[24mm] h-[24mm] block"
+            >
+          </div>
+
+          <!-- CTA Text -->
+          <div class="flex-1 space-y-0.5">
+            <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-950 text-emerald-400 text-[9px] font-extrabold uppercase tracking-wider">
+              <i class="fa-brands fa-whatsapp text-[11px]"></i> BOOK IN 60 SECONDS
+            </div>
+            <h3 class="text-base font-black text-slate-950 leading-tight font-heading">
+              Scan QR or Chat With Us
+            </h3>
+            <p class="text-[10px] text-slate-900 font-semibold leading-tight">
+              Instant distance pricing &amp; rider assignment.
+            </p>
+            <div class="pt-1 flex items-center gap-2">
+              <div class="px-2.5 py-1 rounded-lg bg-slate-950 text-white font-mono font-black text-xs tracking-wider shadow-inner flex items-center gap-1.5">
+                <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i> 0903 686 9830
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. FOOTER: SUPPORT HELPLINES & WEBSITE -->
+      <div class="pt-2 border-t border-white/10 flex items-center justify-between text-[9.5px]">
+        <div class="flex items-center gap-3 text-slate-300 font-medium">
+          <span class="flex items-center gap-1">
+            <i class="fa-solid fa-headset text-emerald-400"></i> Support 1: <strong class="text-white font-bold">0703 785 8093</strong>
+          </span>
+          <span class="text-slate-600">•</span>
+          <span class="flex items-center gap-1">
+            <i class="fa-solid fa-headset text-sky-400"></i> Support 2: <strong class="text-white font-bold">0906 795 7295</strong>
+          </span>
+        </div>
+        <div class="text-emerald-400 font-bold tracking-tight">
+          fmxpress.tekvolutionhq.com
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ====================================================================== -->
+  <!-- SIDE 2: BACK COVER (Service Areas, Pricing, Step-by-Step & B2B Vendor)-->
+  <!-- ====================================================================== -->
+  <div class="flyer-sheet relative rounded-none flex flex-col justify-between p-[9mm] select-none" id="flyer-back">
+    <!-- Bleed & Crop Marks -->
+    <div class="crop-mark crop-tl"></div>
+    <div class="crop-mark crop-tr"></div>
+    <div class="crop-mark crop-bl"></div>
+    <div class="crop-mark crop-br"></div>
+    <div class="bleed-box" title="3mm Bleed Line"></div>
+    <div class="safe-box" title="Safe Content Margin"></div>
+
+    <!-- Background Elements -->
+    <div class="absolute inset-0 bg-gradient-to-b from-[#0F172A] via-[#0B0F19] to-[#0A1612] pointer-events-none"></div>
+    <div class="absolute -top-20 -left-20 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div class="absolute -bottom-20 -right-20 w-72 h-72 bg-emerald-600/15 rounded-full blur-3xl pointer-events-none"></div>
+
+    <!-- Content Wrapper -->
+    <div class="relative z-10 flex flex-col h-full justify-between">
+
+      <!-- 1. BACK HEADER -->
+      <div class="flex items-center justify-between pb-2.5 border-b border-white/10">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center font-bold text-sm">
+            <i class="fa-solid fa-route"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-black text-white font-heading tracking-tight leading-none">HOW DELIVERY WORKS</h3>
+            <span class="text-[9px] text-emerald-400 font-bold tracking-wider uppercase">Simple 3-Step WhatsApp Booking</span>
+          </div>
+        </div>
+        <span class="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-[9px] font-semibold text-slate-300">
+          No Mobile App Required!
+        </span>
+      </div>
+
+      <!-- 2. 3-STEP VISUAL WORKFLOW (Horizontal Progression) -->
+      <div class="grid grid-cols-3 gap-2 my-2">
+        <!-- Step 1 -->
+        <div class="bg-slate-900/90 border border-white/10 rounded-xl p-2.5 space-y-1 relative">
+          <div class="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-black text-[11px] flex items-center justify-center shadow-md">
+            1
+          </div>
+          <strong class="text-white text-[11px] block font-bold pt-0.5">Send Details</strong>
+          <p class="text-slate-400 text-[9px] leading-snug">
+            Send <span class="text-emerald-400 font-mono font-bold">"Hi"</span> or your Pickup &amp; Drop-off address to our WhatsApp bot.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="bg-slate-900/90 border border-white/10 rounded-xl p-2.5 space-y-1 relative">
+          <div class="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-black text-[11px] flex items-center justify-center shadow-md">
+            2
+          </div>
+          <strong class="text-white text-[11px] block font-bold pt-0.5">Confirm &amp; Pay</strong>
+          <p class="text-slate-400 text-[9px] leading-snug">
+            Get instant verified distance price and pay securely with 1 tap via Paystack.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="bg-slate-900/90 border border-white/10 rounded-xl p-2.5 space-y-1 relative">
+          <div class="w-6 h-6 rounded-full bg-emerald-500 text-slate-950 font-black text-[11px] flex items-center justify-center shadow-md">
+            3
+          </div>
+          <strong class="text-white text-[11px] block font-bold pt-0.5">Rider Arrives</strong>
+          <p class="text-slate-400 text-[9px] leading-snug">
+            Nearest rider is attached instantly. Track pickup &amp; delivery via WhatsApp!
+          </p>
+        </div>
+      </div>
+
+      <!-- 3. SERVICE COMMITMENT & DELIVERY GUARANTEES -->
+      <div class="my-1.5 space-y-1.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[10.5px] font-black text-white uppercase tracking-wider flex items-center gap-1.5 font-heading">
+            <i class="fa-solid fa-shield-halved text-emerald-400"></i> Our Dispatch &amp; Delivery Commitment
+          </span>
+          <span class="text-[9px] text-emerald-400 font-bold">Fast • Secure • Tracked</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2 text-left">
+          <!-- Card 1 -->
+          <div class="p-2 rounded-xl bg-slate-900/90 border border-white/10 flex items-start gap-2 shadow-sm">
+            <div class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5 text-xs">
+              <i class="fa-solid fa-bolt"></i>
+            </div>
+            <div>
+              <strong class="text-white text-[10px] block leading-tight font-bold">Rapid Doorstep Pickup</strong>
+              <span class="text-emerald-400 text-[8.5px] block font-semibold">Under 30-Min Dispatch Avg.</span>
+              <span class="text-slate-400 text-[8.5px] leading-tight block pt-0.5">Automated dispatch matches nearest active courier for swift doorstep collection.</span>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="p-2 rounded-xl bg-slate-900/90 border border-white/10 flex items-start gap-2 shadow-sm">
+            <div class="w-6 h-6 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center shrink-0 mt-0.5 text-xs">
+              <i class="fa-solid fa-box-archive"></i>
+            </div>
+            <div>
+              <strong class="text-white text-[10px] block leading-tight font-bold">Weatherproof &amp; Insulated</strong>
+              <span class="text-sky-400 text-[8.5px] block font-semibold">Pristine Protection</span>
+              <span class="text-slate-400 text-[8.5px] leading-tight block pt-0.5">Heavy-duty insulated boxes protect food, cakes, legal files, fashion and gadgets.</span>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="p-2 rounded-xl bg-slate-900/90 border border-white/10 flex items-start gap-2 shadow-sm">
+            <div class="w-6 h-6 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0 mt-0.5 text-xs">
+              <i class="fa-solid fa-location-crosshairs"></i>
+            </div>
+            <div>
+              <strong class="text-white text-[10px] block leading-tight font-bold">Real-Time WhatsApp Updates</strong>
+              <span class="text-amber-400 text-[8.5px] block font-semibold">Live Route &amp; Driver Alerts</span>
+              <span class="text-slate-400 text-[8.5px] leading-tight block pt-0.5">Instant chat alerts when rider is assigned, en-route, and package is safely delivered.</span>
+            </div>
+          </div>
+
+          <!-- Card 4 -->
+          <div class="p-2 rounded-xl bg-slate-900/90 border border-white/10 flex items-start gap-2 shadow-sm">
+            <div class="w-6 h-6 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center shrink-0 mt-0.5 text-xs">
+              <i class="fa-solid fa-credit-card"></i>
+            </div>
+            <div>
+              <strong class="text-white text-[10px] block leading-tight font-bold">Secure Cashless Checkout</strong>
+              <span class="text-purple-400 text-[8.5px] block font-semibold">Paystack 1-Tap Payment</span>
+              <span class="text-slate-400 text-[8.5px] leading-tight block pt-0.5">Seamless card, bank transfer and USSD checkout with instant digital receipt.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. B2B VENDOR & MERCHANT SPECIAL PROGRAM -->
+      <div class="bg-gradient-to-r from-amber-500/15 via-emerald-500/10 to-slate-900 border border-amber-500/30 rounded-2xl p-2.5 my-1 flex items-center justify-between">
+        <div class="space-y-0.5">
+          <div class="flex items-center gap-1.5 text-amber-300 text-[10px] font-extrabold uppercase tracking-wide">
+            <i class="fa-solid fa-crown text-amber-400"></i> Are You An Abuja Vendor or Business?
+          </div>
+          <p class="text-[9.5px] text-slate-300 leading-tight">
+            Special bulk discounts, scheduled daily pickups &amp; dedicated rider support for cake artists, boutiques, food kitchens &amp; online merchants.
+          </p>
+        </div>
+        <div class="text-right shrink-0 ml-3">
+          <span class="text-[8.5px] text-slate-400 block font-bold uppercase tracking-wider">Merchant Desk</span>
+          <span class="text-xs font-black text-amber-300 font-mono">0906 795 7295</span>
+        </div>
+      </div>
+
+      <!-- 5. CONTACTS & HELPLINES BANNER -->
+      <div class="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 rounded-2xl p-2.5 my-1 shadow-lg text-slate-950">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <div class="text-[12px] font-black uppercase tracking-tight font-heading">
+              Need A Fast Delivery? We're Active Right Now!
+            </div>
+            <div class="text-[9px] font-semibold text-slate-900">
+              Reach our dispatch team immediately through any channel:
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2">
+          <div class="bg-slate-950 rounded-xl p-2 text-white space-y-0.5">
+            <span class="text-[8px] font-extrabold text-emerald-400 block uppercase tracking-wider">WhatsApp Bot</span>
+            <span class="text-xs font-black font-mono block">0903 686 9830</span>
+            <span class="text-[8px] text-slate-400 block leading-tight">Instant Chat Booking</span>
+          </div>
+
+          <div class="bg-slate-950 rounded-xl p-2 text-white space-y-0.5">
+            <span class="text-[8px] font-extrabold text-sky-400 block uppercase tracking-wider">Support 1</span>
+            <span class="text-xs font-black font-mono block">0703 785 8093</span>
+            <span class="text-[8px] text-slate-400 block leading-tight">Dispatch &amp; Orders</span>
+          </div>
+
+          <div class="bg-slate-950 rounded-xl p-2 text-white space-y-0.5">
+            <span class="text-[8px] font-extrabold text-amber-400 block uppercase tracking-wider">Support 2</span>
+            <span class="text-xs font-black font-mono block">0906 795 7295</span>
+            <span class="text-[8px] text-slate-400 block leading-tight">Inquiries &amp; Service</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. CONTACT & CORPORATE FOOTER -->
+      <div class="pt-2 border-t border-white/10 space-y-1.5">
+        <div class="flex flex-wrap items-center justify-between gap-2 text-[9.5px]">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">
+              <i class="fa-brands fa-whatsapp text-emerald-400"></i> WhatsApp: 0903 686 9830
+            </span>
+            <span class="text-slate-300 font-medium">
+              Support 1: <strong class="text-white">0703 785 8093</strong>
+            </span>
+            <span class="text-slate-600">•</span>
+            <span class="text-slate-300 font-medium">
+              Support 2: <strong class="text-white">0906 795 7295</strong>
+            </span>
+          </div>
+          <div class="text-slate-400">
+            ⏰ Mon – Sat: 7:00 AM – 8:00 PM
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-[8.5px] text-slate-500 pt-0.5">
+          <span>FM XPRESS DISPATCH &amp; LOGISTICS SERVICES • ABUJA FCT, NIGERIA</span>
+          <span class="text-emerald-400 font-bold">fmxpress.tekvolutionhq.com</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Print Control Script -->
+  <script>
+    function toggleGuides() {
+      document.body.classList.toggle('hide-guides');
+      const btn = document.getElementById('btn-toggle-guides');
+      if (document.body.classList.contains('hide-guides')) {
+        btn.innerHTML = '<i class="fa-solid fa-ruler text-slate-400"></i> Show Bleed Guides';
+      } else {
+        btn.innerHTML = '<i class="fa-solid fa-ruler-combined text-amber-400"></i> Hide Bleed Guides';
+      }
+    }
+  </script>
+</body>
+</html>
