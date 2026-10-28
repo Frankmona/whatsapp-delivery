@@ -8,8 +8,13 @@ const axios = require('axios');
 const { createClient } = require('@supabase/supabase-js');
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://drsvzbrculuyavaqboku.supabase.co';
-const SUPABASE_KEY = process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyc3Z6YnJjdWx1eWF2YXFib2t1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1Mzc0ODksImV4cCI6MjEwNzExMzQ4OX0.BINwbWPp1x3S_fiFyzytIpQ8_iICJGJoqsj_dJlK480';
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyc3Z6YnJjdWx1eWF2YXFib2t1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1Mzc0ODksImV4cCI6MjEwNzExMzQ4OX0.BINwbWPp1x3S_fiFyzytIpQ8_iICJGJoqsj_dJlK480';
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: {
+    persistSession: false,
+    autoRefreshToken: false
+  }
+});
 
 const app = express();
 // Middleware to parse JSON bodies
