@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FM XPRESS — Delivery Box Mockup</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800;900&family=Space+Grotesk:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      width: 1400px;
+      height: 1400px;
+      overflow: hidden;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #020617;
+    }
+    .dispatch-box-body {
+      background: linear-gradient(145deg, #18202F, #0A0E17);
+      box-shadow: 
+        0 35px 70px -15px rgba(0, 0, 0, 0.9),
+        0 0 0 1px rgba(255, 255, 255, 0.08),
+        inset 0 2px 4px rgba(255, 255, 255, 0.15),
+        inset 0 -8px 16px rgba(0, 0, 0, 0.8);
+    }
+    .box-lid {
+      background: linear-gradient(180deg, #242E42 0%, #151D2C 60%, #0F1622 100%);
+      box-shadow: 
+        0 10px 25px rgba(0, 0, 0, 0.6),
+        inset 0 2px 2px rgba(255, 255, 255, 0.25);
+    }
+    .metallic-latch {
+      background: linear-gradient(135deg, #E2E8F0 0%, #94A3B8 50%, #475569 100%);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.7), inset 0 1px 1px #fff;
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center relative">
+  <!-- Studio Background with Motorcycle Rack Elements -->
+  <div class="absolute inset-0 bg-gradient-to-b from-[#0B132B] via-[#020617] to-[#01030A]"></div>
+  <div class="absolute w-[800px] h-[800px] bg-emerald-500/10 rounded-full blur-[160px] pointer-events-none"></div>
+
+  <!-- Perspective Floor Grid -->
+  <div class="absolute bottom-0 inset-x-0 h-[400px] bg-gradient-to-t from-slate-950 to-transparent border-t border-slate-800/40 opacity-70"></div>
+
+  <!-- Motorcycle Steel Cargo Rack (Subtle Structural Hint) -->
+  <div class="absolute bottom-16 w-[760px] h-10 bg-gradient-to-r from-transparent via-slate-800 to-transparent flex items-center justify-center">
+    <div class="w-[680px] h-4 bg-slate-900 border-t border-slate-700 rounded-full shadow-2xl"></div>
+  </div>
+  <div class="absolute bottom-8 w-[600px] h-8 flex justify-between px-16">
+    <div class="w-6 h-20 bg-gradient-to-b from-slate-700 to-slate-950 rounded-lg shadow-xl"></div>
+    <div class="w-6 h-20 bg-gradient-to-b from-slate-700 to-slate-950 rounded-lg shadow-xl"></div>
+  </div>
+
+  <!-- The Dispatch Delivery Cargo Box -->
+  <div class="relative z-10 w-[840px] flex flex-col items-center">
+    
+    <!-- Box Lid (Top Curved Bevel) -->
+    <div class="w-[820px] h-[72px] rounded-t-[48px] box-lid relative flex items-center justify-center border-t border-x border-slate-600/50">
+      <!-- Metallic Lock/Latch Upper Catch -->
+      <div class="absolute -bottom-3 w-14 h-8 metallic-latch rounded-t-md z-20 flex items-center justify-center">
+        <div class="w-2.5 h-2.5 rounded-full bg-slate-700"></div>
+      </div>
+    </div>
+
+    <!-- Box Main Cabinet -->
+    <div class="w-[840px] h-[840px] rounded-b-[40px] dispatch-box-body p-8 relative flex flex-col items-center justify-center">
+      
+      <!-- Lock Latch Body -->
+      <div class="absolute top-0 w-12 h-14 metallic-latch rounded-b-lg shadow-2xl z-20 flex flex-col items-center justify-end pb-2">
+        <div class="w-4 h-6 border-2 border-slate-700 rounded-sm"></div>
+      </div>
+
+      <!-- The Applied Outdoor Vinyl Decal Sticker (40cm x 40cm) -->
+      <div class="w-[740px] h-[740px] rounded-[28px] overflow-hidden shadow-2xl relative border-2 border-slate-700/60 bg-black">
+        <img src="/Users/user/Desktop/Whatsapp delivery/public/images/fmxpress_box_rear_flyer_40x40.png" 
+             alt="FM XPRESS Delivery Box Vinyl Wrap" 
+             class="w-full h-full object-cover">
+        
+        <!-- Subtle Realistic Vinyl Gloss Reflection Sheen -->
+        <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.04] to-white/[0.09] pointer-events-none"></div>
+      </div>
+
+      <!-- Corner Rivets & Hardware Details -->
+      <div class="absolute top-4 left-4 w-3.5 h-3.5 rounded-full bg-slate-600 border border-slate-500 shadow"></div>
+      <div class="absolute top-4 right-4 w-3.5 h-3.5 rounded-full bg-slate-600 border border-slate-500 shadow"></div>
+      <div class="absolute bottom-4 left-4 w-3.5 h-3.5 rounded-full bg-slate-600 border border-slate-500 shadow"></div>
+      <div class="absolute bottom-4 right-4 w-3.5 h-3.5 rounded-full bg-slate-600 border border-slate-500 shadow"></div>
+    </div>
+
+    <!-- Reflection / Drop Shadow on Ground -->
+    <div class="w-[780px] h-10 bg-black/80 blur-xl rounded-full mt-2"></div>
+  </div>
+
+  <!-- Badge Top Right -->
+  <div class="absolute top-10 right-10 bg-slate-900/90 border border-emerald-500/40 rounded-2xl px-6 py-3 flex items-center gap-3 shadow-2xl">
+    <i class="fa-solid fa-check-circle text-emerald-400 text-xl"></i>
+    <div>
+      <p class="text-xs text-slate-400 font-extrabold uppercase tracking-widest">Mockup Preview</p>
+      <p class="text-white font-black text-sm">Standard 40cm × 40cm Box Vinyl</p>
+    </div>
+  </div>
+
+</body>
+</html>

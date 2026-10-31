@@ -538,6 +538,11 @@ app.get('/careers', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'hiring.html'));
 });
 
+app.get(['/box', '/box-wrap', '/box-mockup'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'box_mockup.html'));
+});
+
+
 app.get('/api/settings', authMiddleware(), (req, res) => {
   res.json(getPricingSettings());
 });

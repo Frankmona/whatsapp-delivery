@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FM XPRESS — Standard Dispatch Box Rear Wrap (40cm x 40cm)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800;900&family=Space+Grotesk:wght@700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    @page {
+      size: 400mm 400mm;
+      margin: 0;
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      width: 1600px;
+      height: 1600px;
+      overflow: hidden;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #020617;
+      color: #F8FAFC;
+    }
+    .font-heading {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .box-sheet {
+      width: 1600px;
+      height: 1600px;
+      padding: 64px 72px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+      background: #020617;
+    }
+    .carbon-pattern {
+      background-image: radial-gradient(rgba(16, 185, 129, 0.08) 1.5px, transparent 1.5px), radial-gradient(rgba(255, 255, 255, 0.04) 1.5px, #020617 1.5px);
+      background-size: 36px 36px;
+      background-position: 0 0, 18px 18px;
+    }
+    .qr-corner-tl {
+      position: absolute; top: -4px; left: -4px; width: 28px; height: 28px;
+      border-top: 5px solid #10B981; border-left: 5px solid #10B981; border-top-left-radius: 8px;
+    }
+    .qr-corner-tr {
+      position: absolute; top: -4px; right: -4px; width: 28px; height: 28px;
+      border-top: 5px solid #10B981; border-right: 5px solid #10B981; border-top-right-radius: 8px;
+    }
+    .qr-corner-bl {
+      position: absolute; bottom: -4px; left: -4px; width: 28px; height: 28px;
+      border-bottom: 5px solid #10B981; border-left: 5px solid #10B981; border-bottom-left-radius: 8px;
+    }
+    .qr-corner-br {
+      position: absolute; bottom: -4px; right: -4px; width: 28px; height: 28px;
+      border-bottom: 5px solid #10B981; border-right: 5px solid #10B981; border-bottom-right-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box-sheet carbon-pattern select-none">
+    <!-- Ambient Background Glow & Vignette -->
+    <div class="absolute inset-0 bg-gradient-to-b from-[#091528] via-[#020617] to-[#04241B] pointer-events-none"></div>
+    <div class="absolute -top-40 -right-40 w-[650px] h-[650px] bg-emerald-500/25 rounded-full blur-[140px] pointer-events-none"></div>
+    <div class="absolute -bottom-40 -left-40 w-[650px] h-[650px] bg-emerald-600/20 rounded-full blur-[140px] pointer-events-none"></div>
+
+    <!-- Outer Protective Border (Simulates 10mm Vinyl Safe Margin) -->
+    <div class="absolute inset-5 rounded-[36px] border-2 border-emerald-500/30 pointer-events-none"></div>
+
+    <div class="relative z-10 flex flex-col h-full justify-between">
+      
+      <!-- ================= 1. HEADER BRANDING ================= -->
+      <div class="flex items-center justify-between border-b-2 border-slate-800/80 pb-6">
+        <div class="flex items-center gap-6">
+          <!-- Squircle Bike Courier Crest -->
+          <div class="w-28 h-28 rounded-3xl bg-gradient-to-br from-emerald-400 to-emerald-600 p-1 flex items-center justify-center shadow-2xl shadow-emerald-500/40 border border-white/30">
+            <i class="fa-solid fa-motorcycle text-5xl text-slate-950"></i>
+          </div>
+          <div>
+            <div class="flex items-baseline gap-3">
+              <span class="font-heading text-7xl font-black tracking-tight text-white">FM</span>
+              <span class="font-heading text-7xl font-black tracking-tight text-emerald-400">XPRESS</span>
+            </div>
+            <p class="text-emerald-300 font-extrabold text-2xl tracking-[0.25em] uppercase mt-1">
+              DISPATCH &amp; LOGISTICS
+            </p>
+          </div>
+        </div>
+
+        <!-- Location & Trust Pill -->
+        <div class="bg-slate-900/90 border-2 border-emerald-500/50 rounded-2xl px-7 py-4 flex items-center gap-4 shadow-xl">
+          <div class="w-4 h-4 rounded-full bg-emerald-400 animate-ping"></div>
+          <div>
+            <p class="text-xs uppercase font-extrabold tracking-widest text-emerald-400">Hub Base</p>
+            <p class="text-2xl font-black text-white tracking-wide">Kubwa, Abuja</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= 2. HEADLINE CALLOUT ================= -->
+      <div class="text-center my-3">
+        <div class="inline-flex items-center gap-3 bg-emerald-500/15 border border-emerald-400/40 rounded-full px-8 py-2.5 mb-3">
+          <i class="fa-solid fa-bolt text-emerald-400 text-xl"></i>
+          <span class="text-emerald-300 text-xl font-black tracking-wider uppercase">SWIFT PICKUP &bull; DOORSTEP DELIVERY</span>
+        </div>
+        <h1 class="font-heading text-6xl font-black text-white tracking-tight leading-tight">
+          NEED A DISPATCH RIDER?
+        </h1>
+        <p class="text-slate-300 text-2xl font-bold mt-1">
+          Send parcels, food, documents &amp; e-commerce packages across Abuja in minutes!
+        </p>
+      </div>
+
+      <!-- ================= 3. CORE ACTION CARDS: QR CODE + SERVICES ================= -->
+      <div class="grid grid-cols-12 gap-8 items-center bg-slate-900/80 border-2 border-slate-700/80 rounded-[36px] p-8 shadow-2xl backdrop-blur-md">
+        
+        <!-- Left: Extra-Large High-Contrast QR Code Card -->
+        <div class="col-span-6 flex flex-col items-center justify-center bg-gradient-to-b from-slate-950 to-slate-900 border-2 border-emerald-500/60 rounded-3xl p-6 shadow-2xl relative">
+          
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center text-slate-950 font-black text-lg">
+              <i class="fa-solid fa-qrcode"></i>
+            </div>
+            <span class="font-heading text-2xl font-black text-white tracking-wide uppercase">
+              SCAN WITH CAMERA
+            </span>
+          </div>
+
+          <!-- QR Code Housing with Target Reticle Corners -->
+          <div class="relative p-4 bg-white rounded-2xl shadow-2xl border-4 border-emerald-400">
+            <div class="qr-corner-tl"></div>
+            <div class="qr-corner-tr"></div>
+            <div class="qr-corner-bl"></div>
+            <div class="qr-corner-br"></div>
+            <img src="/Users/user/Desktop/Whatsapp delivery/public/images/fmxpress_box_booking_qr.png" 
+                 alt="Scan to Book WhatsApp Delivery" 
+                 class="w-[320px] h-[320px] object-contain rounded-lg">
+          </div>
+
+          <div class="flex items-center gap-2 mt-4 text-emerald-300 font-extrabold text-lg">
+            <i class="fa-brands fa-whatsapp text-2xl text-emerald-400"></i>
+            <span>Instant Chat &bull; No App Download Needed</span>
+          </div>
+        </div>
+
+        <!-- Right: Services & Speed Highlights -->
+        <div class="col-span-6 flex flex-col justify-between h-full pl-3">
+          <div>
+            <h2 class="text-emerald-400 font-black text-xl tracking-widest uppercase mb-4 flex items-center gap-3">
+              <i class="fa-solid fa-boxes-packing text-2xl"></i> What We Deliver:
+            </h2>
+
+            <div class="space-y-4">
+              <div class="flex items-center gap-4 bg-slate-800/80 border border-slate-700 rounded-2xl p-4">
+                <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl flex-shrink-0">
+                  <i class="fa-solid fa-box-open"></i>
+                </div>
+                <div>
+                  <h3 class="text-white font-extrabold text-2xl">Parcels &amp; Packages</h3>
+                  <p class="text-slate-400 text-base font-semibold">Fragile, personal or corporate delivery</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-4 bg-slate-800/80 border border-slate-700 rounded-2xl p-4">
+                <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl flex-shrink-0">
+                  <i class="fa-solid fa-utensils"></i>
+                </div>
+                <div>
+                  <h3 class="text-white font-extrabold text-2xl">Food &amp; Groceries</h3>
+                  <p class="text-slate-400 text-base font-semibold">Hot &amp; fresh in insulated carrier boxes</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-4 bg-slate-800/80 border border-slate-700 rounded-2xl p-4">
+                <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl flex-shrink-0">
+                  <i class="fa-solid fa-file-contract"></i>
+                </div>
+                <div>
+                  <h3 class="text-white font-extrabold text-2xl">Documents &amp; Letters</h3>
+                  <p class="text-slate-400 text-base font-semibold">Confidential, swift &amp; secure delivery</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-4 bg-slate-800/80 border border-slate-700 rounded-2xl p-4">
+                <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl flex-shrink-0">
+                  <i class="fa-solid fa-bag-shopping"></i>
+                </div>
+                <div>
+                  <h3 class="text-white font-extrabold text-2xl">E-Commerce Orders</h3>
+                  <p class="text-slate-400 text-base font-semibold">Same-day pickup for online vendors</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ================= 4. GIANT WHATSAPP CONTACT BANNER ================= -->
+      <div class="bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 rounded-3xl p-6 text-slate-950 shadow-2xl shadow-emerald-500/30 flex items-center justify-between border-2 border-white">
+        
+        <div class="flex items-center gap-6">
+          <div class="w-24 h-24 rounded-2xl bg-slate-950 text-emerald-400 flex items-center justify-center text-6xl shadow-xl flex-shrink-0">
+            <i class="fa-brands fa-whatsapp"></i>
+          </div>
+          <div>
+            <p class="text-lg uppercase font-black tracking-widest text-slate-900">
+              CHAT OR CALL TO BOOK DELIVERY:
+            </p>
+            <div class="font-heading text-7xl font-black tracking-tight text-slate-950 leading-none mt-1">
+              0703 785 8093
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-slate-950 text-white rounded-2xl px-6 py-4 text-center shadow-lg">
+          <p class="text-xs uppercase font-extrabold text-emerald-400 tracking-wider">Fast Response</p>
+          <p class="text-xl font-black text-white">24/7 Dispatch</p>
+        </div>
+
+      </div>
+
+      <!-- ================= 5. FOOTER & SECONDARY LINES ================= -->
+      <div class="flex items-center justify-between pt-4 border-t border-slate-800 text-slate-400 text-lg font-bold">
+        <div class="flex items-center gap-3">
+          <i class="fa-solid fa-phone text-emerald-400"></i>
+          <span>Support: <strong class="text-white">0906 795 7295</strong> &bull; <strong class="text-white">0903 686 9830</strong></span>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <i class="fa-solid fa-globe text-emerald-400"></i>
+          <span class="text-emerald-300 font-extrabold">fmxpress.tekvolutionhq.com</span>
+        </div>
+
+        <div class="text-slate-300 font-extrabold tracking-wider italic">
+          Delivering with speed and reliability!
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>
