@@ -739,17 +739,21 @@ app.get('/api/places-autocomplete', async (req, res) => {
       return res.json({ success: true, query: '', suggestions: popular });
     }
 
-    const query = rawQuery.toLowerCase();
+    // Token-based matching: strip commas/punctuation so "fcda clinic, kubwa" matches properly
+    const cleanTokens = (str) => (str || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean);
+    const qTokens = cleanTokens(rawQuery);
+
     const suggestions = [];
     const seenAddresses = new Set();
 
     // 1. Search Curated Local Abuja Landmarks & Clinics
-    for (const item of ABUJA_SUGGESTION_CATALOG) {
-      const matchTitle = item.title.toLowerCase().includes(query);
-      const matchSubtitle = item.subtitle.toLowerCase().includes(query);
-      const matchKeywords = item.keywords && item.keywords.some(k => k.includes(query) || query.includes(k));
+    for (const item of (ABUJA_SUGGESTION_CATALOG || [])) {
+      const targetText = `${item.title} ${item.subtitle} ${item.address} ${(item.keywords || []).join(' ')}`;
+      const targetTokens = cleanTokens(targetText).join(' ');
+      
+      const isMatch = qTokens.length === 0 || qTokens.every(t => targetTokens.includes(t));
 
-      if (matchTitle || matchSubtitle || matchKeywords) {
+      if (isMatch) {
         if (!seenAddresses.has(item.address)) {
           seenAddresses.add(item.address);
           suggestions.push({

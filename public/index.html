@@ -212,6 +212,27 @@
             </div>
 
             <div class="space-y-4">
+              <!-- HTML5 Native Browser Autocomplete Fallback -->
+              <datalist id="abujaLocationsList">
+                <option value="FCDA Clinic, Kubwa, Abuja">FCDA Clinic (Kubwa, Abuja) - Local Route</option>
+                <option value="FCDA Staff Clinic, Area 11, Garki, Abuja">FCDA Staff Clinic (Area 11, Garki - Far ~30km)</option>
+                <option value="Kubwa General Hospital, Abuja">Kubwa General Hospital (Phase 4, Kubwa)</option>
+                <option value="Phase 4, Kubwa, Abuja">Phase 4, Kubwa, Abuja</option>
+                <option value="Phase 3, Kubwa, Abuja">Phase 3, Kubwa, Abuja</option>
+                <option value="Phase 2, Kubwa, Abuja">Phase 2, Kubwa, Abuja</option>
+                <option value="Phase 1, Kubwa, Abuja">Phase 1, Kubwa, Abuja</option>
+                <option value="PW, Kubwa, Abuja">PW / Gado Nasko, Kubwa, Abuja</option>
+                <option value="Arab Road, Kubwa, Abuja">Arab Road, Kubwa, Abuja</option>
+                <option value="Byazhin, Kubwa, Abuja">Byazhin, Kubwa, Abuja</option>
+                <option value="Kubwa Village / Market, Abuja">Kubwa Village / Market, Abuja</option>
+                <option value="1st Avenue, Gwarinpa, Abuja">1st Avenue, Gwarinpa, Abuja</option>
+                <option value="2nd Avenue, Gwarinpa, Abuja">2nd Avenue, Gwarinpa, Abuja</option>
+                <option value="Banex Plaza, Wuse 2, Abuja">Banex Plaza, Wuse 2, Abuja</option>
+                <option value="Jabi Lake Mall, Jabi, Abuja">Jabi Lake Mall, Jabi, Abuja</option>
+                <option value="Maitama, Abuja">Maitama District, Abuja</option>
+                <option value="Central Business District, Abuja">Central Business District (CBD), Abuja</option>
+              </datalist>
+
               <!-- Pickup Location with Autocomplete -->
               <div class="relative z-30" id="quickPickupWrapper">
                 <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider flex items-center justify-between">
@@ -223,11 +244,30 @@
                 </label>
                 <div class="relative">
                   <span class="absolute left-3.5 top-3.5 text-emerald-400 pointer-events-none">📍</span>
-                  <input id="quickPickup" type="text" autocomplete="off" placeholder="Type or click to choose pickup (e.g. FCDA Clinic)" value="FCDA Clinic, Kubwa, Abuja" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 pl-10 pr-9 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                  <input id="quickPickup" list="abujaLocationsList" type="text" autocomplete="off" placeholder="Type or click to choose pickup (e.g. FCDA Clinic)" value="FCDA Clinic, Kubwa, Abuja" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 pl-10 pr-9 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
                   <button type="button" id="quickPickupToggle" title="Click to view locations" class="absolute right-3 top-3 text-slate-400 hover:text-emerald-400 text-xs p-0.5 transition">
                     <i class="fa-solid fa-chevron-down"></i>
                   </button>
                   <div id="quickPickupDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-slate-900/98 backdrop-blur-2xl border-2 border-emerald-500/40 rounded-2xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-800 max-h-72 overflow-y-auto"></div>
+                </div>
+
+                <!-- 1-Click Quick Clinic & Hub Selection Pills -->
+                <div class="flex items-center gap-1.5 flex-wrap pt-2 text-[10px]">
+                  <span class="text-slate-400 text-[10px] font-medium">Quick Pick:</span>
+                  <button type="button" onclick="selectLocationSuggestion('quickPickup', 'quickPickupDropdown', 'FCDA Clinic, Kubwa, Abuja')" class="px-2.5 py-1 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-bold transition flex items-center gap-1">
+                    <span>🏥</span>
+                    <span>FCDA Clinic (Kubwa)</span>
+                  </button>
+                  <button type="button" onclick="selectLocationSuggestion('quickPickup', 'quickPickupDropdown', 'FCDA Staff Clinic, Area 11, Garki, Abuja')" class="px-2.5 py-1 rounded-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 font-bold transition flex items-center gap-1">
+                    <span>🏥</span>
+                    <span>FCDA Area 11 (Garki)</span>
+                  </button>
+                  <button type="button" onclick="selectLocationSuggestion('quickPickup', 'quickPickupDropdown', 'Phase 4, Kubwa, Abuja')" class="px-2 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+                    Phase 4
+                  </button>
+                  <button type="button" onclick="selectLocationSuggestion('quickPickup', 'quickPickupDropdown', '1st Avenue, Gwarinpa, Abuja')" class="px-2 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+                    Gwarinpa
+                  </button>
                 </div>
               </div>
 
@@ -242,11 +282,32 @@
                 </label>
                 <div class="relative">
                   <span class="absolute left-3.5 top-3.5 text-rose-400 pointer-events-none">🏁</span>
-                  <input id="quickDelivery" type="text" autocomplete="off" placeholder="Type or click to choose destination (e.g. Phase 4)" value="Phase 4, Kubwa, Abuja" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 pl-10 pr-9 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                  <input id="quickDelivery" list="abujaLocationsList" type="text" autocomplete="off" placeholder="Type or click to choose destination (e.g. Phase 4)" value="Phase 4, Kubwa, Abuja" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 pl-10 pr-9 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
                   <button type="button" id="quickDeliveryToggle" title="Click to view locations" class="absolute right-3 top-3 text-slate-400 hover:text-emerald-400 text-xs p-0.5 transition">
                     <i class="fa-solid fa-chevron-down"></i>
                   </button>
                   <div id="quickDeliveryDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-slate-900/98 backdrop-blur-2xl border-2 border-emerald-500/40 rounded-2xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-800 max-h-72 overflow-y-auto"></div>
+                </div>
+
+                <!-- 1-Click Quick Destination Selection Pills -->
+                <div class="flex items-center gap-1.5 flex-wrap pt-2 text-[10px]">
+                  <span class="text-slate-400 text-[10px] font-medium">Quick Pick:</span>
+                  <button type="button" onclick="selectLocationSuggestion('quickDelivery', 'quickDeliveryDropdown', 'Phase 4, Kubwa, Abuja')" class="px-2.5 py-1 rounded-full bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 font-bold transition flex items-center gap-1">
+                    <span>🏁</span>
+                    <span>Phase 4, Kubwa</span>
+                  </button>
+                  <button type="button" onclick="selectLocationSuggestion('quickDelivery', 'quickDeliveryDropdown', 'Phase 3, Kubwa, Abuja')" class="px-2 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+                    Phase 3
+                  </button>
+                  <button type="button" onclick="selectLocationSuggestion('quickDelivery', 'quickDeliveryDropdown', '1st Avenue, Gwarinpa, Abuja')" class="px-2 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+                    Gwarinpa
+                  </button>
+                  <button type="button" onclick="selectLocationSuggestion('quickDelivery', 'quickDeliveryDropdown', 'Banex Plaza, Wuse 2, Abuja')" class="px-2 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+                    Banex Wuse 2
+                  </button>
+                  <button type="button" onclick="selectLocationSuggestion('quickDelivery', 'quickDeliveryDropdown', 'Jabi Lake Mall, Jabi, Abuja')" class="px-2 py-1 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+                    Jabi Mall
+                  </button>
                 </div>
               </div>
 
@@ -995,17 +1056,49 @@
       }
     ];
 
+    const cleanTokens = (str) => (str || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean);
+
     function filterLocalSuggestions(query) {
-      const q = (query || '').toLowerCase().trim();
-      if (!q) {
-        return LOCAL_ABUJA_SUGGESTIONS.slice(0, 7);
+      const qTokens = cleanTokens(query);
+      if (qTokens.length === 0) {
+        return LOCAL_ABUJA_SUGGESTIONS.slice(0, 8);
       }
-      return LOCAL_ABUJA_SUGGESTIONS.filter(item => {
-        return item.title.toLowerCase().includes(q) ||
-               item.subtitle.toLowerCase().includes(q) ||
-               item.address.toLowerCase().includes(q) ||
-               (item.keywords && item.keywords.some(k => k.includes(q) || q.includes(k)));
-      }).slice(0, 7);
+
+      const isFcdaQuery = qTokens.includes('fcda') || qTokens.includes('clinic');
+
+      // 1. Check all tokens match
+      const allMatches = LOCAL_ABUJA_SUGGESTIONS.filter(item => {
+        const itemTokens = cleanTokens(`${item.title} ${item.subtitle} ${item.address} ${(item.keywords || []).join(' ')}`).join(' ');
+        return qTokens.every(t => itemTokens.includes(t));
+      });
+
+      if (allMatches.length > 0) {
+        if (isFcdaQuery) {
+          const area11 = LOCAL_ABUJA_SUGGESTIONS.find(i => i.title.includes('Area 11'));
+          const kubwa = LOCAL_ABUJA_SUGGESTIONS.find(i => i.title.includes('(Kubwa)'));
+          const merged = [...allMatches];
+          if (kubwa && !merged.some(m => m.address === kubwa.address)) merged.unshift(kubwa);
+          if (area11 && !merged.some(m => m.address === area11.address)) merged.push(area11);
+          return merged.slice(0, 8);
+        }
+        return allMatches.slice(0, 8);
+      }
+
+      // 2. Partial tokens match (ignores generic words like abuja/nigeria)
+      const nonGeneric = qTokens.filter(t => t.length > 1 && t !== 'abuja' && t !== 'nigeria');
+      const searchTokens = nonGeneric.length > 0 ? nonGeneric : qTokens;
+
+      const partialMatches = LOCAL_ABUJA_SUGGESTIONS.filter(item => {
+        const itemTokens = cleanTokens(`${item.title} ${item.subtitle} ${item.address} ${(item.keywords || []).join(' ')}`).join(' ');
+        return searchTokens.some(t => itemTokens.includes(t));
+      });
+
+      if (partialMatches.length > 0) {
+        return partialMatches.slice(0, 8);
+      }
+
+      // Fallback: show popular landmarks
+      return LOCAL_ABUJA_SUGGESTIONS.slice(0, 8);
     }
 
     function renderLocationSuggestions(dropdown, suggestions, inputId, dropdownId) {
@@ -1111,10 +1204,13 @@
       });
 
       // Show dropdown on focus or click
-      input.addEventListener('focus', () => {
+      input.addEventListener('focus', (e) => {
+        e.stopPropagation();
+        try { input.select(); } catch (_) {}
         triggerSearch(input.value.trim());
       });
-      input.addEventListener('click', () => {
+      input.addEventListener('click', (e) => {
+        e.stopPropagation();
         triggerSearch(input.value.trim());
       });
 
