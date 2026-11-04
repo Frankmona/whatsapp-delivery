@@ -725,8 +725,18 @@ app.get('/api/test-places', async (req, res) => {
 app.get('/api/places-autocomplete', async (req, res) => {
   try {
     const rawQuery = (req.query.query || req.query.input || '').trim();
-    if (!rawQuery || rawQuery.length < 2) {
-      return res.json({ success: true, suggestions: [] });
+    
+    // If empty query, return top curated Abuja & Kubwa landmarks immediately
+    if (!rawQuery) {
+      const popular = (ABUJA_SUGGESTION_CATALOG || []).slice(0, 8).map(item => ({
+        title: item.title,
+        subtitle: item.subtitle,
+        address: item.address,
+        badge: item.badge,
+        icon: item.icon || 'fa-location-dot',
+        isKubwa: Boolean(item.isKubwa)
+      }));
+      return res.json({ success: true, query: '', suggestions: popular });
     }
 
     const query = rawQuery.toLowerCase();

@@ -213,28 +213,40 @@
 
             <div class="space-y-4">
               <!-- Pickup Location with Autocomplete -->
-              <div class="relative">
+              <div class="relative z-30" id="quickPickupWrapper">
                 <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider flex items-center justify-between">
                   <span>Pickup Location</span>
-                  <span class="text-[10px] text-emerald-400 font-medium lowercase">smart suggestions on</span>
+                  <span class="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    smart suggestions enabled
+                  </span>
                 </label>
                 <div class="relative">
-                  <span class="absolute left-3.5 top-3.5 text-emerald-400">📍</span>
-                  <input id="quickPickup" type="text" autocomplete="off" placeholder="e.g. FCDA Clinic, Kubwa or Wuse 2" value="FCDA Clinic, Kubwa, Abuja" class="w-full bg-slate-900/90 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
-                  <div id="quickPickupDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-slate-900/98 backdrop-blur-xl border border-slate-700/80 rounded-2xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-800/80 max-h-64 overflow-y-auto"></div>
+                  <span class="absolute left-3.5 top-3.5 text-emerald-400 pointer-events-none">📍</span>
+                  <input id="quickPickup" type="text" autocomplete="off" placeholder="Type or click to choose pickup (e.g. FCDA Clinic)" value="FCDA Clinic, Kubwa, Abuja" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 pl-10 pr-9 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                  <button type="button" id="quickPickupToggle" title="Click to view locations" class="absolute right-3 top-3 text-slate-400 hover:text-emerald-400 text-xs p-0.5 transition">
+                    <i class="fa-solid fa-chevron-down"></i>
+                  </button>
+                  <div id="quickPickupDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-slate-900/98 backdrop-blur-2xl border-2 border-emerald-500/40 rounded-2xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-800 max-h-72 overflow-y-auto"></div>
                 </div>
               </div>
 
               <!-- Delivery Destination with Autocomplete -->
-              <div class="relative">
+              <div class="relative z-20" id="quickDeliveryWrapper">
                 <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider flex items-center justify-between">
                   <span>Delivery Destination</span>
-                  <span class="text-[10px] text-emerald-400 font-medium lowercase">smart suggestions on</span>
+                  <span class="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    smart suggestions enabled
+                  </span>
                 </label>
                 <div class="relative">
-                  <span class="absolute left-3.5 top-3.5 text-rose-400">🏁</span>
-                  <input id="quickDelivery" type="text" autocomplete="off" placeholder="e.g. Phase 4, Kubwa or Gwarinpa" value="Phase 4, Kubwa, Abuja" class="w-full bg-slate-900/90 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
-                  <div id="quickDeliveryDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-slate-900/98 backdrop-blur-xl border border-slate-700/80 rounded-2xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-800/80 max-h-64 overflow-y-auto"></div>
+                  <span class="absolute left-3.5 top-3.5 text-rose-400 pointer-events-none">🏁</span>
+                  <input id="quickDelivery" type="text" autocomplete="off" placeholder="Type or click to choose destination (e.g. Phase 4)" value="Phase 4, Kubwa, Abuja" class="w-full bg-slate-900 border border-slate-700 rounded-xl py-3 pl-10 pr-9 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition">
+                  <button type="button" id="quickDeliveryToggle" title="Click to view locations" class="absolute right-3 top-3 text-slate-400 hover:text-emerald-400 text-xs p-0.5 transition">
+                    <i class="fa-solid fa-chevron-down"></i>
+                  </button>
+                  <div id="quickDeliveryDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-slate-900/98 backdrop-blur-2xl border-2 border-emerald-500/40 rounded-2xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-800 max-h-72 overflow-y-auto"></div>
                 </div>
               </div>
 
@@ -790,65 +802,344 @@
       }
     }
 
+    // --- Curated Local Abuja Landmarks & Clinics Catalog (Instant Client Fallback) ---
+    const LOCAL_ABUJA_SUGGESTIONS = [
+      {
+        title: "FCDA Clinic (Kubwa)",
+        subtitle: "Kubwa, Abuja • ~2.3km route to Phase 4",
+        address: "FCDA Clinic, Kubwa, Abuja",
+        badge: "Kubwa",
+        isKubwa: true,
+        icon: "fa-hospital",
+        keywords: ["fcda", "clinic", "fcda clinic", "kubwa", "hospital"]
+      },
+      {
+        title: "FCDA Staff Clinic (Area 11)",
+        subtitle: "Area 11, Garki, Abuja (~30km away from Kubwa)",
+        address: "FCDA Staff Clinic, Area 11, Garki, Abuja",
+        badge: "Garki (Far)",
+        isKubwa: false,
+        icon: "fa-hospital",
+        keywords: ["fcda", "clinic", "fcda clinic", "area 11", "garki", "hospital"]
+      },
+      {
+        title: "Kubwa General Hospital",
+        subtitle: "Phase 4, Kubwa, Abuja",
+        address: "Kubwa General Hospital, Abuja",
+        badge: "Kubwa",
+        isKubwa: true,
+        icon: "fa-hospital",
+        keywords: ["general hospital", "kubwa hospital", "hospital"]
+      },
+      {
+        title: "Phase 4, Kubwa",
+        subtitle: "Near Reggy Emmanuel / FCDA, Kubwa, Abuja",
+        address: "Phase 4, Kubwa, Abuja",
+        badge: "Kubwa",
+        isKubwa: true,
+        icon: "fa-location-dot",
+        keywords: ["phase 4", "4th phase", "kubwa"]
+      },
+      {
+        title: "Phase 3, Kubwa",
+        subtitle: "Kubwa, Abuja",
+        address: "Phase 3, Kubwa, Abuja",
+        badge: "Kubwa",
+        isKubwa: true,
+        icon: "fa-location-dot",
+        keywords: ["phase 3", "3rd phase", "kubwa"]
+      },
+      {
+        title: "Phase 2, Kubwa",
+        subtitle: "Kubwa, Abuja",
+        address: "Phase 2, Kubwa, Abuja",
+        badge: "Kubwa",
+        isKubwa: true,
+        icon: "fa-location-dot",
+        keywords: ["phase 2", "2nd phase", "kubwa"]
+      },
+      {
+        title: "Phase 1, Kubwa",
+        subtitle: "Kubwa, Abuja",
+        address: "Phase 1, Kubwa, Abuja",
+        badge: "Kubwa",
+        isKubwa: true,
+        icon: "fa-location-dot",
+        keywords: ["phase 1", "1st phase", "kubwa"]
+      },
+      {
+        title: "PW, Kubwa",
+        subtitle: "PW Bridge / Gado Nasko, Kubwa, Abuja",
+        address: "PW, Kubwa, Abuja",
+        badge: "Kubwa",
+        isKubwa: true,
+        icon: "fa-road",
+        keywords: ["pw", "gado nasko", "kubwa"]
+      },
+      {
+        title: "Arab Road, Kubwa",
+        subtitle: "Kubwa, Abuja",
+        address: "Arab Road, Kubwa, Abuja",
+        badge: "Kubwa",
+        isKubwa: true,
+        icon: "fa-road",
+        keywords: ["arab road", "arab", "kubwa"]
+      },
+      {
+        title: "Byazhin, Kubwa",
+        subtitle: "Byazhin Across, Kubwa, Abuja",
+        address: "Byazhin, Kubwa, Abuja",
+        badge: "Kubwa",
+        isKubwa: true,
+        icon: "fa-location-dot",
+        keywords: ["byazhin", "kubwa"]
+      },
+      {
+        title: "Kubwa Village / Market",
+        subtitle: "Kubwa, Abuja",
+        address: "Kubwa Village / Market, Abuja",
+        badge: "Kubwa",
+        isKubwa: true,
+        icon: "fa-shop",
+        keywords: ["kubwa market", "village", "market"]
+      },
+      {
+        title: "9 E.O Igbinedion Crescent",
+        subtitle: "Off Gado Nasko Rd, Kubwa, Abuja",
+        address: "9 E.O Igbinedion Cres, Kubwa, Abuja",
+        badge: "Kubwa",
+        isKubwa: true,
+        icon: "fa-house",
+        keywords: ["igbinedion", "igbenidion", "gado nasko"]
+      },
+      {
+        title: "Reggy Emmanuel Road",
+        subtitle: "Phase 4, Kubwa, Abuja",
+        address: "Reggy Emmanuel Rd, Kubwa, Abuja",
+        badge: "Kubwa",
+        isKubwa: true,
+        icon: "fa-road",
+        keywords: ["reggy emmanuel", "reggy", "kubwa"]
+      },
+      {
+        title: "1st Avenue, Gwarinpa",
+        subtitle: "Gwarinpa Estate, Abuja",
+        address: "1st Avenue, Gwarinpa, Abuja",
+        badge: "Gwarinpa",
+        isKubwa: false,
+        icon: "fa-city",
+        keywords: ["1st ave", "gwarinpa"]
+      },
+      {
+        title: "2nd Avenue, Gwarinpa",
+        subtitle: "Gwarinpa Estate, Abuja",
+        address: "2nd Avenue, Gwarinpa, Abuja",
+        badge: "Gwarinpa",
+        isKubwa: false,
+        icon: "fa-city",
+        keywords: ["2nd ave", "gwarinpa"]
+      },
+      {
+        title: "Banex Plaza, Wuse 2",
+        subtitle: "Aminu Kano Cres, Wuse 2, Abuja",
+        address: "Banex Plaza, Wuse 2, Abuja",
+        badge: "Wuse 2",
+        isKubwa: false,
+        icon: "fa-shop",
+        keywords: ["banex", "banex plaza", "wuse 2"]
+      },
+      {
+        title: "Jabi Lake Mall",
+        subtitle: "Jabi, Abuja",
+        address: "Jabi Lake Mall, Jabi, Abuja",
+        badge: "Jabi",
+        isKubwa: false,
+        icon: "fa-cart-shopping",
+        keywords: ["jabi", "jabi lake mall", "jabi mall"]
+      },
+      {
+        title: "Maitama District",
+        subtitle: "Maitama, Abuja",
+        address: "Maitama, Abuja",
+        badge: "Maitama",
+        isKubwa: false,
+        icon: "fa-city",
+        keywords: ["maitama"]
+      },
+      {
+        title: "Utako District",
+        subtitle: "Utako, Abuja",
+        address: "Utako District, Abuja",
+        badge: "Utako",
+        isKubwa: false,
+        icon: "fa-city",
+        keywords: ["utako"]
+      },
+      {
+        title: "Dutse Alhaji",
+        subtitle: "Bwari / Kubwa Expressway, Abuja",
+        address: "Dutse Alhaji, Abuja",
+        badge: "Dutse",
+        isKubwa: false,
+        icon: "fa-location-dot",
+        keywords: ["dutse", "dutse alhaji"]
+      },
+      {
+        title: "Central Business District (CBD)",
+        subtitle: "Central Area, Abuja",
+        address: "Central Business District, Abuja",
+        badge: "CBD",
+        isKubwa: false,
+        icon: "fa-building-columns",
+        keywords: ["central area", "cbd"]
+      }
+    ];
+
+    function filterLocalSuggestions(query) {
+      const q = (query || '').toLowerCase().trim();
+      if (!q) {
+        return LOCAL_ABUJA_SUGGESTIONS.slice(0, 7);
+      }
+      return LOCAL_ABUJA_SUGGESTIONS.filter(item => {
+        return item.title.toLowerCase().includes(q) ||
+               item.subtitle.toLowerCase().includes(q) ||
+               item.address.toLowerCase().includes(q) ||
+               (item.keywords && item.keywords.some(k => k.includes(q) || q.includes(k)));
+      }).slice(0, 7);
+    }
+
+    function renderLocationSuggestions(dropdown, suggestions, inputId, dropdownId) {
+      if (!suggestions || suggestions.length === 0) {
+        dropdown.innerHTML = `
+          <div class="p-3 text-xs text-slate-400 text-center">
+            No exact landmark match found. You can still type your full street address & click Calculate.
+          </div>
+        `;
+        dropdown.classList.remove('hidden');
+        return;
+      }
+
+      dropdown.innerHTML = suggestions.map(s => {
+        const isArea11 = s.title.includes('Area 11') || (s.badge && s.badge.toLowerCase().includes('garki'));
+        const badgeClass = s.isKubwa 
+          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30' 
+          : (isArea11 ? 'bg-amber-500/20 text-amber-300 border-amber-500/40' : 'bg-slate-800 text-slate-300 border-slate-700');
+        const iconBg = s.isKubwa
+          ? 'bg-emerald-500/20 text-emerald-400'
+          : (isArea11 ? 'bg-amber-500/20 text-amber-400' : 'bg-slate-800 text-slate-400');
+
+        return `
+          <div data-address="${encodeURIComponent(s.address)}"
+               class="suggestion-row p-3 hover:bg-slate-800/90 cursor-pointer transition flex items-center justify-between gap-3 group border-b border-slate-800/70 last:border-b-0">
+            <div class="flex items-center gap-3 min-w-0 pointer-events-none">
+              <div class="w-8 h-8 rounded-xl ${iconBg} flex items-center justify-center text-sm shrink-0">
+                <i class="fa-solid ${s.icon || 'fa-location-dot'}"></i>
+              </div>
+              <div class="truncate text-left">
+                <div class="text-white text-xs sm:text-sm font-bold truncate group-hover:text-emerald-300 transition">${s.title}</div>
+                <div class="${isArea11 ? 'text-amber-400/90' : 'text-slate-400'} text-[11px] truncate">${s.subtitle}</div>
+              </div>
+            </div>
+            <div class="shrink-0 pointer-events-none">
+              <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${badgeClass}">
+                ${s.badge}
+              </span>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Wire selection on pointerdown / mousedown / click to ensure instant response on mobile & desktop
+      dropdown.querySelectorAll('.suggestion-row').forEach(row => {
+        const onSelect = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const targetAddress = decodeURIComponent(row.getAttribute('data-address'));
+          selectLocationSuggestion(inputId, dropdownId, targetAddress);
+        };
+        row.addEventListener('mousedown', onSelect);
+        row.addEventListener('click', onSelect);
+      });
+
+      dropdown.classList.remove('hidden');
+    }
+
     // --- Live Location Autocomplete with Disambiguation (e.g. FCDA Clinic Kubwa vs Area 11) ---
-    function setupLocationAutocomplete(inputId, dropdownId) {
+    function setupLocationAutocomplete(inputId, dropdownId, toggleBtnId) {
       const input = document.getElementById(inputId);
       const dropdown = document.getElementById(dropdownId);
+      const toggleBtn = toggleBtnId ? document.getElementById(toggleBtnId) : null;
       if (!input || !dropdown) return;
 
       let debounceTimer = null;
 
-      input.addEventListener('input', () => {
+      const triggerSearch = (query, immediateOnly = false) => {
+        // 1. Instant 0ms local match
+        const localMatches = filterLocalSuggestions(query);
+        renderLocationSuggestions(dropdown, localMatches, inputId, dropdownId);
+
+        if (immediateOnly) return;
+
+        // 2. Query backend for Google Places extensions if user is actively typing
         clearTimeout(debounceTimer);
-        const query = input.value.trim();
-
-        if (query.length < 2) {
-          dropdown.innerHTML = '';
-          dropdown.classList.add('hidden');
-          return;
-        }
-
         debounceTimer = setTimeout(async () => {
           try {
-            const res = await fetch(`/api/places-autocomplete?query=${encodeURIComponent(query)}`);
+            const res = await fetch(`/api/places-autocomplete?query=${encodeURIComponent(query || '')}`);
             const data = await res.json();
-
-            if (!data.success || !data.suggestions || data.suggestions.length === 0) {
-              dropdown.innerHTML = '';
-              dropdown.classList.add('hidden');
-              return;
+            if (data.success && data.suggestions && data.suggestions.length > 0) {
+              // Merge results prioritizing local matches
+              const seen = new Set(localMatches.map(m => m.address));
+              const merged = [...localMatches];
+              for (const s of data.suggestions) {
+                if (!seen.has(s.address)) {
+                  seen.add(s.address);
+                  merged.push(s);
+                }
+              }
+              renderLocationSuggestions(dropdown, merged.slice(0, 8), inputId, dropdownId);
             }
-
-            dropdown.innerHTML = data.suggestions.map(s => `
-              <div onclick="selectLocationSuggestion('${inputId}', '${dropdownId}', '${s.address.replace(/'/g, "\\'")}')" 
-                   class="p-3 hover:bg-slate-800/90 cursor-pointer transition flex items-center justify-between gap-3 group">
-                <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-8 h-8 rounded-xl bg-slate-800 group-hover:bg-emerald-500/20 text-slate-400 group-hover:text-emerald-400 flex items-center justify-center text-sm shrink-0 transition">
-                    <i class="fa-solid ${s.icon || 'fa-location-dot'}"></i>
-                  </div>
-                  <div class="truncate text-left">
-                    <div class="text-white text-xs sm:text-sm font-bold truncate group-hover:text-emerald-300 transition">${s.title}</div>
-                    <div class="text-slate-400 text-[11px] truncate">${s.subtitle}</div>
-                  </div>
-                </div>
-                <div class="shrink-0">
-                  <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full ${s.isKubwa ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'}">
-                    ${s.badge || 'Abuja'}
-                  </span>
-                </div>
-              </div>
-            `).join('');
-
-            dropdown.classList.remove('hidden');
           } catch (e) {
-            console.warn('Autocomplete fetch failed:', e);
+            // Local fallback already rendered
           }
-        }, 150);
+        }, 180);
+      };
+
+      // Show dropdown on input
+      input.addEventListener('input', () => {
+        const val = input.value.trim();
+        triggerSearch(val);
+      });
+
+      // Show dropdown on focus or click
+      input.addEventListener('focus', () => {
+        triggerSearch(input.value.trim());
+      });
+      input.addEventListener('click', () => {
+        triggerSearch(input.value.trim());
+      });
+
+      // Toggle button
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          if (dropdown.classList.contains('hidden')) {
+            triggerSearch(input.value.trim());
+            input.focus();
+          } else {
+            dropdown.classList.add('hidden');
+          }
+        });
+      }
+
+      // Prevent dropdown mousedown from stealing focus before click fires
+      dropdown.addEventListener('mousedown', (e) => {
+        e.preventDefault();
       });
 
       // Close dropdown if user clicks outside
       document.addEventListener('click', (e) => {
-        if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+        if (!input.contains(e.target) && !dropdown.contains(e.target) && (!toggleBtn || !toggleBtn.contains(e.target))) {
           dropdown.classList.add('hidden');
         }
       });
@@ -864,19 +1155,32 @@
       const dropdown = document.getElementById(dropdownId);
       if (input) {
         input.value = fullAddress;
-        input.classList.add('border-emerald-500', 'ring-2', 'ring-emerald-500/40');
+        input.classList.add('border-emerald-500', 'ring-2', 'ring-emerald-500/50');
         setTimeout(() => {
-          input.classList.remove('ring-2', 'ring-emerald-500/40');
+          input.classList.remove('ring-2', 'ring-emerald-500/50');
         }, 600);
       }
       if (dropdown) dropdown.classList.add('hidden');
+
+      // Auto recalculate route and price on selection if both pickup and delivery exist
+      const p = document.getElementById('quickPickup')?.value.trim();
+      const d = document.getElementById('quickDelivery')?.value.trim();
+      if (p && d && typeof calculateQuickEstimate === 'function') {
+        calculateQuickEstimate();
+      }
     }
 
-    // Initialize autocompletes on load
-    document.addEventListener('DOMContentLoaded', () => {
-      setupLocationAutocomplete('quickPickup', 'quickPickupDropdown');
-      setupLocationAutocomplete('quickDelivery', 'quickDeliveryDropdown');
-    });
+    // Initialize autocompletes immediately and reliably
+    function initAutocompletes() {
+      setupLocationAutocomplete('quickPickup', 'quickPickupDropdown', 'quickPickupToggle');
+      setupLocationAutocomplete('quickDelivery', 'quickDeliveryDropdown', 'quickDeliveryToggle');
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initAutocompletes);
+    } else {
+      initAutocompletes();
+    }
   </script>
 </body>
 </html>
