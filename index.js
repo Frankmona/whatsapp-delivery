@@ -721,6 +721,74 @@ app.get('/api/test-places', async (req, res) => {
   }
 });
 
+// Live location autocomplete for website and web apps
+app.get('/api/places-autocomplete', async (req, res) => {
+  try {
+    const rawQuery = (req.query.query || req.query.input || '').trim();
+    if (!rawQuery || rawQuery.length < 2) {
+      return res.json({ success: true, suggestions: [] });
+    }
+
+    const query = rawQuery.toLowerCase();
+    const suggestions = [];
+    const seenAddresses = new Set();
+
+    // 1. Search Curated Local Abuja Landmarks & Clinics
+    for (const item of ABUJA_SUGGESTION_CATALOG) {
+      const matchTitle = item.title.toLowerCase().includes(query);
+      const matchSubtitle = item.subtitle.toLowerCase().includes(query);
+      const matchKeywords = item.keywords && item.keywords.some(k => k.includes(query) || query.includes(k));
+
+      if (matchTitle || matchSubtitle || matchKeywords) {
+        if (!seenAddresses.has(item.address)) {
+          seenAddresses.add(item.address);
+          suggestions.push({
+            title: item.title,
+            subtitle: item.subtitle,
+            address: item.address,
+            badge: item.badge,
+            icon: item.icon || 'fa-location-dot',
+            isKubwa: Boolean(item.isKubwa)
+          });
+        }
+      }
+    }
+
+    // 2. Query Google Places Autocomplete (New API) for broader commercial locations
+    try {
+      const googleSuggestions = await getGooglePlacesSuggestions(rawQuery);
+      if (googleSuggestions && googleSuggestions.length > 0) {
+        for (const g of googleSuggestions) {
+          const addr = g.description;
+          if (!seenAddresses.has(addr)) {
+            seenAddresses.add(addr);
+            const isKubwa = /kubwa/i.test(addr);
+            suggestions.push({
+              title: g.mainText || g.description.split(',')[0],
+              subtitle: g.secondaryText || 'Abuja, Nigeria',
+              address: addr,
+              badge: isKubwa ? 'Kubwa' : 'Abuja',
+              icon: 'fa-map-pin',
+              isKubwa
+            });
+          }
+        }
+      }
+    } catch (gErr) {
+      console.warn('[Google Places Autocomplete Notice]:', gErr.message);
+    }
+
+    return res.json({
+      success: true,
+      query: rawQuery,
+      suggestions: suggestions.slice(0, 8)
+    });
+  } catch (err) {
+    console.error('[Autocomplete Error]:', err);
+    res.status(500).json({ success: false, error: err.message, suggestions: [] });
+  }
+});
+
 app.get('/api/stats', authMiddleware(), async (req, res) => {
   try {
     const { data: orders } = await supabase.from('orders').select('price_ngn, status');
@@ -1141,6 +1209,10 @@ app.get('/webhook', (req, res) => {
 // --- Local Abuja Landmark & Phase Coordinate Dictionary ---
 // Gives pin-point accuracy for local phases, estates, and zones that OpenStreetMap lacks
 const ABUJA_LOCAL_LANDMARKS = [
+  // FCDA Clinics & Health Facilities (Kubwa vs Area 11 Garki Disambiguation)
+  { regex: /(fcda\s*(clinic|hospital|health|centre)).*(kubwa)|(kubwa).*(fcda\s*(clinic|hospital|health|centre))|^fcda\s*clinic$/i, coords: [7.3410, 9.1550], label: "FCDA Clinic, Kubwa, Abuja" },
+  { regex: /(fcda\s*(staff\s*)?(clinic|hospital|health)|area\s*11\s*clinic).*(area\s*11|garki)|(area\s*11|garki).*(fcda.*clinic)/i, coords: [7.4980, 9.0320], label: "FCDA Staff Clinic, Area 11, Garki, Abuja" },
+
   { regex: /reggy\s*emmanuel/i, coords: [7.3235, 9.1585], label: "Reggy Emmanuel Rd, Kubwa, Abuja" },
   { regex: /(igbenidion|igbinedion)/i, coords: [7.3385, 9.1455], label: "9 E.O Igbinedion Cres, Kubwa, Abuja" },
   { regex: /(phase\s*4|4th\s*phase).*(kubwa)|(kubwa).*(phase\s*4|4th\s*phase)/i, coords: [7.3235, 9.1585], label: "Phase 4, Kubwa, Abuja" },
@@ -1202,6 +1274,40 @@ const ABUJA_LOCAL_LANDMARKS = [
 
   // Central Area / CBD
   { regex: /(central\s*(area|business\s*district)|cbd|national\s*mosque)/i, coords: [7.4900, 9.0550], label: "Central Business District, Abuja" }
+];
+
+// Curated autocomplete dictionary for fast, disambiguated landmark searches on web & WhatsApp
+const ABUJA_SUGGESTION_CATALOG = [
+  // FCDA Clinics & Hospitals (Clear distinction between Kubwa and Area 11 Garki)
+  { title: "FCDA Clinic (Kubwa)", subtitle: "Kubwa, Abuja", address: "FCDA Clinic, Kubwa, Abuja", badge: "Kubwa", isKubwa: true, icon: "fa-hospital", keywords: ["fcda", "fcda clinic", "clinic", "fcda kubwa", "fcda clinic kubwa", "hospital"] },
+  { title: "FCDA Staff Clinic (Area 11)", subtitle: "Area 11, Garki, Abuja (~30km away)", address: "FCDA Staff Clinic, Area 11, Garki, Abuja", badge: "Garki", isKubwa: false, icon: "fa-hospital", keywords: ["fcda", "fcda clinic", "fcda staff", "area 11", "garki"] },
+  { title: "Kubwa General Hospital", subtitle: "Phase 4, Kubwa, Abuja", address: "Kubwa General Hospital, Abuja", badge: "Kubwa", isKubwa: true, icon: "fa-hospital", keywords: ["general hospital", "kubwa hospital", "hospital"] },
+  
+  // Kubwa Phases & Local Hubs
+  { title: "Phase 4, Kubwa", subtitle: "Near Reggy Emmanuel / FCDA, Kubwa, Abuja", address: "Phase 4, Kubwa, Abuja", badge: "Kubwa", isKubwa: true, icon: "fa-location-dot", keywords: ["phase 4", "4th phase", "kubwa"] },
+  { title: "Phase 3, Kubwa", subtitle: "Kubwa, Abuja", address: "Phase 3, Kubwa, Abuja", badge: "Kubwa", isKubwa: true, icon: "fa-location-dot", keywords: ["phase 3", "3rd phase", "kubwa"] },
+  { title: "Phase 2, Kubwa", subtitle: "Kubwa, Abuja", address: "Phase 2, Kubwa, Abuja", badge: "Kubwa", isKubwa: true, icon: "fa-location-dot", keywords: ["phase 2", "2nd phase", "kubwa"] },
+  { title: "Phase 1, Kubwa", subtitle: "Kubwa, Abuja", address: "Phase 1, Kubwa, Abuja", badge: "Kubwa", isKubwa: true, icon: "fa-location-dot", keywords: ["phase 1", "1st phase", "kubwa"] },
+  { title: "F01 / FHA / Apo 1", subtitle: "F01, Kubwa, Abuja", address: "F01 / FHA / Apo 1, Kubwa, Abuja", badge: "Kubwa", isKubwa: true, icon: "fa-building", keywords: ["f01", "fo1", "fha", "apo 1", "kubwa"] },
+  { title: "PW, Kubwa", subtitle: "PW Bridge / Gado Nasko, Kubwa, Abuja", address: "PW, Kubwa, Abuja", badge: "Kubwa", isKubwa: true, icon: "fa-road", keywords: ["pw", "p.w.", "gado nasko", "kubwa"] },
+  { title: "Arab Road, Kubwa", subtitle: "Kubwa, Abuja", address: "Arab Road, Kubwa, Abuja", badge: "Kubwa", isKubwa: true, icon: "fa-road", keywords: ["arab road", "arab", "kubwa"] },
+  { title: "Byazhin, Kubwa", subtitle: "Byazhin Across, Kubwa, Abuja", address: "Byazhin, Kubwa, Abuja", badge: "Kubwa", isKubwa: true, icon: "fa-location-dot", keywords: ["byazhin", "kubwa"] },
+  { title: "Kubwa Village / Market", subtitle: "Kubwa, Abuja", address: "Kubwa Village / Market, Abuja", badge: "Kubwa", isKubwa: true, icon: "fa-shop", keywords: ["kubwa market", "village", "market"] },
+  { title: "9 E.O Igbinedion Crescent", subtitle: "Off Gado Nasko Rd, Kubwa, Abuja", address: "9 E.O Igbinedion Cres, Kubwa, Abuja", badge: "Kubwa", isKubwa: true, icon: "fa-house", keywords: ["igbinedion", "igbenidion", "gado nasko"] },
+  { title: "Reggy Emmanuel Road", subtitle: "Phase 4, Kubwa, Abuja", address: "Reggy Emmanuel Rd, Kubwa, Abuja", badge: "Kubwa", isKubwa: true, icon: "fa-road", keywords: ["reggy emmanuel", "reggy", "kubwa"] },
+  { title: "FCDA Owner Occupier Estate", subtitle: "Kubwa, Abuja", address: "FCDA Owner Occupier Estate, Kubwa, Abuja", badge: "Kubwa", isKubwa: true, icon: "fa-city", keywords: ["owner occupier", "fcda estate", "kubwa"] },
+
+  // Gwarinpa, Wuse, Jabi, Maitama, Central
+  { title: "1st Avenue, Gwarinpa", subtitle: "Gwarinpa Estate, Abuja", address: "1st Avenue, Gwarinpa, Abuja", badge: "Gwarinpa", isKubwa: false, icon: "fa-city", keywords: ["1st ave", "first ave", "gwarinpa"] },
+  { title: "2nd Avenue, Gwarinpa", subtitle: "Gwarinpa Estate, Abuja", address: "2nd Avenue, Gwarinpa, Abuja", badge: "Gwarinpa", isKubwa: false, icon: "fa-city", keywords: ["2nd ave", "second ave", "gwarinpa"] },
+  { title: "3rd Avenue, Gwarinpa", subtitle: "Gwarinpa Estate, Abuja", address: "3rd Avenue, Gwarinpa, Abuja", badge: "Gwarinpa", isKubwa: false, icon: "fa-city", keywords: ["3rd ave", "third ave", "gwarinpa"] },
+  { title: "Banex Plaza, Wuse 2", subtitle: "Aminu Kano Cres, Wuse 2, Abuja", address: "Banex Plaza, Wuse 2, Abuja", badge: "Wuse 2", isKubwa: false, icon: "fa-shop", keywords: ["banex", "banex plaza", "wuse 2"] },
+  { title: "Jabi Lake Mall", subtitle: "Jabi, Abuja", address: "Jabi Lake Mall, Jabi, Abuja", badge: "Jabi", isKubwa: false, icon: "fa-cart-shopping", keywords: ["jabi", "jabi lake mall", "jabi mall"] },
+  { title: "Maitama District", subtitle: "Maitama, Abuja", address: "Maitama, Abuja", badge: "Maitama", isKubwa: false, icon: "fa-city", keywords: ["maitama"] },
+  { title: "Utako District", subtitle: "Utako, Abuja", address: "Utako District, Abuja", badge: "Utako", isKubwa: false, icon: "fa-city", keywords: ["utako"] },
+  { title: "Dutse Alhaji", subtitle: "Bwari / Kubwa Expressway, Abuja", address: "Dutse Alhaji, Abuja", badge: "Dutse", isKubwa: false, icon: "fa-location-dot", keywords: ["dutse", "dutse alhaji"] },
+  { title: "Dawaki", subtitle: "Near Gwarinpa, Abuja", address: "Dawaki, Abuja", badge: "Dawaki", isKubwa: false, icon: "fa-location-dot", keywords: ["dawaki"] },
+  { title: "Central Business District (CBD)", subtitle: "Central Area, Abuja", address: "Central Business District, Abuja", badge: "CBD", isKubwa: false, icon: "fa-building-columns", keywords: ["central area", "cbd", "central business district"] }
 ];
 
 // --- Enhanced Helper Functions for Distance & Resilient Geocoding in Nigeria ---

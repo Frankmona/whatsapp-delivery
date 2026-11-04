@@ -47,6 +47,7 @@
   }
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -211,19 +212,29 @@
             </div>
 
             <div class="space-y-4">
-              <div>
-                <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Pickup Location</label>
+              <!-- Pickup Location with Autocomplete -->
+              <div class="relative">
+                <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider flex items-center justify-between">
+                  <span>Pickup Location</span>
+                  <span class="text-[10px] text-emerald-400 font-medium lowercase">smart suggestions on</span>
+                </label>
                 <div class="relative">
                   <span class="absolute left-3.5 top-3.5 text-emerald-400">📍</span>
-                  <input id="quickPickup" type="text" placeholder="e.g. Wuse 2, Abuja" value="Wuse 2, Abuja" class="w-full bg-slate-900/90 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
+                  <input id="quickPickup" type="text" autocomplete="off" placeholder="e.g. FCDA Clinic, Kubwa or Wuse 2" value="FCDA Clinic, Kubwa, Abuja" class="w-full bg-slate-900/90 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
+                  <div id="quickPickupDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-slate-900/98 backdrop-blur-xl border border-slate-700/80 rounded-2xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-800/80 max-h-64 overflow-y-auto"></div>
                 </div>
               </div>
 
-              <div>
-                <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider">Delivery Destination</label>
+              <!-- Delivery Destination with Autocomplete -->
+              <div class="relative">
+                <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wider flex items-center justify-between">
+                  <span>Delivery Destination</span>
+                  <span class="text-[10px] text-emerald-400 font-medium lowercase">smart suggestions on</span>
+                </label>
                 <div class="relative">
                   <span class="absolute left-3.5 top-3.5 text-rose-400">🏁</span>
-                  <input id="quickDelivery" type="text" placeholder="e.g. Kubwa, Abuja" value="Kubwa, Abuja" class="w-full bg-slate-900/90 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
+                  <input id="quickDelivery" type="text" autocomplete="off" placeholder="e.g. Phase 4, Kubwa or Gwarinpa" value="Phase 4, Kubwa, Abuja" class="w-full bg-slate-900/90 border border-slate-800 rounded-xl py-3 pl-10 pr-4 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
+                  <div id="quickDeliveryDropdown" class="hidden absolute left-0 right-0 top-full mt-1.5 bg-slate-900/98 backdrop-blur-xl border border-slate-700/80 rounded-2xl shadow-2xl z-50 overflow-hidden divide-y divide-slate-800/80 max-h-64 overflow-y-auto"></div>
                 </div>
               </div>
 
@@ -778,6 +789,94 @@
         btn.innerText = 'Track Order';
       }
     }
+
+    // --- Live Location Autocomplete with Disambiguation (e.g. FCDA Clinic Kubwa vs Area 11) ---
+    function setupLocationAutocomplete(inputId, dropdownId) {
+      const input = document.getElementById(inputId);
+      const dropdown = document.getElementById(dropdownId);
+      if (!input || !dropdown) return;
+
+      let debounceTimer = null;
+
+      input.addEventListener('input', () => {
+        clearTimeout(debounceTimer);
+        const query = input.value.trim();
+
+        if (query.length < 2) {
+          dropdown.innerHTML = '';
+          dropdown.classList.add('hidden');
+          return;
+        }
+
+        debounceTimer = setTimeout(async () => {
+          try {
+            const res = await fetch(`/api/places-autocomplete?query=${encodeURIComponent(query)}`);
+            const data = await res.json();
+
+            if (!data.success || !data.suggestions || data.suggestions.length === 0) {
+              dropdown.innerHTML = '';
+              dropdown.classList.add('hidden');
+              return;
+            }
+
+            dropdown.innerHTML = data.suggestions.map(s => `
+              <div onclick="selectLocationSuggestion('${inputId}', '${dropdownId}', '${s.address.replace(/'/g, "\\'")}')" 
+                   class="p-3 hover:bg-slate-800/90 cursor-pointer transition flex items-center justify-between gap-3 group">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-8 h-8 rounded-xl bg-slate-800 group-hover:bg-emerald-500/20 text-slate-400 group-hover:text-emerald-400 flex items-center justify-center text-sm shrink-0 transition">
+                    <i class="fa-solid ${s.icon || 'fa-location-dot'}"></i>
+                  </div>
+                  <div class="truncate text-left">
+                    <div class="text-white text-xs sm:text-sm font-bold truncate group-hover:text-emerald-300 transition">${s.title}</div>
+                    <div class="text-slate-400 text-[11px] truncate">${s.subtitle}</div>
+                  </div>
+                </div>
+                <div class="shrink-0">
+                  <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full ${s.isKubwa ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-slate-800 text-slate-300 border border-slate-700'}">
+                    ${s.badge || 'Abuja'}
+                  </span>
+                </div>
+              </div>
+            `).join('');
+
+            dropdown.classList.remove('hidden');
+          } catch (e) {
+            console.warn('Autocomplete fetch failed:', e);
+          }
+        }, 150);
+      });
+
+      // Close dropdown if user clicks outside
+      document.addEventListener('click', (e) => {
+        if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+          dropdown.classList.add('hidden');
+        }
+      });
+
+      // Close on escape
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') dropdown.classList.add('hidden');
+      });
+    }
+
+    function selectLocationSuggestion(inputId, dropdownId, fullAddress) {
+      const input = document.getElementById(inputId);
+      const dropdown = document.getElementById(dropdownId);
+      if (input) {
+        input.value = fullAddress;
+        input.classList.add('border-emerald-500', 'ring-2', 'ring-emerald-500/40');
+        setTimeout(() => {
+          input.classList.remove('ring-2', 'ring-emerald-500/40');
+        }, 600);
+      }
+      if (dropdown) dropdown.classList.add('hidden');
+    }
+
+    // Initialize autocompletes on load
+    document.addEventListener('DOMContentLoaded', () => {
+      setupLocationAutocomplete('quickPickup', 'quickPickupDropdown');
+      setupLocationAutocomplete('quickDelivery', 'quickDeliveryDropdown');
+    });
   </script>
 </body>
 </html>
