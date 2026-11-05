@@ -48,6 +48,8 @@
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -361,6 +363,17 @@
           </button>
         </form>
 
+        <div class="flex flex-wrap items-center justify-between text-xs text-slate-400 gap-2 px-1">
+          <span>Format: <code class="text-sky-400 font-mono">FMX_...</code> or Paystack ref</span>
+          <button type="button" onclick="loadLiveFleetRadar()" class="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1.5 transition">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span>🛰️ View Live Fleet Radar (Kubwa)</span>
+          </button>
+        </div>
+
         <div id="trackingResult" class="hidden space-y-6 pt-4 border-t border-slate-800">
           <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
@@ -372,7 +385,7 @@
             </div>
           </div>
 
-          <div class="grid sm:grid-cols-2 gap-4 text-xs">
+          <div id="trackLocationsBox" class="grid sm:grid-cols-2 gap-4 text-xs">
             <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-1">
               <span class="text-slate-400">📍 Pickup:</span>
               <p id="trackPickup" class="font-semibold text-white text-sm">--</p>
@@ -392,6 +405,35 @@
               </div>
             </div>
             <a id="trackRiderCall" href="#" class="px-4 py-2 bg-emerald-500 text-slate-950 font-bold text-xs rounded-lg hover:bg-emerald-400 transition">Call Rider</a>
+          </div>
+
+          <!-- Live Hardware GPS Satellite Radar Map -->
+          <div id="trackLiveMapContainer" class="hidden rounded-2xl overflow-hidden border border-slate-700 bg-slate-900/95 shadow-2xl">
+            <div class="flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-slate-800 text-xs">
+              <div class="flex items-center gap-2">
+                <span class="relative flex h-2.5 w-2.5">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span class="font-bold text-white flex items-center gap-1.5">
+                  <span>🏍️</span>
+                  <span>Live Satellite Bike Radar</span>
+                </span>
+                <span id="trackBikePlate" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">LD3P CMCP / RSH394DM</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span id="trackBikeSpeed" class="text-emerald-400 font-mono font-bold text-xs">0 km/h</span>
+                <span id="trackBikeStatus" class="text-[10px] text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700/60 hidden sm:inline">Engine Active</span>
+              </div>
+            </div>
+            <div id="liveTrackingMap" class="h-64 sm:h-80 w-full z-10"></div>
+            <div class="px-4 py-2.5 bg-slate-950/80 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+              <span class="flex items-center gap-1.5">
+                <i class="fa-solid fa-satellite text-emerald-400 text-xs"></i>
+                <span id="trackGpsTimestamp">Connected to iTrackSafe Telemetry Engine</span>
+              </span>
+              <span class="text-emerald-400/90 font-mono text-[10px]">4s Telemetry Refresh</span>
+            </div>
           </div>
         </div>
 
@@ -804,6 +846,180 @@
       }
     }
 
+    // --- Live Satellite Hardware GPS Radar Tracking Engine ---
+    let liveRadarMap = null;
+    let bikeMarkers = {};
+    let bikeAccuracyCircles = {};
+    let liveRadarPollTimer = null;
+
+    function createBikeMarkerIcon(heading = 0, isAccOn = true) {
+      return L.divIcon({
+        className: 'fmx-radar-marker',
+        html: `
+          <div style="position: relative; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
+            <div style="position: absolute; width: 42px; height: 42px; border-radius: 50%; background: ${isAccOn ? 'rgba(16, 185, 129, 0.3)' : 'rgba(148, 163, 184, 0.2)'}; animation: ping 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+            <div style="position: relative; width: 34px; height: 34px; border-radius: 50%; background: #090d16; border: 2px solid ${isAccOn ? '#10b981' : '#64748b'}; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.7); transform: rotate(${heading}deg); transition: transform 0.4s ease;">
+              <span style="font-size: 17px; line-height: 1;">🏍️</span>
+            </div>
+          </div>
+        `,
+        iconSize: [44, 44],
+        iconAnchor: [22, 22]
+      });
+    }
+
+    function initOrUpdateRadarMap(bikes) {
+      const mapContainer = document.getElementById('trackLiveMapContainer');
+      if (mapContainer) mapContainer.classList.remove('hidden');
+
+      if (!bikes || bikes.length === 0) return;
+
+      const primaryBike = bikes[0];
+      const initialLat = primaryBike.lat || 9.156695;
+      const initialLng = primaryBike.lng || 7.329450;
+
+      // Update header telemetry badges
+      const speedEl = document.getElementById('trackBikeSpeed');
+      if (speedEl) speedEl.innerText = `${primaryBike.speedKmH || 0} km/h`;
+
+      const statusEl = document.getElementById('trackBikeStatus');
+      if (statusEl) {
+        statusEl.innerText = primaryBike.isAccOn ? 'Engine Running' : (primaryBike.statusText || 'Stationary');
+        statusEl.className = primaryBike.isAccOn
+          ? 'text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded hidden sm:inline font-medium'
+          : 'text-[10px] text-slate-400 bg-slate-800/80 border border-slate-700/60 px-2 py-0.5 rounded hidden sm:inline';
+      }
+
+      const plateEl = document.getElementById('trackBikePlate');
+      if (plateEl) {
+        plateEl.innerText = bikes.length > 1 ? `${bikes.length} Bikes Patrolling Kubwa` : (primaryBike.deviceId || 'FM XPRESS Patrol');
+      }
+
+      const timeEl = document.getElementById('trackGpsTimestamp');
+      if (timeEl && primaryBike.lastUpdateTime) {
+        try {
+          const date = new Date(primaryBike.lastUpdateTime);
+          timeEl.innerText = `GPS fix: ${date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })} • Kubwa`;
+        } catch (_) {}
+      }
+
+      // Initialize Leaflet map if not yet initialized
+      if (!liveRadarMap) {
+        liveRadarMap = L.map('liveTrackingMap', {
+          zoomControl: true,
+          attributionControl: false
+        }).setView([initialLat, initialLng], 15);
+
+        // Stealth Dark Matter map tiles
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+          maxZoom: 19,
+          subdomains: 'abcd'
+        }).addTo(liveRadarMap);
+      }
+
+      // Render or smoothly update each bike marker
+      const bounds = [];
+      bikes.forEach((bike, idx) => {
+        const id = bike.deviceId || `bike-${idx}`;
+        const bLat = bike.lat;
+        const bLng = bike.lng;
+        bounds.push([bLat, bLng]);
+
+        const icon = createBikeMarkerIcon(bike.course || 0, bike.isAccOn);
+
+        if (!bikeMarkers[id]) {
+          bikeMarkers[id] = L.marker([bLat, bLng], { icon }).addTo(liveRadarMap);
+          bikeAccuracyCircles[id] = L.circle([bLat, bLng], {
+            radius: 35,
+            color: '#10b981',
+            fillColor: '#10b981',
+            fillOpacity: 0.12,
+            weight: 1
+          }).addTo(liveRadarMap);
+
+          const popupContent = `
+            <div style="font-family: inherit; font-size: 12px; color: #0f172a; line-height: 1.4;">
+              <b style="color: #0f172a;">🏍️ FM XPRESS Bike ${idx + 1}</b><br/>
+              <span style="color: #64748b; font-size: 11px;">Status: ${bike.isAccOn ? '⚡ In Transit' : '🅿️ ' + (bike.statusText || 'Stationary')}</span><br/>
+              <span style="color: #059669; font-weight: 600;">Speed: ${bike.speedKmH || 0} km/h</span>
+            </div>
+          `;
+          bikeMarkers[id].bindPopup(popupContent);
+        } else {
+          bikeMarkers[id].setLatLng([bLat, bLng]);
+          bikeMarkers[id].setIcon(icon);
+          if (bikeAccuracyCircles[id]) {
+            bikeAccuracyCircles[id].setLatLng([bLat, bLng]);
+          }
+        }
+      });
+
+      // Fit or center
+      if (bounds.length === 1) {
+        liveRadarMap.panTo(bounds[0]);
+      } else if (bounds.length > 1) {
+        liveRadarMap.fitBounds(bounds, { padding: [40, 40], maxZoom: 16 });
+      }
+
+      setTimeout(() => {
+        if (liveRadarMap) liveRadarMap.invalidateSize();
+      }, 250);
+    }
+
+    function startLiveRadarPolling() {
+      if (liveRadarPollTimer) clearInterval(liveRadarPollTimer);
+      liveRadarPollTimer = setInterval(async () => {
+        try {
+          const res = await fetch('/api/fleet/live-bikes');
+          const data = await res.json();
+          if (data.success && data.bikes && data.bikes.length > 0) {
+            initOrUpdateRadarMap(data.bikes);
+          }
+        } catch (e) {
+          console.warn('[Radar Polling] Telemetry retry in 4s:', e.message);
+        }
+      }, 4000);
+    }
+
+    async function loadLiveFleetRadar() {
+      const resultBox = document.getElementById('trackingResult');
+      const errBox = document.getElementById('trackingError');
+      const refEl = document.getElementById('trackRef');
+      const badge = document.getElementById('trackStatusBadge');
+      const locationsBox = document.getElementById('trackLocationsBox');
+      const riderBox = document.getElementById('trackRiderBox');
+
+      if (errBox) errBox.classList.add('hidden');
+      if (resultBox) resultBox.classList.remove('hidden');
+
+      if (refEl) refEl.innerText = 'FM XPRESS FLEET RADAR';
+      if (badge) {
+        badge.className = 'px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30';
+        badge.innerText = 'LIVE PATROL (KUBWA)';
+      }
+      if (locationsBox) locationsBox.classList.add('hidden');
+      if (riderBox) riderBox.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/fleet/live-bikes');
+        const data = await res.json();
+        if (data.success && data.bikes && data.bikes.length > 0) {
+          initOrUpdateRadarMap(data.bikes);
+          startLiveRadarPolling();
+        } else {
+          initOrUpdateRadarMap([{ lat: 9.156695, lng: 7.329450, speedKmH: 0, course: 261, isAccOn: false, statusText: 'Patrol Active' }]);
+        }
+      } catch (err) {
+        initOrUpdateRadarMap([{ lat: 9.156695, lng: 7.329450, speedKmH: 0, course: 261, isAccOn: false, statusText: 'Patrol Active' }]);
+      }
+
+      // Smooth scroll to radar map
+      const mapContainer = document.getElementById('trackLiveMapContainer');
+      if (mapContainer) {
+        mapContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
     async function trackOrder(e) {
       e.preventDefault();
       const ref = document.getElementById('trackingInput').value.trim();
@@ -828,6 +1044,9 @@
           document.getElementById('trackPickup').innerText = o.pickup;
           document.getElementById('trackDelivery').innerText = o.delivery;
 
+          const locationsBox = document.getElementById('trackLocationsBox');
+          if (locationsBox) locationsBox.classList.remove('hidden');
+
           const badge = document.getElementById('trackStatusBadge');
           if (o.status === 'paid') {
             badge.className = 'px-3.5 py-1.5 rounded-full text-xs font-bold bg-sky-500/10 text-sky-400 border border-sky-500/30';
@@ -851,6 +1070,22 @@
           }
 
           resultBox.classList.remove('hidden');
+
+          // Launch live hardware GPS radar map
+          if (o.liveTracker) {
+            initOrUpdateRadarMap([o.liveTracker]);
+            startLiveRadarPolling();
+          } else {
+            fetch('/api/fleet/live-bikes')
+              .then(r => r.json())
+              .then(d => {
+                if (d.success && d.bikes) {
+                  initOrUpdateRadarMap(d.bikes);
+                  startLiveRadarPolling();
+                }
+              })
+              .catch(() => {});
+          }
         } else {
           errBox.classList.remove('hidden');
         }

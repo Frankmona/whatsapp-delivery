@@ -6,6 +6,7 @@ const path = require('path');
 const crypto = require('crypto');
 const axios = require('axios');
 const { createClient } = require('@supabase/supabase-js');
+const iTrackSafe = require('./itracksafe');
 
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://drsvzbrculuyavaqboku.supabase.co';
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRyc3Z6YnJjdWx1eWF2YXFib2t1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1Mzc0ODksImV4cCI6MjEwNzExMzQ4OX0.BINwbWPp1x3S_fiFyzytIpQ8_iICJGJoqsj_dJlK480';
@@ -654,7 +655,7 @@ app.get('/api/test-route', async (req, res) => {
   }
 });
 
-// Public endpoint for website tracking widget
+// Public endpoint for website tracking widget with Live GPS radar
 app.get('/api/track/:reference', async (req, res) => {
   try {
     const { reference } = req.params;
@@ -669,6 +670,15 @@ app.get('/api/track/:reference', async (req, res) => {
     }
 
     const order = orders[0];
+
+    // Fetch live hardware bike GPS position from iTrackSafe
+    let liveTracker = null;
+    try {
+      liveTracker = await iTrackSafe.getBikeLocation();
+    } catch (gpsErr) {
+      console.warn('[Tracking Engine] Could not fetch live GPS:', gpsErr.message);
+    }
+
     res.json({
       success: true,
       order: {
@@ -679,8 +689,23 @@ app.get('/api/track/:reference', async (req, res) => {
         distanceKm: order.distance_km,
         price: order.price_ngn,
         createdAt: order.created_at,
-        rider: order.riders ? { name: order.riders.name, phone: order.riders.phone_number } : null
+        rider: order.riders ? { name: order.riders.name, phone: order.riders.phone_number } : null,
+        liveTracker
       }
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Live Fleet GPS Radar endpoint
+app.get('/api/fleet/live-bikes', async (req, res) => {
+  try {
+    const bikes = await iTrackSafe.getAllBikePositions();
+    res.json({
+      success: true,
+      count: bikes.length,
+      bikes
     });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
