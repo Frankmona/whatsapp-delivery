@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FM XPRESS — WhatsApp Video Spotlight Studio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #020617;
+      color: #F8FAFC;
+    }
+    .font-heading {
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    /* Phone Mockup Frame */
+    .phone-bezel {
+      box-shadow: 0 0 0 12px #0f172a, 0 0 0 14px #334155, 0 25px 60px -15px rgba(0,0,0,0.9);
+      border-radius: 44px;
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .glow-emerald {
+      box-shadow: 0 0 30px -5px rgba(16, 185, 129, 0.4);
+    }
+  </style>
+</head>
+<body class="min-h-screen py-8 px-4 sm:px-6 lg:px-8 selection:bg-emerald-500 selection:text-slate-950">
+
+  <div class="max-w-7xl mx-auto space-y-8">
+    
+    <!-- Top Navigation Header -->
+    <header class="flex flex-wrap items-center justify-between gap-4 pb-6 border-b border-slate-800/80">
+      <div class="flex items-center gap-3">
+        <a href="/" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 hover:text-white hover:border-slate-700 transition text-xs font-semibold">
+          <i class="fa-solid fa-arrow-left"></i>
+          <span>Back to FM XPRESS</span>
+        </a>
+        <div class="h-4 w-px bg-slate-800"></div>
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+          <h1 class="font-heading font-extrabold text-lg text-white">WhatsApp Video Spotlight Studio</h1>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">9:16 Vertical HD</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button onclick="handleRecordAndDownload()" id="btnTopRecord" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-black text-xs hover:from-emerald-400 hover:to-teal-300 transition shadow-lg shadow-emerald-500/25 flex items-center gap-2">
+          <i class="fa-solid fa-download"></i>
+          <span>Download MP4 for WhatsApp</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Studio Layout: Player (Left) + Controller (Right) -->
+    <div class="grid lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- Video Player Bezel (Left 7 Columns) -->
+      <div class="lg:col-span-7 flex flex-col items-center space-y-6">
+        
+        <!-- Vertical Phone Frame -->
+        <div class="relative w-[340px] sm:w-[380px] aspect-[9/16] phone-bezel overflow-hidden bg-slate-950 border border-slate-800">
+          
+          <!-- Hidden High-Res Render Canvas (1080x1920) -->
+          <canvas id="videoCanvas" width="1080" height="1920" class="w-full h-full object-cover block"></canvas>
+
+          <!-- Top Speaker / Camera Notch -->
+          <div class="absolute top-3 left-1/2 -translate-x-1/2 w-28 h-5 bg-slate-900 rounded-full flex items-center justify-center gap-2 z-20 pointer-events-none border border-slate-800/80">
+            <span class="w-2.5 h-2.5 rounded-full bg-slate-950"></span>
+            <span class="w-8 h-1 rounded-full bg-slate-800"></span>
+          </div>
+
+          <!-- Video Playing Watermark Indicator -->
+          <div id="recordingBadge" class="hidden absolute top-12 left-4 z-20 bg-rose-600/90 text-white font-mono text-[10px] px-2.5 py-1 rounded-full font-bold flex items-center gap-1.5 shadow-lg border border-rose-400/30 animate-pulse">
+            <span class="w-2 h-2 rounded-full bg-white"></span>
+            <span>RECORDING MP4...</span>
+          </div>
+
+          <!-- Live Timestamp Overlay -->
+          <div class="absolute top-12 right-4 z-20 bg-slate-900/80 backdrop-blur text-emerald-400 font-mono text-[10px] px-2.5 py-1 rounded-full font-bold border border-slate-800">
+            <span id="playerTime">00:00</span> / 00:32
+          </div>
+        </div>
+
+        <!-- Transport & Timeline Controls -->
+        <div class="w-full max-w-[420px] bg-slate-900/90 border border-slate-800 rounded-2xl p-4 space-y-3">
+          
+          <!-- Timeline Scrubber -->
+          <div class="space-y-1">
+            <input type="range" id="timeSlider" min="0" max="32" step="0.1" value="0" class="w-full accent-emerald-500 cursor-pointer">
+            <div class="flex justify-between text-[11px] text-slate-400 font-mono">
+              <span id="sliderTimeLabel">0.0s</span>
+              <span>32.0s</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex items-center justify-between pt-1">
+            <div class="flex items-center gap-2">
+              <button onclick="togglePlayPause()" id="btnPlayPause" class="w-10 h-10 rounded-xl bg-emerald-500 text-slate-950 flex items-center justify-center font-bold text-sm hover:bg-emerald-400 transition shadow-md shadow-emerald-500/20">
+                <i id="playIcon" class="fa-solid fa-play"></i>
+              </button>
+              <button onclick="restartVideo()" title="Restart" class="w-10 h-10 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition flex items-center justify-center text-sm">
+                <i class="fa-solid fa-rotate-left"></i>
+              </button>
+              <button onclick="toggleAudio()" id="btnAudio" title="Toggle Sound" class="w-10 h-10 rounded-xl bg-slate-800 text-slate-300 hover:text-white hover:bg-slate-700 transition flex items-center justify-center text-sm">
+                <i id="audioIcon" class="fa-solid fa-volume-high text-emerald-400"></i>
+              </button>
+            </div>
+
+            <!-- Scene Jump Shortcuts -->
+            <div class="flex items-center gap-1 text-[11px]">
+              <button onclick="seekTo(0)" class="px-2 py-1 rounded bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition">1: Intro</button>
+              <button onclick="seekTo(6)" class="px-2 py-1 rounded bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition">2: Chat</button>
+              <button onclick="seekTo(12)" class="px-2 py-1 rounded bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition">3: Radar</button>
+              <button onclick="seekTo(25)" class="px-2 py-1 rounded bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition">4: CTA</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Settings & Export Panel (Right 5 Columns) -->
+      <div class="lg:col-span-5 space-y-6">
+        
+        <!-- Highlights Card -->
+        <div class="glass-card rounded-3xl p-6 space-y-5 border border-slate-800">
+          <div class="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Video Storyline & Features Included</span>
+          </div>
+
+          <div class="space-y-3.5 text-xs">
+            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-900/80 border border-slate-800/80">
+              <span class="w-6 h-6 rounded-lg bg-emerald-500/10 text-emerald-400 font-bold flex items-center justify-center shrink-0">1</span>
+              <div>
+                <p class="font-bold text-white">0s–6s: Abuja Launch & Hook</p>
+                <p class="text-slate-400 text-[11px]">3D FM XPRESS logo, motorcycle fleet, and "No App Required" banner.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-900/80 border border-slate-800/80">
+              <span class="w-6 h-6 rounded-lg bg-sky-500/10 text-sky-400 font-bold flex items-center justify-center shrink-0">2</span>
+              <div>
+                <p class="font-bold text-white">6s–12s: 15-Second WhatsApp Booking</p>
+                <p class="text-slate-400 text-[11px]">Simulated live WhatsApp chat booking with distance & instant transparent price.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-900/80 border border-slate-800/80">
+              <span class="w-6 h-6 rounded-lg bg-teal-500/10 text-teal-400 font-bold flex items-center justify-center shrink-0">3</span>
+              <div>
+                <p class="font-bold text-white">12s–20s: Live Satellite Hardware GPS Radar</p>
+                <p class="text-slate-400 text-[11px]">Showcases the live motorcycle radar map in Kubwa with animated radar sweeps & speed.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-900/80 border border-slate-800/80">
+              <span class="w-6 h-6 rounded-lg bg-amber-500/10 text-amber-400 font-bold flex items-center justify-center shrink-0">4</span>
+              <div>
+                <p class="font-bold text-white">20s–25s: Security & Dispatch Cargo Boxes</p>
+                <p class="text-slate-400 text-[11px]">Features verified riders and the heavy-duty branded cargo dispatch boxes.</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-3 p-3 rounded-xl bg-slate-900/80 border border-slate-800/80">
+              <span class="w-6 h-6 rounded-lg bg-rose-500/10 text-rose-400 font-bold flex items-center justify-center shrink-0">5</span>
+              <div>
+                <p class="font-bold text-white">25s–32s: High-Conversion WhatsApp CTA</p>
+                <p class="text-slate-400 text-[11px]">Prominent <strong>0903 686 9830</strong> phone badge, website link, and launch call-out.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customization Options -->
+        <div class="glass-card rounded-3xl p-6 space-y-4 border border-slate-800">
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Custom Text / Branding</h3>
+          
+          <div class="space-y-3 text-xs">
+            <div>
+              <label class="block text-slate-400 mb-1 font-medium">WhatsApp Booking Phone:</label>
+              <input type="text" id="customPhone" value="0903 686 9830" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white font-mono focus:outline-none focus:border-emerald-500">
+            </div>
+
+            <div>
+              <label class="block text-slate-400 mb-1 font-medium">Primary Hub / Location:</label>
+              <input type="text" id="customDistrict" value="Kubwa • Across All Abuja Districts" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+            </div>
+
+            <div>
+              <label class="block text-slate-400 mb-1 font-medium">Official Website Link:</label>
+              <input type="text" id="customUrl" value="fmxpress.tekvolutionhq.com" class="w-full bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-white font-mono focus:outline-none focus:border-emerald-500">
+            </div>
+          </div>
+        </div>
+
+        <!-- Export Action Card -->
+        <div class="glass-card rounded-3xl p-6 space-y-4 border border-emerald-500/30 bg-gradient-to-b from-slate-900 to-slate-950 glow-emerald">
+          <div class="space-y-1">
+            <h3 class="text-base font-extrabold text-white">Export Video for WhatsApp</h3>
+            <p class="text-slate-400 text-xs">
+              Generates a crisp 1080x1920 MP4 video formatted for WhatsApp Status, Stories, and Instagram Reels.
+            </p>
+          </div>
+
+          <button onclick="handleRecordAndDownload()" id="btnMainRecord" class="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-500 text-slate-950 font-black text-sm hover:opacity-95 transition shadow-xl shadow-emerald-500/30 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-circle-play text-base"></i>
+            <span>Record &amp; Download MP4 (32s)</span>
+          </button>
+
+          <!-- Progress Bar (Shown while recording) -->
+          <div id="renderProgressWrap" class="hidden space-y-2 pt-2">
+            <div class="flex items-center justify-between text-xs">
+              <span id="renderStatusText" class="text-emerald-400 font-bold">Rendering video frames...</span>
+              <span id="renderPercent" class="font-mono text-white">0%</span>
+            </div>
+            <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+              <div id="renderProgressBar" class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full rounded-full transition-all duration-100" style="width: 0%"></div>
+            </div>
+            <p class="text-[11px] text-slate-500 text-center">Please do not close this tab while your browser encodes the video.</p>
+          </div>
+
+          <!-- Success Alert -->
+          <div id="renderSuccessBox" class="hidden p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs space-y-2">
+            <p class="font-bold flex items-center gap-1.5">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Video Ready in Downloads Folder!</span>
+            </p>
+            <p class="text-[11px] text-emerald-400/80 leading-relaxed">
+              File saved as <strong>FM_XPRESS_WhatsApp_Spotlight.mp4</strong>. Open WhatsApp on your phone &rarr; go to <strong>Updates / Status</strong> &rarr; tap the Camera icon to post!
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- VIDEO RENDERING SCRIPT -->
+  <script>
+    const canvas = document.getElementById('videoCanvas');
+    const ctx = canvas.getContext('2d');
+    const DURATION = 32.0; // 32 seconds total
+
+    let isPlaying = false;
+    let currentTime = 0;
+    let lastTimestamp = null;
+    let isRecording = false;
+    let audioEnabled = true;
+
+    // Load Image Assets
+    const assets = {
+      threeBikes: new Image(),
+      boxMockup: new Image(),
+      badgeLogo: new Image()
+    };
+
+    assets.threeBikes.src = '/images/fmxpress_three_bikes.jpg';
+    assets.boxMockup.src = '/images/fmxpress_box_mockup_preview.png';
+    assets.badgeLogo.src = '/images/fmxpress_badge_emblem.png';
+
+    // Fallback if logo fails
+    assets.badgeLogo.onerror = () => {
+      assets.badgeLogo.src = '/images/fmxpress_logo_all_white.png';
+    };
+
+    // --- Web Audio Synthesizer for Dynamic Promo Beats ---
+    let audioCtx = null;
+    let audioDest = null;
+    let beatInterval = null;
+
+    function initAudio() {
+      if (audioCtx) return;
+      const AudioContext = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContext();
+      audioDest = audioCtx.createMediaStreamDestination();
+    }
+
+    function playKick(time) {
+      if (!audioCtx || !audioEnabled) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.frequency.setValueAtTime(140, time);
+        osc.frequency.exponentialRampToValueAtTime(32, time + 0.12);
+        gain.gain.setValueAtTime(0.8, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.15);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        if (audioDest) gain.connect(audioDest);
+        osc.start(time);
+        osc.stop(time + 0.16);
+      } catch(_) {}
+    }
+
+    function playRadarPing(time) {
+      if (!audioCtx || !audioEnabled) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(1200, time);
+        osc.frequency.exponentialRampToValueAtTime(800, time + 0.3);
+        gain.gain.setValueAtTime(0.3, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.4);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        if (audioDest) gain.connect(audioDest);
+        osc.start(time);
+        osc.stop(time + 0.45);
+      } catch(_) {}
+    }
+
+    function playWhoosh(time) {
+      if (!audioCtx || !audioEnabled) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(200, time);
+        osc.frequency.exponentialRampToValueAtTime(800, time + 0.25);
+        gain.gain.setValueAtTime(0.2, time);
+        gain.gain.exponentialRampToValueAtTime(0.001, time + 0.3);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        if (audioDest) gain.connect(audioDest);
+        osc.start(time);
+        osc.stop(time + 0.32);
+      } catch(_) {}
+    }
+
+    // --- Particle Field Engine ---
+    const particles = [];
+    for (let i = 0; i < 45; i++) {
+      particles.push({
+        x: Math.random() * 1080,
+        y: Math.random() * 1920,
+        size: Math.random() * 3 + 1,
+        speedY: Math.random() * 3 + 1,
+        alpha: Math.random() * 0.7 + 0.2
+      });
+    }
+
+    function updateAndDrawParticles() {
+      ctx.fillStyle = '#10b981';
+      particles.forEach(p => {
+        p.y -= p.speedY;
+        if (p.y < 0) p.y = 1920;
+        ctx.globalAlpha = p.alpha;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.globalAlpha = 1.0;
+    }
+
+    // --- High-Quality 1080x1920 Frame Renderer ---
+    function renderFrame(time) {
+      const w = 1080;
+      const h = 1920;
+
+      // Base Background (Deep Space / Stealth Slate)
+      ctx.fillStyle = '#020617';
+      ctx.fillRect(0, 0, w, h);
+
+      // Ambient Glow Gradient
+      const grad = ctx.createRadialGradient(w/2, h/2, 100, w/2, h/2, 900);
+      grad.addColorStop(0, 'rgba(16, 185, 129, 0.12)');
+      grad.addColorStop(0.5, 'rgba(2, 132, 199, 0.08)');
+      grad.addColorStop(1, 'rgba(2, 6, 23, 0.95)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, w, h);
+
+      updateAndDrawParticles();
+
+      // Top Persistent Header (FM XPRESS Logo & Badge)
+      renderTopHeader(time);
+
+      // SCENE 1 (0.0s – 6.0s): The Hook & Fleet Launch
+      if (time >= 0 && time < 6.0) {
+        renderScene1(time);
+      }
+      // SCENE 2 (6.0s – 12.0s): 15-Second WhatsApp Booking Simulation
+      else if (time >= 6.0 && time < 12.0) {
+        renderScene2(time - 6.0);
+      }
+      // SCENE 3 (12.0s – 20.0s): Live Satellite Hardware GPS Radar
+      else if (time >= 12.0 && time < 20.0) {
+        renderScene3(time - 12.0);
+      }
+      // SCENE 4 (20.0s – 25.5s): Verified Riders & Dispatch Cargo Boxes
+      else if (time >= 20.0 && time < 25.5) {
+        renderScene4(time - 20.0);
+      }
+      // SCENE 5 (25.5s – 32.0s): Grand Call To Action
+      else {
+        renderScene5(time - 25.5);
+      }
+
+      // Bottom Progress Line inside the video
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.fillRect(40, h - 50, w - 80, 8);
+      ctx.fillStyle = '#10b981';
+      ctx.fillRect(40, h - 50, (w - 80) * (time / DURATION), 8);
+    }
+
+    // Header Element
+    function renderTopHeader(time) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.7)';
+      ctx.fillRect(60, 80, 960, 110);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(60, 80, 960, 110);
+
+      // FM XPRESS Logo text
+      ctx.fillStyle = '#10b981';
+      ctx.font = '900 42px "Space Grotesk", sans-serif';
+      ctx.fillText('FM XPRESS', 100, 150);
+
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = '700 24px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('DISPATCH & LOGISTICS', 360, 150);
+
+      // Status Pill
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.2)';
+      ctx.fillRect(820, 110, 160, 50);
+      ctx.fillStyle = '#34d399';
+      ctx.font = '800 20px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('⚡ ABUJA', 860, 142);
+      ctx.restore();
+    }
+
+    // SCENE 1: The Hook
+    function renderScene1(t) {
+      const progress = t / 6.0;
+
+      ctx.save();
+      ctx.textAlign = 'center';
+
+      // Animated Headline
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 68px "Space Grotesk", sans-serif';
+      ctx.fillText("ABUJA'S FASTEST", 540, 360);
+      ctx.fillStyle = '#10b981';
+      ctx.fillText("MOTORCYCLE DISPATCH", 540, 445);
+
+      // Pill: No app downloads
+      ctx.fillStyle = 'rgba(2, 132, 199, 0.15)';
+      ctx.fillRect(220, 490, 640, 64);
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+      ctx.strokeRect(220, 490, 640, 64);
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = '800 28px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText("🚀 BOOK 100% ON WHATSAPP", 540, 532);
+
+      // Fleet Image Showcase
+      const imgY = 600;
+      const imgW = 920;
+      const imgH = 680;
+      ctx.save();
+      ctx.beginPath();
+      ctx.roundRect(80, imgY, imgW, imgH, 36);
+      ctx.clip();
+      if (assets.threeBikes.complete && assets.threeBikes.naturalWidth > 0) {
+        ctx.drawImage(assets.threeBikes, 80, imgY, imgW, imgH);
+      } else {
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(80, imgY, imgW, imgH);
+      }
+      ctx.restore();
+
+      // Border around photo
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.roundRect(80, imgY, imgW, imgH, 36);
+      ctx.stroke();
+
+      // Badge over fleet photo
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+      ctx.fillRect(140, 1200, 800, 100);
+      ctx.fillStyle = '#10b981';
+      ctx.font = '800 32px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText("🏍️ Brand New Fleet • Patrolling Kubwa & Abuja", 540, 1262);
+
+      // Subtext
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '500 32px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText("No apps to download. No registrations.", 540, 1420);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '700 36px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText("Simply message us on WhatsApp to dispatch.", 540, 1480);
+
+      ctx.restore();
+    }
+
+    // SCENE 2: 15-Second WhatsApp Booking Simulation
+    function renderScene2(t) {
+      ctx.save();
+      ctx.textAlign = 'center';
+
+      // Title
+      ctx.fillStyle = '#22c55e';
+      ctx.font = '900 64px "Space Grotesk", sans-serif';
+      ctx.fillText("BOOK IN 15 SECONDS", 540, 350);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '600 32px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText("Smart WhatsApp automated booking assistant", 540, 415);
+
+      // WhatsApp Chat Mockup Container
+      const chatX = 80;
+      const chatY = 480;
+      const chatW = 920;
+      const chatH = 1000;
+
+      ctx.fillStyle = '#0b141a'; // WhatsApp dark background
+      ctx.beginPath();
+      ctx.roundRect(chatX, chatY, chatW, chatH, 36);
+      ctx.fill();
+      ctx.strokeStyle = '#22c55e';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Chat Header
+      ctx.fillStyle = '#1f2c34';
+      ctx.fillRect(chatX, chatY, chatW, 110);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '800 32px "Plus Jakarta Sans", sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText("💬 FM XPRESS WhatsApp Dispatch", chatX + 40, chatY + 70);
+
+      // Bubble 1 (User sends "Hi")
+      if (t > 0.4) {
+        ctx.fillStyle = '#005c4b'; // User bubble
+        ctx.beginPath();
+        ctx.roundRect(chatX + 380, chatY + 160, 500, 110, 24);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '600 28px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText("Hi, I want to send a package", chatX + 410, chatY + 225);
+      }
+
+      // Bubble 2 (Bot replies instant estimate)
+      if (t > 1.8) {
+        ctx.fillStyle = '#202c33'; // Bot bubble
+        ctx.beginPath();
+        ctx.roundRect(chatX + 40, chatY + 310, 680, 220, 24);
+        ctx.fill();
+        ctx.fillStyle = '#22c55e';
+        ctx.font = '800 28px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText("FM XPRESS BOT:", chatX + 70, chatY + 360);
+        ctx.fillStyle = '#e9edef';
+        ctx.font = '500 26px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText("📍 Pickup: Kubwa General Hospital", chatX + 70, chatY + 410);
+        ctx.fillText("🏁 Delivery: Wuse 2, Abuja", chatX + 70, chatY + 455);
+        ctx.fillStyle = '#38bdf8';
+        ctx.font = '800 28px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText("Road Distance: 18.2 km • Price: ₦2,200", chatX + 70, chatY + 500);
+      }
+
+      // Bubble 3 (Instant Dispatch Button)
+      if (t > 3.2) {
+        ctx.fillStyle = '#005c4b';
+        ctx.beginPath();
+        ctx.roundRect(chatX + 340, chatY + 570, 540, 130, 24);
+        ctx.fill();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '700 28px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText("✅ Proceed & Dispatch Rider", chatX + 380, chatY + 645);
+      }
+
+      // Rider confirmation banner inside chat
+      if (t > 4.2) {
+        ctx.fillStyle = 'rgba(16, 185, 129, 0.2)';
+        ctx.beginPath();
+        ctx.roundRect(chatX + 60, chatY + 740, 800, 180, 24);
+        ctx.fill();
+        ctx.strokeStyle = '#10b981';
+        ctx.stroke();
+
+        ctx.fillStyle = '#10b981';
+        ctx.font = '900 32px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText("🚀 RIDER ASSIGNED IN 2 MINUTES!", chatX + 100, chatY + 805);
+        ctx.fillStyle = '#f8fafc';
+        ctx.font = '600 26px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText("Live GPS tracking link sent directly to chat.", chatX + 100, chatY + 860);
+      }
+
+      // Bottom Callout
+      ctx.textAlign = 'center';
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = '800 34px "Space Grotesk", sans-serif';
+      ctx.fillText("Transparent Road Rates • Zero Hidden Surcharges", 540, 1560);
+
+      ctx.restore();
+    }
+
+    // SCENE 3: Live Satellite Hardware GPS Radar
+    function renderScene3(t) {
+      ctx.save();
+      ctx.textAlign = 'center';
+
+      // Header Title
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = '900 60px "Space Grotesk", sans-serif';
+      ctx.fillText("LIVE SATELLITE RADAR", 540, 340);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '600 30px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText("Hardware GPS telemetry tracked directly from bike", 540, 405);
+
+      // Radar Screen Box
+      const radX = 80;
+      const radY = 460;
+      const radW = 920;
+      const radH = 920;
+      const cx = radX + radW / 2;
+      const cy = radY + radH / 2;
+
+      ctx.fillStyle = '#06101e'; // Dark radar screen
+      ctx.beginPath();
+      ctx.roundRect(radX, radY, radW, radH, 40);
+      ctx.fill();
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Radar Concentric Circles
+      [140, 260, 380].forEach(r => {
+        ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(cx, cy, r, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+
+      // Crosshairs
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
+      ctx.beginPath();
+      ctx.moveTo(cx - 380, cy);
+      ctx.lineTo(cx + 380, cy);
+      ctx.moveTo(cx, cy - 380);
+      ctx.lineTo(cx, cy + 380);
+      ctx.stroke();
+
+      // Sweeping Radar Line
+      const angle = (t * 2.2) % (Math.PI * 2);
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, 380, angle - 0.4, angle);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.25)';
+      ctx.fill();
+
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(angle) * 380, cy + Math.sin(angle) * 380);
+      ctx.stroke();
+      ctx.restore();
+
+      // Pulsing Motorcycle Blip (at Kubwa coordinates)
+      const bikeX = cx + 80;
+      const bikeY = cy - 60;
+      const pulseSize = (Math.sin(t * 5) + 1) * 25 + 20;
+
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.3)';
+      ctx.beginPath();
+      ctx.arc(bikeX, bikeY, pulseSize, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#090d16';
+      ctx.beginPath();
+      ctx.arc(bikeX, bikeY, 34, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+
+      ctx.font = '36px sans-serif';
+      ctx.fillText('🏍️', bikeX, bikeY + 12);
+
+      // Target Label
+      ctx.fillStyle = '#10b981';
+      ctx.font = '800 24px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('FM XPRESS BIKE 1', bikeX + 130, bikeY - 20);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '600 20px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('KUBWA • 42 KM/H', bikeX + 130, bikeY + 10);
+
+      // HUD Telemetry Badges
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+      ctx.beginPath();
+      ctx.roundRect(radX + 30, radY + 30, 360, 100, 20);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.stroke();
+
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = '800 22px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('🛰️ SATELLITE GPS ACTIVE', radX + 50, radY + 70);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '600 20px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('Fix: 4s telemetry refresh', radX + 50, radY + 105);
+
+      // Speed Badge
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+      ctx.beginPath();
+      ctx.roundRect(radX + radW - 270, radY + 30, 240, 100, 20);
+      ctx.fill();
+      ctx.strokeStyle = '#10b981';
+      ctx.stroke();
+
+      ctx.fillStyle = '#10b981';
+      ctx.font = '900 36px "Space Grotesk", sans-serif';
+      ctx.fillText('42 KM/H', radX + radW - 150, radY + 75);
+      ctx.fillStyle = '#64748b';
+      ctx.font = '700 18px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('ENGINE RUNNING', radX + radW - 150, radY + 105);
+
+      // Footer callout
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '800 36px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText("Track your rider live on map just like Bolt!", 540, 1480);
+      ctx.fillStyle = '#10b981';
+      ctx.font = '600 28px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText("Never guess where your parcel is again.", 540, 1535);
+
+      ctx.restore();
+    }
+
+    // SCENE 4: Verified Riders & Cargo Box Protection
+    function renderScene4(t) {
+      ctx.save();
+      ctx.textAlign = 'center';
+
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = '900 64px "Space Grotesk", sans-serif';
+      ctx.fillText("SAFE & VERIFIED", 540, 350);
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = '600 32px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText("Your packages handled with extreme care", 540, 415);
+
+      // Cargo Box Image Container
+      const imgY = 480;
+      const imgW = 920;
+      const imgH = 680;
+
+      ctx.save();
+      ctx.beginPath();
+      ctx.roundRect(80, imgY, imgW, imgH, 36);
+      ctx.clip();
+      if (assets.boxMockup.complete && assets.boxMockup.naturalWidth > 0) {
+        ctx.drawImage(assets.boxMockup, 80, imgY, imgW, imgH);
+      } else {
+        ctx.fillStyle = '#1e293b';
+        ctx.fillRect(80, imgY, imgW, imgH);
+      }
+      ctx.restore();
+
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.roundRect(80, imgY, imgW, imgH, 36);
+      ctx.stroke();
+
+      // Feature Bullets
+      const features = [
+        "🛡️ 100% Police & Identity Verified Riders",
+        "📦 Heavy-Duty Shockproof Dispatch Boxes",
+        "🌧️ Weatherproof Sealed Waterproof Cargo",
+        "⚡ Rapid Same-Day & Express Dispatch"
+      ];
+
+      features.forEach((feat, i) => {
+        const boxY = 1200 + (i * 90);
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.95)';
+        ctx.beginPath();
+        ctx.roundRect(100, boxY, 880, 75, 20);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.stroke();
+
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '700 28px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(feat, 140, boxY + 48);
+      });
+
+      ctx.restore();
+    }
+
+    // SCENE 5: Grand Call to Action (CTA)
+    function renderScene5(t) {
+      ctx.save();
+      ctx.textAlign = 'center';
+
+      const phone = document.getElementById('customPhone')?.value || '0903 686 9830';
+      const district = document.getElementById('customDistrict')?.value || 'Kubwa • Across All Abuja Districts';
+      const webUrl = document.getElementById('customUrl')?.value || 'fmxpress.tekvolutionhq.com';
+
+      // Pulsing Emblem
+      const emblemSize = 180 + Math.sin(t * 4) * 10;
+      if (assets.badgeLogo.complete && assets.badgeLogo.naturalWidth > 0) {
+        ctx.drawImage(assets.badgeLogo, 540 - emblemSize/2, 340 - emblemSize/2, emblemSize, emblemSize);
+      }
+
+      // Title
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 68px "Space Grotesk", sans-serif';
+      ctx.fillText("SAVE OUR NUMBER", 540, 520);
+      ctx.fillStyle = '#10b981';
+      ctx.font = '900 62px "Space Grotesk", sans-serif';
+      ctx.fillText("BOOK ON WHATSAPP", 540, 595);
+
+      // Huge WhatsApp Number Badge
+      const badgeY = 670;
+      ctx.fillStyle = '#065f46';
+      ctx.beginPath();
+      ctx.roundRect(100, badgeY, 880, 200, 36);
+      ctx.fill();
+      ctx.strokeStyle = '#34d399';
+      ctx.lineWidth = 6;
+      ctx.stroke();
+
+      ctx.fillStyle = '#a7f3d0';
+      ctx.font = '800 32px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText("💬 WHATSAPP DISPATCH LINE:", 540, badgeY + 60);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 82px "Space Grotesk", sans-serif';
+      ctx.fillText(phone, 540, badgeY + 155);
+
+      // Locations Served Card
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+      ctx.beginPath();
+      ctx.roundRect(100, 930, 880, 260, 32);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.stroke();
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = '800 32px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText("📍 AREAS COVERED:", 540, 990);
+
+      ctx.fillStyle = '#f8fafc';
+      ctx.font = '700 34px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText("KUBWA • WUSE • MAITAMA", 540, 1055);
+      ctx.fillText("GARKI • GWARINPA • JABI • AIRPORT RD", 540, 1115);
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '500 28px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText(district, 540, 1165);
+
+      // Website Banner
+      ctx.fillStyle = 'rgba(16, 185, 129, 0.15)';
+      ctx.beginPath();
+      ctx.roundRect(100, 1240, 880, 130, 28);
+      ctx.fill();
+      ctx.strokeStyle = '#10b981';
+      ctx.stroke();
+
+      ctx.fillStyle = '#10b981';
+      ctx.font = '800 32px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText("🌐 ESTIMATE ROUTE & PRICE ONLINE:", 540, 1295);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '900 40px "Space Grotesk", sans-serif';
+      ctx.fillText(webUrl, 540, 1345);
+
+      // Final Punchline
+      ctx.fillStyle = '#fbbf24';
+      ctx.font = '900 42px "Space Grotesk", sans-serif';
+      ctx.fillText("SEND 'HI' ON WHATSAPP TODAY!", 540, 1500);
+
+      ctx.restore();
+    }
+
+    // --- Animation Loop ---
+    function animate(timestamp) {
+      if (!lastTimestamp) lastTimestamp = timestamp;
+      const delta = (timestamp - lastTimestamp) / 1000;
+      lastTimestamp = timestamp;
+
+      if (isPlaying) {
+        currentTime += delta;
+
+        // Sound triggers on scene transitions
+        if (currentTime >= 6.0 && currentTime - delta < 6.0) playWhoosh(audioCtx ? audioCtx.currentTime : 0);
+        if (currentTime >= 12.0 && currentTime - delta < 12.0) playRadarPing(audioCtx ? audioCtx.currentTime : 0);
+        if (currentTime >= 20.0 && currentTime - delta < 20.0) playWhoosh(audioCtx ? audioCtx.currentTime : 0);
+        if (currentTime >= 25.5 && currentTime - delta < 25.5) playKick(audioCtx ? audioCtx.currentTime : 0);
+
+        // Beat generator during playback
+        if (Math.floor(currentTime * 2) !== Math.floor((currentTime - delta) * 2)) {
+          playKick(audioCtx ? audioCtx.currentTime : 0);
+        }
+
+        if (currentTime >= DURATION) {
+          if (isRecording) {
+            finishRecording();
+          } else {
+            currentTime = 0; // Loop
+          }
+        }
+      }
+
+      renderFrame(currentTime);
+      updateControlsUI();
+
+      if (isPlaying || isRecording) {
+        requestAnimationFrame(animate);
+      }
+    }
+
+    function updateControlsUI() {
+      const slider = document.getElementById('timeSlider');
+      if (slider) slider.value = currentTime.toFixed(1);
+
+      const sliderLabel = document.getElementById('sliderTimeLabel');
+      if (sliderLabel) sliderLabel.innerText = `${currentTime.toFixed(1)}s`;
+
+      const playerTime = document.getElementById('playerTime');
+      if (playerTime) {
+        const mins = Math.floor(currentTime / 60);
+        const secs = Math.floor(currentTime % 60);
+        playerTime.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      }
+    }
+
+    function togglePlayPause() {
+      initAudio();
+      isPlaying = !isPlaying;
+      lastTimestamp = null;
+      const icon = document.getElementById('playIcon');
+      if (isPlaying) {
+        if (icon) icon.className = 'fa-solid fa-pause';
+        requestAnimationFrame(animate);
+      } else {
+        if (icon) icon.className = 'fa-solid fa-play';
+      }
+    }
+
+    function restartVideo() {
+      currentTime = 0;
+      lastTimestamp = null;
+      renderFrame(0);
+      updateControlsUI();
+      if (!isPlaying) togglePlayPause();
+    }
+
+    function seekTo(sec) {
+      currentTime = sec;
+      renderFrame(currentTime);
+      updateControlsUI();
+    }
+
+    function toggleAudio() {
+      audioEnabled = !audioEnabled;
+      const icon = document.getElementById('audioIcon');
+      if (icon) {
+        icon.className = audioEnabled ? 'fa-solid fa-volume-high text-emerald-400' : 'fa-solid fa-volume-xmark text-slate-500';
+      }
+    }
+
+    // Slider listener
+    document.getElementById('timeSlider').addEventListener('input', (e) => {
+      currentTime = parseFloat(e.target.value);
+      renderFrame(currentTime);
+      updateControlsUI();
+    });
+
+    // --- Video Recording & Export Engine ---
+    let mediaRecorder = null;
+    let recordedChunks = [];
+
+    async function handleRecordAndDownload() {
+      initAudio();
+
+      if (isRecording) return;
+      isRecording = true;
+      isPlaying = true;
+      currentTime = 0;
+      lastTimestamp = null;
+      recordedChunks = [];
+
+      // UI States
+      document.getElementById('recordingBadge').classList.remove('hidden');
+      document.getElementById('renderProgressWrap').classList.remove('hidden');
+      document.getElementById('renderSuccessBox').classList.add('hidden');
+      document.getElementById('btnMainRecord').disabled = true;
+      document.getElementById('btnTopRecord').disabled = true;
+
+      // Combine Canvas Stream + Audio Stream
+      const stream = canvas.captureStream(30); // 30 FPS
+      if (audioDest && audioDest.stream) {
+        audioDest.stream.getAudioTracks().forEach(track => stream.addTrack(track));
+      }
+
+      // Check supported codecs
+      const types = [
+        'video/mp4;codecs=avc1',
+        'video/mp4',
+        'video/webm;codecs=vp9,opus',
+        'video/webm;codecs=vp8,opus',
+        'video/webm'
+      ];
+      let mimeType = types.find(t => MediaRecorder.isTypeSupported(t)) || 'video/webm';
+
+      mediaRecorder = new MediaRecorder(stream, {
+        mimeType: mimeType,
+        videoBitsPerSecond: 8000000 // 8 Mbps high-bitrate HD
+      });
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data && e.data.size > 0) {
+          recordedChunks.push(e.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const isMp4 = mimeType.includes('mp4');
+        const blob = new Blob(recordedChunks, { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = isMp4 ? 'FM_XPRESS_WhatsApp_Spotlight.mp4' : 'FM_XPRESS_WhatsApp_Spotlight.webm';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        // Reset UI
+        isRecording = false;
+        isPlaying = false;
+        document.getElementById('recordingBadge').classList.add('hidden');
+        document.getElementById('renderProgressWrap').classList.add('hidden');
+        document.getElementById('renderSuccessBox').classList.remove('hidden');
+        document.getElementById('btnMainRecord').disabled = false;
+        document.getElementById('btnTopRecord').disabled = false;
+      };
+
+      mediaRecorder.start();
+
+      // Progress Tracker loop
+      const progressTimer = setInterval(() => {
+        if (!isRecording) {
+          clearInterval(progressTimer);
+          return;
+        }
+        const pct = Math.min(Math.round((currentTime / DURATION) * 100), 100);
+        document.getElementById('renderProgressBar').style.width = `${pct}%`;
+        document.getElementById('renderPercent').innerText = `${pct}%`;
+      }, 100);
+
+      requestAnimationFrame(animate);
+    }
+
+    function finishRecording() {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+    }
+
+    // Initial Frame Render on Load
+    window.addEventListener('load', () => {
+      renderFrame(0);
+    });
+  </script>
+</body>
+</html>
