@@ -63,6 +63,10 @@
     .glow-emerald {
       box-shadow: 0 0 35px -5px rgba(16, 185, 129, 0.35);
     }
+    /* Clean dark stealth mode for OpenStreetMap tiles without any API key or watermarks */
+    .stealth-tiles .leaflet-tile {
+      filter: brightness(0.65) invert(1) contrast(2.4) hue-rotate(195deg) saturate(0.35) brightness(0.75);
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 antialiased selection:bg-emerald-500 selection:text-slate-950 overflow-x-hidden">
@@ -424,6 +428,10 @@
               <div class="flex items-center gap-2">
                 <span id="trackBikeSpeed" class="text-emerald-400 font-mono font-bold text-xs">0 km/h</span>
                 <span id="trackBikeStatus" class="text-[10px] text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700/60 hidden sm:inline">Engine Active</span>
+                <div class="flex items-center bg-slate-950/90 rounded-lg p-0.5 border border-slate-800 text-[10px]">
+                  <button id="btnMapSatellite" type="button" onclick="setMapLayer('satellite')" class="px-2 py-0.5 rounded font-bold bg-emerald-500 text-slate-950 transition">🛰️ Satellite</button>
+                  <button id="btnMapStreet" type="button" onclick="setMapLayer('street')" class="px-2 py-0.5 rounded font-medium text-slate-400 hover:text-white transition">🗺️ Streets</button>
+                </div>
               </div>
             </div>
             <div id="liveTrackingMap" class="h-64 sm:h-80 w-full z-10"></div>
@@ -851,6 +859,41 @@
     let bikeMarkers = {};
     let bikeAccuracyCircles = {};
     let liveRadarPollTimer = null;
+    let satelliteLayer = null;
+    let streetLayer = null;
+    let currentMapLayer = 'satellite';
+
+    function setMapLayer(type) {
+      if (!liveRadarMap) return;
+      currentMapLayer = type;
+      const btnSat = document.getElementById('btnMapSatellite');
+      const btnStr = document.getElementById('btnMapStreet');
+      const mapEl = document.getElementById('liveTrackingMap');
+
+      if (type === 'satellite') {
+        if (streetLayer) liveRadarMap.removeLayer(streetLayer);
+        if (satelliteLayer && !liveRadarMap.hasLayer(satelliteLayer)) satelliteLayer.addTo(liveRadarMap);
+        if (mapEl) mapEl.classList.remove('stealth-tiles');
+
+        if (btnSat) {
+          btnSat.className = 'px-2 py-0.5 rounded font-bold bg-emerald-500 text-slate-950 transition';
+        }
+        if (btnStr) {
+          btnStr.className = 'px-2 py-0.5 rounded font-medium text-slate-400 hover:text-white transition';
+        }
+      } else {
+        if (satelliteLayer) liveRadarMap.removeLayer(satelliteLayer);
+        if (streetLayer && !liveRadarMap.hasLayer(streetLayer)) streetLayer.addTo(liveRadarMap);
+        if (mapEl) mapEl.classList.add('stealth-tiles');
+
+        if (btnSat) {
+          btnSat.className = 'px-2 py-0.5 rounded font-medium text-slate-400 hover:text-white transition';
+        }
+        if (btnStr) {
+          btnStr.className = 'px-2 py-0.5 rounded font-bold bg-emerald-500 text-slate-950 transition';
+        }
+      }
+    }
 
     function createBikeMarkerIcon(heading = 0, isAccOn = true) {
       return L.divIcon({
@@ -910,11 +953,26 @@
           attributionControl: false
         }).setView([initialLat, initialLng], 15);
 
-        // Stealth Dark Matter map tiles
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        // 1. High-resolution Esri World Imagery Satellite (100% free, no API key, zero watermarks)
+        satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
           maxZoom: 19,
-          subdomains: 'abcd'
-        }).addTo(liveRadarMap);
+          attribution: '&copy; Esri World Imagery'
+        });
+
+        // 2. OpenStreetMap for street details (100% free, no API key, zero watermarks)
+        streetLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; OpenStreetMap'
+        });
+
+        // Default to satellite layer
+        if (currentMapLayer === 'satellite') {
+          satelliteLayer.addTo(liveRadarMap);
+        } else {
+          streetLayer.addTo(liveRadarMap);
+          const mapEl = document.getElementById('liveTrackingMap');
+          if (mapEl) mapEl.classList.add('stealth-tiles');
+        }
       }
 
       // Render or smoothly update each bike marker
