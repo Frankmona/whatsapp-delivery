@@ -94,8 +94,15 @@ class ITrackSafeService {
       });
 
       if (res.data && res.data.status === 0 && Array.isArray(res.data.records)) {
-        const positions = res.data.records.map(r => ({
+        // Exclude user's private car (Plate RSH394DM / Device 6038133156) from delivery fleet
+        const EXCLUDED_DEVICE_IDS = new Set(['6038133156']);
+
+        const bikeRecords = res.data.records.filter(r => !EXCLUDED_DEVICE_IDS.has(String(r.deviceid)));
+
+        const positions = bikeRecords.map(r => ({
           deviceId: String(r.deviceid),
+          vehicleName: 'FM XPRESS Delivery Bike (LD3P CMCP)',
+          plateOrChassis: 'LD3P CMCP 2T20 05131',
           lat: Number(r.callat),
           lng: Number(r.callon),
           speedKmH: Math.round((Number(r.speed) || 0) / 1000), // Speed in km/h
@@ -132,7 +139,9 @@ class ITrackSafeService {
     if (!all || all.length === 0) return null;
 
     if (!deviceId) {
-      return all[0]; // Default to primary bike
+      // Find delivery motorcycle (6038161441)
+      const primaryBike = all.find(b => b.deviceId === '6038161441');
+      return primaryBike || all[0];
     }
 
     const cleanTarget = String(deviceId).trim();
