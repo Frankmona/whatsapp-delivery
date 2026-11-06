@@ -99,18 +99,25 @@ class ITrackSafeService {
 
         const bikeRecords = res.data.records.filter(r => !EXCLUDED_DEVICE_IDS.has(String(r.deviceid)));
 
-        const positions = bikeRecords.map(r => ({
-          deviceId: String(r.deviceid),
-          vehicleName: 'FM XPRESS Delivery Bike (LD3P CMCP)',
-          plateOrChassis: 'LD3P CMCP 2T20 05131',
-          lat: Number(r.callat),
-          lng: Number(r.callon),
-          speedKmH: Math.round((Number(r.speed) || 0) / 1000), // Speed in km/h
-          course: Number(r.course) || 0, // Heading in degrees (0-360)
-          altitude: Number(r.altitude) || 0,
-          statusText: r.strstatusen || 'Active',
-          isAccOn: !Boolean(r.strstatusen && r.strstatusen.toLowerCase().includes('acc off')),
-          lastUpdateTime: r.updatetime ? new Date(r.updatetime).toISOString() : new Date().toISOString()
+        const positions = await Promise.all(bikeRecords.map(async (r) => {
+          const lat = Number(r.callat);
+          const lng = Number(r.callon);
+          const currentStreet = await this.resolveStreetName(lat, lng);
+
+          return {
+            deviceId: String(r.deviceid),
+            vehicleName: 'FM XPRESS Delivery Bike (LD3P CMCP)',
+            plateOrChassis: 'LD3P CMCP 2T20 05131',
+            lat,
+            lng,
+            currentStreet,
+            speedKmH: Math.round((Number(r.speed) || 0) / 1000), // Speed in km/h
+            course: Number(r.course) || 0, // Heading in degrees (0-360)
+            altitude: Number(r.altitude) || 0,
+            statusText: r.strstatusen || 'Active',
+            isAccOn: !Boolean(r.strstatusen && r.strstatusen.toLowerCase().includes('acc off')),
+            lastUpdateTime: r.updatetime ? new Date(r.updatetime).toISOString() : new Date().toISOString()
+          };
         }));
 
         this.cachedPositions = positions;
@@ -147,6 +154,70 @@ class ITrackSafeService {
     const cleanTarget = String(deviceId).trim();
     const found = all.find(b => b.deviceId === cleanTarget);
     return found || all[0];
+  }
+
+  /**
+   * Resolves exact street name from latitude and longitude using Google Reverse Geocode or OpenStreetMap
+   */
+  async resolveStreetName(lat, lng) {
+    if (!lat || !lng) return 'Kubwa, Abuja';
+    const key = `${lat.toFixed(4)},${lng.toFixed(4)}`;
+    if (!this.streetCache) this.streetCache = new Map();
+    if (this.streetCache.has(key)) {
+      return this.streetCache.get(key);
+    }
+
+    const apiKey = (process.env.GOOGLE_MAPS_API_KEY || '').trim();
+
+    // 1. Google Reverse Geocoding (Gold Standard for Nigerian streets)
+    if (apiKey) {
+      try {
+        const gRes = await axios.get(
+          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}&result_type=street_address|route|neighborhood|sublocality`,
+          { timeout: 3500 }
+        );
+        if (gRes.data && gRes.data.results && gRes.data.results.length > 0) {
+          const res = gRes.data.results[0];
+          const routeComp = res.address_components.find(c => c.types.includes('route'));
+          const sublocalityComp = res.address_components.find(c => c.types.includes('sublocality') || c.types.includes('neighborhood'));
+
+          let street = '';
+          if (routeComp && sublocalityComp) {
+            street = `${routeComp.long_name}, ${sublocalityComp.long_name}`;
+          } else if (routeComp) {
+            street = `${routeComp.long_name}, Kubwa`;
+          } else {
+            const parts = (res.formatted_address || '').split(',');
+            street = parts.slice(0, 2).join(', ').trim();
+          }
+
+          if (street) {
+            this.streetCache.set(key, street);
+            return street;
+          }
+        }
+      } catch (err) {
+        // Continue to fallback
+      }
+    }
+
+    // 2. OpenStreetMap Reverse Geocode Fallback
+    try {
+      const osmRes = await axios.get(
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`,
+        { headers: { 'User-Agent': 'FMXpressTracker/1.0' }, timeout: 3500 }
+      );
+      if (osmRes.data && osmRes.data.address) {
+        const addr = osmRes.data.address;
+        const road = addr.road || addr.pedestrian || addr.cycleway || addr.path || 'Kubwa';
+        const area = addr.suburb || addr.neighbourhood || addr.city_district || 'Kubwa';
+        const name = road === area ? `${road}, Abuja` : `${road}, ${area}`;
+        this.streetCache.set(key, name);
+        return name;
+      }
+    } catch (_) {}
+
+    return 'Kubwa, Abuja';
   }
 }
 

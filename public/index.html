@@ -63,9 +63,9 @@
     .glow-emerald {
       box-shadow: 0 0 35px -5px rgba(16, 185, 129, 0.35);
     }
-    /* Clean dark stealth mode for OpenStreetMap tiles without any API key or watermarks */
-    .stealth-tiles .leaflet-tile {
-      filter: brightness(0.65) invert(1) contrast(2.4) hue-rotate(195deg) saturate(0.35) brightness(0.75);
+    /* Bolt-style soft night radar filter (preserves internal street text legibility) */
+    .night-tiles .leaflet-tile {
+      filter: brightness(0.75) invert(0.85) hue-rotate(185deg) saturate(0.6);
     }
   </style>
 </head>
@@ -413,7 +413,7 @@
 
           <!-- Live Hardware GPS Satellite Radar Map -->
           <div id="trackLiveMapContainer" class="hidden rounded-2xl overflow-hidden border border-slate-700 bg-slate-900/95 shadow-2xl">
-            <div class="flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-slate-800 text-xs">
+            <div class="flex items-center justify-between px-4 py-3 bg-slate-900 border-b border-slate-800 text-xs flex-wrap gap-2">
               <div class="flex items-center gap-2">
                 <span class="relative flex h-2.5 w-2.5">
                   <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -421,7 +421,7 @@
                 </span>
                 <span class="font-bold text-white flex items-center gap-1.5">
                   <span>🏍️</span>
-                  <span>Live Satellite Bike Radar</span>
+                  <span>Live Dispatch Radar</span>
                 </span>
                 <span id="trackBikePlate" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">LD3P CMCP 2T20 05131</span>
               </div>
@@ -429,18 +429,42 @@
                 <span id="trackBikeSpeed" class="text-emerald-400 font-mono font-bold text-xs">0 km/h</span>
                 <span id="trackBikeStatus" class="text-[10px] text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded border border-slate-700/60 hidden sm:inline">Engine Active</span>
                 <div class="flex items-center bg-slate-950/90 rounded-lg p-0.5 border border-slate-800 text-[10px]">
-                  <button id="btnMapSatellite" type="button" onclick="setMapLayer('satellite')" class="px-2 py-0.5 rounded font-bold bg-emerald-500 text-slate-950 transition">🛰️ Satellite</button>
-                  <button id="btnMapStreet" type="button" onclick="setMapLayer('street')" class="px-2 py-0.5 rounded font-medium text-slate-400 hover:text-white transition">🗺️ Streets</button>
+                  <button id="btnMapStreet" type="button" onclick="setMapLayer('street')" class="px-2.5 py-0.5 rounded font-bold bg-emerald-500 text-slate-950 transition">🗺️ Bolt Streets</button>
+                  <button id="btnMapSatellite" type="button" onclick="setMapLayer('satellite')" class="px-2 py-0.5 rounded font-medium text-slate-400 hover:text-white transition">🛰️ Hybrid Satellite</button>
+                  <button id="btnMapNight" type="button" onclick="setMapLayer('night')" class="px-2 py-0.5 rounded font-medium text-slate-400 hover:text-white transition">🌙 Night</button>
                 </div>
               </div>
             </div>
-            <div id="liveTrackingMap" class="h-64 sm:h-80 w-full z-10"></div>
+
+            <!-- Bolt-Style Live Street HUD Bar -->
+            <div id="trackStreetHud" class="px-4 py-3 bg-slate-950/95 border-b border-slate-800 flex items-center justify-between gap-3 text-xs">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center font-bold text-sm shrink-0 border border-emerald-500/30">
+                  <i class="fa-solid fa-location-dot"></i>
+                </span>
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Current Road / Area:</span>
+                    <span id="trackMovementBadge" class="text-[10px] bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded font-mono font-medium">Tracking</span>
+                  </div>
+                  <p id="trackCurrentStreet" class="font-extrabold text-white text-xs sm:text-sm tracking-tight truncate">
+                    Detecting live street...
+                  </p>
+                </div>
+              </div>
+              <button type="button" onclick="recenterOnBike()" title="Recenter and zoom directly into rider" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 border border-slate-700 shrink-0 transition shadow-sm hover:border-emerald-500/50">
+                <i class="fa-solid fa-crosshairs text-emerald-400"></i>
+                <span class="hidden sm:inline">Zoom to Street</span>
+              </button>
+            </div>
+
+            <div id="liveTrackingMap" class="h-72 sm:h-96 w-full z-10"></div>
             <div class="px-4 py-2.5 bg-slate-950/80 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
               <span class="flex items-center gap-1.5">
                 <i class="fa-solid fa-satellite text-emerald-400 text-xs"></i>
                 <span id="trackGpsTimestamp">Connected to iTrackSafe Telemetry Engine</span>
               </span>
-              <span class="text-emerald-400/90 font-mono text-[10px]">4s Telemetry Refresh</span>
+              <span class="text-emerald-400/90 font-mono text-[10px]">4s Telemetry Refresh • Level 19 Zoom</span>
             </div>
           </div>
         </div>
@@ -862,55 +886,67 @@
     let bikeMarkers = {};
     let bikeAccuracyCircles = {};
     let liveRadarPollTimer = null;
-    let satelliteLayer = null;
+    let hybridSatelliteGroup = null;
     let streetLayer = null;
-    let currentMapLayer = 'satellite';
+    let currentMapLayer = 'street'; // Default to crisp Bolt Streets view
+    let lastBikeCoords = null;
 
     function setMapLayer(type) {
       if (!liveRadarMap) return;
       currentMapLayer = type;
       const btnSat = document.getElementById('btnMapSatellite');
       const btnStr = document.getElementById('btnMapStreet');
+      const btnNight = document.getElementById('btnMapNight');
       const mapEl = document.getElementById('liveTrackingMap');
 
+      // Reset button classes
+      const inactiveClass = 'px-2.5 py-0.5 rounded font-medium text-slate-400 hover:text-white transition';
+      const activeClass = 'px-2.5 py-0.5 rounded font-bold bg-emerald-500 text-slate-950 transition';
+
+      if (btnSat) btnSat.className = inactiveClass;
+      if (btnStr) btnStr.className = inactiveClass;
+      if (btnNight) btnNight.className = inactiveClass;
+
       if (type === 'satellite') {
-        if (streetLayer) liveRadarMap.removeLayer(streetLayer);
-        if (satelliteLayer && !liveRadarMap.hasLayer(satelliteLayer)) satelliteLayer.addTo(liveRadarMap);
-        if (mapEl) mapEl.classList.remove('stealth-tiles');
-
-        if (btnSat) {
-          btnSat.className = 'px-2 py-0.5 rounded font-bold bg-emerald-500 text-slate-950 transition';
-        }
-        if (btnStr) {
-          btnStr.className = 'px-2 py-0.5 rounded font-medium text-slate-400 hover:text-white transition';
-        }
-      } else {
-        if (satelliteLayer) liveRadarMap.removeLayer(satelliteLayer);
+        if (streetLayer && liveRadarMap.hasLayer(streetLayer)) liveRadarMap.removeLayer(streetLayer);
+        if (hybridSatelliteGroup && !liveRadarMap.hasLayer(hybridSatelliteGroup)) hybridSatelliteGroup.addTo(liveRadarMap);
+        if (mapEl) mapEl.className = 'h-72 sm:h-96 w-full z-10';
+        if (btnSat) btnSat.className = activeClass;
+      } else if (type === 'night') {
+        if (hybridSatelliteGroup && liveRadarMap.hasLayer(hybridSatelliteGroup)) liveRadarMap.removeLayer(hybridSatelliteGroup);
         if (streetLayer && !liveRadarMap.hasLayer(streetLayer)) streetLayer.addTo(liveRadarMap);
-        if (mapEl) mapEl.classList.add('stealth-tiles');
-
-        if (btnSat) {
-          btnSat.className = 'px-2 py-0.5 rounded font-medium text-slate-400 hover:text-white transition';
-        }
-        if (btnStr) {
-          btnStr.className = 'px-2 py-0.5 rounded font-bold bg-emerald-500 text-slate-950 transition';
-        }
+        if (mapEl) mapEl.className = 'h-72 sm:h-96 w-full z-10 night-tiles';
+        if (btnNight) btnNight.className = activeClass;
+      } else {
+        // Bolt Streets (Clean, razor sharp, full internal street names)
+        if (hybridSatelliteGroup && liveRadarMap.hasLayer(hybridSatelliteGroup)) liveRadarMap.removeLayer(hybridSatelliteGroup);
+        if (streetLayer && !liveRadarMap.hasLayer(streetLayer)) streetLayer.addTo(liveRadarMap);
+        if (mapEl) mapEl.className = 'h-72 sm:h-96 w-full z-10';
+        if (btnStr) btnStr.className = activeClass;
       }
+    }
+
+    function recenterOnBike() {
+      if (!liveRadarMap || !lastBikeCoords) return;
+      liveRadarMap.flyTo(lastBikeCoords, 17, {
+        animate: true,
+        duration: 1.0
+      });
     }
 
     function createBikeMarkerIcon(heading = 0, isAccOn = true) {
       return L.divIcon({
         className: 'fmx-radar-marker',
         html: `
-          <div style="position: relative; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;">
-            <div style="position: absolute; width: 42px; height: 42px; border-radius: 50%; background: ${isAccOn ? 'rgba(16, 185, 129, 0.3)' : 'rgba(148, 163, 184, 0.2)'}; animation: ping 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
-            <div style="position: relative; width: 34px; height: 34px; border-radius: 50%; background: #090d16; border: 2px solid ${isAccOn ? '#10b981' : '#64748b'}; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(0,0,0,0.7); transform: rotate(${heading}deg); transition: transform 0.4s ease;">
-              <span style="font-size: 17px; line-height: 1;">🏍️</span>
+          <div style="position: relative; width: 46px; height: 46px; display: flex; align-items: center; justify-content: center;">
+            <div style="position: absolute; width: 44px; height: 44px; border-radius: 50%; background: ${isAccOn ? 'rgba(16, 185, 129, 0.35)' : 'rgba(148, 163, 184, 0.25)'}; animation: ping 2.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+            <div style="position: relative; width: 36px; height: 36px; border-radius: 50%; background: #0f172a; border: 2.5px solid ${isAccOn ? '#10b981' : '#64748b'}; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(0,0,0,0.7); transform: rotate(${heading}deg); transition: transform 0.4s ease;">
+              <span style="font-size: 18px; line-height: 1;">🏍️</span>
             </div>
           </div>
         `,
-        iconSize: [44, 44],
-        iconAnchor: [22, 22]
+        iconSize: [46, 46],
+        iconAnchor: [23, 23]
       });
     }
 
@@ -923,6 +959,7 @@
       const primaryBike = bikes[0];
       const initialLat = primaryBike.lat || 9.156695;
       const initialLng = primaryBike.lng || 7.329450;
+      lastBikeCoords = [initialLat, initialLng];
 
       // Update header telemetry badges
       const speedEl = document.getElementById('trackBikeSpeed');
@@ -941,6 +978,27 @@
         plateEl.innerText = bikes.length > 1 ? `${bikes.length} Bikes Patrolling Kubwa` : (primaryBike.plateOrChassis || 'LD3P CMCP 2T20 05131');
       }
 
+      // Update Bolt-Style Current Street HUD
+      const streetEl = document.getElementById('trackCurrentStreet');
+      if (streetEl) {
+        const detectedStreet = primaryBike.currentStreet || 'Kubwa, Abuja';
+        streetEl.innerText = detectedStreet;
+      }
+
+      const movementBadge = document.getElementById('trackMovementBadge');
+      if (movementBadge) {
+        if (primaryBike.speedKmH > 0) {
+          movementBadge.className = 'text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-1.5 py-0.5 rounded font-mono font-bold animate-pulse';
+          movementBadge.innerText = `Moving • ${primaryBike.speedKmH} km/h`;
+        } else if (primaryBike.isAccOn) {
+          movementBadge.className = 'text-[10px] bg-sky-500/20 text-sky-300 border border-sky-500/30 px-1.5 py-0.5 rounded font-mono font-semibold';
+          movementBadge.innerText = 'Engine Idle (0 km/h)';
+        } else {
+          movementBadge.className = 'text-[10px] bg-slate-800 text-slate-400 border border-slate-700 px-1.5 py-0.5 rounded font-mono';
+          movementBadge.innerText = 'Parked';
+        }
+      }
+
       const timeEl = document.getElementById('trackGpsTimestamp');
       if (timeEl && primaryBike.lastUpdateTime) {
         try {
@@ -953,29 +1011,30 @@
       if (!liveRadarMap) {
         liveRadarMap = L.map('liveTrackingMap', {
           zoomControl: true,
-          attributionControl: false
-        }).setView([initialLat, initialLng], 15);
+          attributionControl: false,
+          maxZoom: 19
+        }).setView([initialLat, initialLng], 16);
 
-        // 1. High-resolution Esri World Imagery Satellite (100% free, no API key, zero watermarks)
-        satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-          maxZoom: 19,
-          attribution: '&copy; Esri World Imagery'
-        });
-
-        // 2. OpenStreetMap for street details (100% free, no API key, zero watermarks)
+        // 1. Crisp Bolt Streets Layer (High-contrast OpenStreetMap with complete internal street names)
         streetLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,
-          attribution: '&copy; OpenStreetMap'
+          attribution: '&copy; OpenStreetMap contributors'
         });
 
-        // Default to satellite layer
-        if (currentMapLayer === 'satellite') {
-          satelliteLayer.addTo(liveRadarMap);
-        } else {
-          streetLayer.addTo(liveRadarMap);
-          const mapEl = document.getElementById('liveTrackingMap');
-          if (mapEl) mapEl.classList.add('stealth-tiles');
-        }
+        // 2. Esri Hybrid Satellite Layer (Aerial imagery + roads + street name labels)
+        const satImagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+          maxZoom: 19
+        });
+        const satTransportation = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', {
+          maxZoom: 19
+        });
+        const satPlaces = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', {
+          maxZoom: 19
+        });
+        hybridSatelliteGroup = L.layerGroup([satImagery, satTransportation, satPlaces]);
+
+        // Default to crisp Bolt Streets layer
+        streetLayer.addTo(liveRadarMap);
       }
 
       // Render or smoothly update each bike marker
@@ -994,16 +1053,24 @@
             radius: 35,
             color: '#10b981',
             fillColor: '#10b981',
-            fillOpacity: 0.12,
-            weight: 1
+            fillOpacity: 0.14,
+            weight: 1.5
           }).addTo(liveRadarMap);
 
           const popupContent = `
-            <div style="font-family: inherit; font-size: 12px; color: #0f172a; line-height: 1.4;">
-              <b style="color: #0f172a;">🏍️ ${bike.vehicleName || 'FM XPRESS Delivery Bike'}</b><br/>
-              <span style="color: #475569; font-size: 10px; font-family: monospace;">ID: ${bike.plateOrChassis || 'LD3P CMCP'}</span><br/>
-              <span style="color: #64748b; font-size: 11px;">Status: ${bike.isAccOn ? '⚡ In Transit' : '🅿️ ' + (bike.statusText || 'Stationary')}</span><br/>
-              <span style="color: #059669; font-weight: 600;">Speed: ${bike.speedKmH || 0} km/h</span>
+            <div style="font-family: inherit; font-size: 13px; color: #0f172a; min-width: 220px; line-height: 1.4;">
+              <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 8px;">
+                <b style="color: #0f172a; font-size: 13px;">🏍️ FM XPRESS Rider</b>
+                <span style="font-size: 10px; font-family: monospace; background: #e0f2fe; color: #0284c7; padding: 2px 6px; border-radius: 4px; font-weight: bold;">LIVE</span>
+              </div>
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 10px; margin-bottom: 8px;">
+                <span style="color: #64748b; font-size: 10px; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 2px;">📍 Current Road:</span>
+                <b style="color: #0f172a; font-size: 12px; display: block;">${bike.currentStreet || 'Kubwa, Abuja'}</b>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #475569;">
+                <span>Speed: <b style="color: #059669;">${bike.speedKmH || 0} km/h</b></span>
+                <span>Bearing: <b>${bike.course || 0}°</b></span>
+              </div>
             </div>
           `;
           bikeMarkers[id].bindPopup(popupContent);
@@ -1013,6 +1080,24 @@
           if (bikeAccuracyCircles[id]) {
             bikeAccuracyCircles[id].setLatLng([bLat, bLng]);
           }
+          // Update popup content with latest street
+          const popupContent = `
+            <div style="font-family: inherit; font-size: 13px; color: #0f172a; min-width: 220px; line-height: 1.4;">
+              <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 8px;">
+                <b style="color: #0f172a; font-size: 13px;">🏍️ FM XPRESS Rider</b>
+                <span style="font-size: 10px; font-family: monospace; background: #e0f2fe; color: #0284c7; padding: 2px 6px; border-radius: 4px; font-weight: bold;">LIVE</span>
+              </div>
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 10px; margin-bottom: 8px;">
+                <span style="color: #64748b; font-size: 10px; text-transform: uppercase; font-weight: 800; display: block; margin-bottom: 2px;">📍 Current Road:</span>
+                <b style="color: #0f172a; font-size: 12px; display: block;">${bike.currentStreet || 'Kubwa, Abuja'}</b>
+              </div>
+              <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #475569;">
+                <span>Speed: <b style="color: #059669;">${bike.speedKmH || 0} km/h</b></span>
+                <span>Bearing: <b>${bike.course || 0}°</b></span>
+              </div>
+            </div>
+          `;
+          bikeMarkers[id].setPopupContent(popupContent);
         }
       });
 
